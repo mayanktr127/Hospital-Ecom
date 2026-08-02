@@ -16,6 +16,7 @@ import {
   ChevronRight,
   Globe,
   ShieldAlert,
+  ShieldCheck,
   Check,
   ChevronUp,
 } from "lucide-react";
@@ -217,6 +218,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
         </div>
 
         <div className="flex items-center gap-6">
+          {/* Admin Portal Link */}
+          <Link
+            href="/admin"
+            className="flex items-center gap-1 text-[#007AC1] hover:text-[#003865] font-bold transition-colors"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Admin Portal</span>
+          </Link>
+
           {/* Safety Information Link */}
           <button
             onClick={() => setSafetyModalOpen(true)}

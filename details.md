@@ -4,11 +4,13 @@ Comprehensive technical and design documentation for the **Pulmo Care** hospital
 
 ---
 
-## 1. Flagship Device Banner & Logo Sizing Specs
+## 1. Admin Control Suite SaaS Dashboard Redesign Specs
 
-- **Component:** Section 3 in `src/app/page.tsx` & `Navbar.tsx`
-- **Banner Styling:** `bg-gradient-to-br from-[#002A4E] via-[#003865] to-[#004C84] rounded-[40px] shadow-2xl`
-- **Logo Sizing:** `h-7 sm:h-8 w-auto object-contain` in `Navbar.tsx`
+- **Component:** `src/app/admin/page.tsx`
+- **Reference Layout Mapped:**
+  - Sidebar: Soft blue highlight pill (`bg-[#EBF5FF] text-[#0066FF]`), badges, 3D Pro upgrade banner.
+  - Metrics Grid: 3-stack stat cards, Interactive delivery analytics bar chart with active September popover tooltip, Live tracker map widget, Activity data table with color status badges.
+  - CRUD Controls: Products Catalog CRUD & Clinical Blog CRUD integrated seamlessly into the navigation tabs.
 
 ---
 

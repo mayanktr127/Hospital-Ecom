@@ -146,6 +146,11 @@ export const Footer: React.FC = () => {
                 </Link>
               </li>
               <li>
+                <Link href="/admin" className="hover:text-[#007AC1] font-semibold text-[#007AC1] transition-colors">
+                  Admin Portal
+                </Link>
+              </li>
+              <li>
                 <Link href="/legal-notice" className="hover:text-[#007AC1] transition-colors">
                   Legal Notice
                 </Link>

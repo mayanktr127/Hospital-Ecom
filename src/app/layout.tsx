@@ -3,6 +3,7 @@ import "./globals.css";
 import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { ToastProvider } from "@/context/ToastContext";
+import { AdminProvider } from "@/context/AdminContext";
 import { ToastContainer } from "@/components/ui/Toast";
 
 export const metadata: Metadata = {
@@ -20,12 +21,14 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-paper text-ink antialiased">
         <ToastProvider>
-          <CartProvider>
-            <WishlistProvider>
-              {children}
-              <ToastContainer />
-            </WishlistProvider>
-          </CartProvider>
+          <AdminProvider>
+            <CartProvider>
+              <WishlistProvider>
+                {children}
+                <ToastContainer />
+              </WishlistProvider>
+            </CartProvider>
+          </AdminProvider>
         </ToastProvider>
       </body>
     </html>
