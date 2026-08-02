@@ -27,7 +27,9 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
   const currentCategory = categories.find(
     (c) =>
       c.slug.toLowerCase() === categorySlug.toLowerCase() ||
-      c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === categorySlug.toLowerCase()
+      c.id.toLowerCase() === categorySlug.toLowerCase() ||
+      c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") === categorySlug.toLowerCase() ||
+      c.name.toLowerCase() === categorySlug.toLowerCase()
   );
 
   const title = currentCategory ? currentCategory.name : defaultTitle || "Medical Equipment Catalog";

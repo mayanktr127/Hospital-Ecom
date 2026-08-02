@@ -133,7 +133,7 @@ export const ShowcaseSlider: React.FC = () => {
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0f_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0f_1px,transparent_1px)] bg-[size:28px_28px] opacity-30 pointer-events-none z-1" />
 
             {/* Left Content Column */}
-            <div className="max-w-xl z-10 text-left w-full lg:w-1/2">
+            <div className="max-w-2xl z-10 text-left w-full">
               {/* Category Pill Badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] sm:text-xs font-archivo font-bold uppercase tracking-wider mb-3 sm:mb-6 shadow-md">
                 <span className="w-2 h-2 rounded-full bg-[#7fb0ee] animate-pulse" />
@@ -158,20 +158,6 @@ export const ShowcaseSlider: React.FC = () => {
                 <span>{active.ctaText}</span>
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#0a1f3c] group-hover:translate-x-1 transition-transform" />
               </Link>
-            </div>
-
-            {/* Right Content Column: High Resolution Slide Product Image */}
-            <div className="relative z-10 w-full lg:w-1/2 flex justify-center lg:justify-end items-center h-full">
-              <div className="relative w-full max-w-[280px] sm:max-w-[360px] lg:max-w-[400px] aspect-square flex items-center justify-center p-4 bg-white/10 backdrop-blur-md rounded-[28px] border border-white/25 shadow-[0_25px_60px_rgba(0,0,0,0.35)]">
-                <Image
-                  src={active.image}
-                  alt={active.title}
-                  fill
-                  priority
-                  sizes="(max-width: 768px) 100vw, 400px"
-                  className="object-contain p-3 drop-shadow-[0_15px_25px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-500"
-                />
-              </div>
             </div>
           </motion.div>
         </AnimatePresence>
