@@ -193,19 +193,19 @@ export const DownloadsSection: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
         <div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#003865]/08 text-[#003865] text-xs font-semibold font-archivo mb-2 border border-[#003865]/10">
-            <ShieldCheck className="w-4 h-4 text-[#007AC1]" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#f6f4fb] text-[#0a1f3c] text-xs font-semibold font-archivo mb-2 border border-[#0a1f3c]/10">
+            <ShieldCheck className="w-4 h-4 text-[#2a6ecb]" />
             Local Server Repository ({downloadsData.length.toLocaleString()} Files Downloaded)
           </div>
-          <h2 className="font-archivo font-extrabold text-[clamp(36px,5vw,64px)] text-[#003865] leading-none">
+          <h2 className="font-archivo font-semibold text-[clamp(36px,5vw,64px)] text-[#0a1f3c] leading-none">
             Document Repository
           </h2>
         </div>
 
         {/* Multer Upload Trigger Button */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          <label className="px-5 py-2.5 rounded-full bg-white border border-[#003865]/20 text-[#003865] font-inter font-semibold text-xs flex items-center gap-2 hover:bg-[#F0F6FA] cursor-pointer shadow-sm transition-all">
-            <Upload className="w-4 h-4 text-[#007AC1]" />
+          <label className={`btn btn-soft !text-xs !py-3 cursor-pointer ${isUploading ? "opacity-50 cursor-not-allowed" : ""}`}>
+            <Upload className="w-4 h-4 text-[#2a6ecb]" />
             <span>Upload File via Multer</span>
             <input
               type="file"
@@ -219,20 +219,20 @@ export const DownloadsSection: React.FC = () => {
       </div>
 
       {uploadProgress && (
-        <div className="mb-6 bg-[#007AC1]/10 border border-[#007AC1]/30 rounded-2xl p-4 text-xs font-inter text-[#003865] flex items-center gap-3">
-          <div className="w-4 h-4 border-2 border-[#003865] border-t-transparent rounded-full animate-spin" />
+        <div className="mb-6 bg-[#dcebfb] border border-white rounded-[14px] p-4 text-xs font-inter text-[#0a1f3c] flex items-center gap-3" role="status" aria-live="polite">
+          <div className="w-4 h-4 border-2 border-[#2a6ecb] border-t-transparent rounded-full animate-spin" aria-hidden="true" />
           <span>{uploadProgress}</span>
         </div>
       )}
 
       {/* FILTER BAR SECTION MATCHING IMAGE 1 EXACTLY */}
-      <div className="bg-white border border-[#003865]/12 rounded-[28px] p-6 mb-8 shadow-[0_4px_16px_rgba(0,56,101,0.06)]">
+      <div className="bg-white border border-[#e9edf4] rounded-[28px] p-6 mb-8 shadow-[0_4px_16px_rgba(24,42,65,0.06)]">
         <form onSubmit={handleSearchSubmit} className="space-y-4">
           {/* Row 1: Search input + Select lang... + Select cate... + Select prod... + Navy Search Button (Image 1) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 items-center">
             {/* Search Input */}
             <div className="lg:col-span-4 relative">
-              <Search className="w-4 h-4 text-[#4A607A] absolute left-4 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[#64748b] absolute left-4 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
@@ -242,7 +242,7 @@ export const DownloadsSection: React.FC = () => {
                   setCurrentPage(1);
                 }}
                 placeholder="Search..."
-                className="w-full bg-[#F4F7FA] border border-[#003865]/10 rounded-2xl pl-10 pr-4 py-3 text-sm text-[#003865] placeholder-[#4A607A]/70 outline-none focus:border-[#007AC1] focus:bg-white transition-all"
+                className="w-full bg-[#f6f4fb] border border-[#0a1f3c]/10 rounded-2xl pl-10 pr-4 py-3 text-sm text-[#0a1f3c] placeholder-[#64748b]/70 focus:border-[#2a6ecb] focus:bg-white transition-all"
               />
             </div>
 
@@ -254,7 +254,7 @@ export const DownloadsSection: React.FC = () => {
                   setSelectedLanguage(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full bg-[#F4F7FA] border border-[#003865]/10 rounded-2xl px-4 py-3 text-xs text-[#003865] font-inter font-medium outline-none cursor-pointer focus:border-[#007AC1] focus:bg-white transition-all"
+                className="w-full bg-[#f6f4fb] border border-[#0a1f3c]/10 rounded-2xl px-4 py-3 text-xs text-[#0a1f3c] font-inter font-medium cursor-pointer focus:border-[#2a6ecb] focus:bg-white transition-all"
               >
                 <option value="All Languages">Select lang...</option>
                 {languagesList.filter((l) => l !== "All Languages").map((lang) => (
@@ -273,7 +273,7 @@ export const DownloadsSection: React.FC = () => {
                   setSelectedCategory(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full bg-[#F4F7FA] border border-[#003865]/10 rounded-2xl px-4 py-3 text-xs text-[#003865] font-inter font-medium outline-none cursor-pointer focus:border-[#007AC1] focus:bg-white transition-all"
+                className="w-full bg-[#f6f4fb] border border-[#0a1f3c]/10 rounded-2xl px-4 py-3 text-xs text-[#0a1f3c] font-inter font-medium cursor-pointer focus:border-[#2a6ecb] focus:bg-white transition-all"
               >
                 <option value="All Categories">Select cate...</option>
                 {categoriesList.filter((c) => c !== "All Categories").map((cat) => (
@@ -292,7 +292,7 @@ export const DownloadsSection: React.FC = () => {
                   setSelectedProduct(e.target.value);
                   setCurrentPage(1);
                 }}
-                className="w-full bg-[#F4F7FA] border border-[#003865]/10 rounded-2xl px-4 py-3 text-xs text-[#003865] font-inter font-medium outline-none cursor-pointer focus:border-[#007AC1] focus:bg-white transition-all"
+                className="w-full bg-[#f6f4fb] border border-[#0a1f3c]/10 rounded-2xl px-4 py-3 text-xs text-[#0a1f3c] font-inter font-medium cursor-pointer focus:border-[#2a6ecb] focus:bg-white transition-all"
               >
                 <option value="All Products">Select prod...</option>
                 {productsList.filter((p) => p !== "All Products").map((prod) => (
@@ -307,7 +307,7 @@ export const DownloadsSection: React.FC = () => {
             <div className="lg:col-span-2">
               <button
                 type="submit"
-                className="w-full py-3 px-6 rounded-2xl bg-[#003865] text-white font-inter font-semibold text-sm hover:bg-[#005A9C] shadow-md transition-all flex items-center justify-center gap-2"
+                className="w-full py-3 px-6 rounded-2xl bg-[#0a1f3c] text-white font-inter font-semibold text-sm hover:bg-[#12315c] shadow-md transition-all flex items-center justify-center gap-2"
               >
                 <span>Search</span>
               </button>
@@ -315,8 +315,8 @@ export const DownloadsSection: React.FC = () => {
           </div>
 
           {/* Row 2: Target Audience Radio Buttons (Image 1 design: All | Patients | Professionals) */}
-          <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-[#003865]/08">
-            <div className="flex items-center gap-6 text-sm font-inter text-[#003865]">
+          <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-[#e9edf4]">
+            <div className="flex items-center gap-6 text-sm font-inter text-[#0a1f3c]">
               <label className="flex items-center gap-2 cursor-pointer font-medium select-none">
                 <input
                   type="radio"
@@ -326,7 +326,7 @@ export const DownloadsSection: React.FC = () => {
                     setSelectedAudience("All");
                     setCurrentPage(1);
                   }}
-                  className="w-4 h-4 text-[#003865] accent-[#003865] cursor-pointer"
+                  className="w-4 h-4 text-[#0a1f3c] accent-[#0a1f3c] cursor-pointer"
                 />
                 <span>All</span>
               </label>
@@ -340,7 +340,7 @@ export const DownloadsSection: React.FC = () => {
                     setSelectedAudience("Patients");
                     setCurrentPage(1);
                   }}
-                  className="w-4 h-4 text-[#003865] accent-[#003865] cursor-pointer"
+                  className="w-4 h-4 text-[#0a1f3c] accent-[#0a1f3c] cursor-pointer"
                 />
                 <span>Patients</span>
               </label>
@@ -354,14 +354,14 @@ export const DownloadsSection: React.FC = () => {
                     setSelectedAudience("Professionals");
                     setCurrentPage(1);
                   }}
-                  className="w-4 h-4 text-[#003865] accent-[#003865] cursor-pointer"
+                  className="w-4 h-4 text-[#0a1f3c] accent-[#0a1f3c] cursor-pointer"
                 />
                 <span>Professionals</span>
               </label>
             </div>
 
             {/* Reset Filters CTA & Count */}
-            <div className="flex items-center gap-4 text-xs text-[#4A607A]">
+            <div className="flex items-center gap-4 text-xs text-[#64748b]">
               <span>
                 Found <strong>{totalItems.toLocaleString()}</strong> files
               </span>
@@ -369,7 +369,7 @@ export const DownloadsSection: React.FC = () => {
                 <button
                   type="button"
                   onClick={handleResetFilters}
-                  className="flex items-center gap-1 text-[#007AC1] hover:underline font-semibold"
+                  className="flex items-center gap-1 text-[#2a6ecb] hover:underline font-semibold"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   Reset Filters
@@ -382,13 +382,13 @@ export const DownloadsSection: React.FC = () => {
 
       {/* DOWNLOADS LIST GRID */}
       {currentSlice.length === 0 ? (
-        <div className="bg-white border border-[#003865]/10 rounded-[28px] p-12 text-center text-[#4A607A]">
-          <FileText className="w-12 h-12 text-[#003865]/30 mx-auto mb-3" />
-          <h3 className="font-archivo font-bold text-xl text-[#003865] mb-1">No Files Found</h3>
+        <div className="bg-white border border-[#0a1f3c]/10 rounded-[28px] p-12 text-center text-[#64748b]">
+          <FileText className="w-12 h-12 text-[#0a1f3c]/30 mx-auto mb-3" />
+          <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-1">No Files Found</h3>
           <p className="text-xs mb-4">No documentation matched your filter parameters.</p>
           <button
             onClick={handleResetFilters}
-            className="px-5 py-2.5 rounded-full bg-[#003865] text-white text-xs font-semibold"
+            className="px-5 py-2.5 rounded-full bg-[#0a1f3c] text-white text-xs font-semibold"
           >
             Clear All Filters
           </button>
@@ -400,42 +400,42 @@ export const DownloadsSection: React.FC = () => {
               key={item.id}
               whileHover={{ y: -4 }}
               transition={{ duration: 0.2 }}
-              className="bg-white border border-[#003865]/10 rounded-[24px] p-5 shadow-[0_2px_4px_rgba(0,56,101,0.04),0_12px_28px_-12px_rgba(0,56,101,0.14)] hover:shadow-[0_4px_8px_rgba(0,56,101,0.05),0_20px_40px_-18px_rgba(0,56,101,0.25)] transition-all flex flex-col justify-between"
+              className="bg-white border border-[#0a1f3c]/10 rounded-[24px] p-5 shadow-[0_2px_4px_rgba(24,42,65,0.04),0_12px_28px_-12px_rgba(24,42,65,0.14)] hover:shadow-[0_4px_8px_rgba(24,42,65,0.05),0_20px_40px_-18px_rgba(24,42,65,0.25)] transition-all flex flex-col justify-between"
             >
               <div>
                 <div className="flex items-center justify-between gap-2 mb-2.5">
-                  <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#F0F6FA] text-[#007AC1] border border-[#003865]/08">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#f6f4fb] text-[#2a6ecb] border border-[#e9edf4]">
                     {item.category}
                   </span>
 
-                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#003865]/06 text-[#003865]">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[#f6f4fb] text-[#0a1f3c]">
                     {item.audience}
                   </span>
                 </div>
 
-                <h3 className="font-archivo font-bold text-base text-[#003865] mb-2 leading-snug line-clamp-2">
+                <h3 className="font-archivo font-bold text-base text-[#0a1f3c] mb-2 leading-snug line-clamp-2">
                   {item.title}
                 </h3>
 
-                <div className="flex items-center gap-3 text-[11px] font-mono text-[#4A607A] mb-3">
-                  <span className="bg-[#003865]/06 px-2 py-0.5 rounded font-bold text-[#003865]">
+                <div className="flex items-center gap-3 text-[11px] font-mono text-[#64748b] mb-3">
+                  <span className="bg-[#f6f4fb] px-2 py-0.5 rounded font-bold text-[#0a1f3c]">
                     {item.format}
                   </span>
                   <span>{item.fileSize}</span>
                   <span>•</span>
-                  <span className="font-sans font-medium text-[#007AC1]">{item.language}</span>
+                  <span className="font-sans font-medium text-[#2a6ecb]">{item.language}</span>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-[#003865]/08 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-1.5 text-[11px] text-[#4A607A] font-inter">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+              <div className="pt-3 border-t border-[#e9edf4] flex items-center justify-between gap-3">
+                <div className="flex items-center gap-1.5 text-[11px] text-[#64748b] font-inter">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-[#1fb37a]" />
                   <span className="truncate max-w-[120px]">{item.product}</span>
                 </div>
 
                 <button
                   onClick={() => handleDownload(item)}
-                  className="px-4 py-2 rounded-full bg-[#003865] text-white hover:bg-[#005A9C] font-inter font-semibold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all shrink-0"
+                  className="px-4 py-2 rounded-full bg-[#0a1f3c] text-white hover:bg-[#12315c] font-inter font-semibold text-xs flex items-center gap-1.5 shadow-sm active:scale-95 transition-all shrink-0"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Download</span>
@@ -447,9 +447,9 @@ export const DownloadsSection: React.FC = () => {
       )}
 
       {/* PAGINATION SECTION (AT BOTTOM) */}
-      <div className="bg-white border border-[#003865]/10 rounded-[28px] p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
+      <div className="bg-white border border-[#0a1f3c]/10 rounded-[28px] p-5 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-sm">
         {/* Per-page selector & Status */}
-        <div className="flex items-center gap-4 text-xs font-inter text-[#4A607A]">
+        <div className="flex items-center gap-4 text-xs font-inter text-[#64748b]">
           <span>
             Showing <strong>{startIndex + 1}</strong> – <strong>{Math.min(startIndex + itemsPerPage, totalItems)}</strong> of <strong>{totalItems.toLocaleString()}</strong> files
           </span>
@@ -462,7 +462,7 @@ export const DownloadsSection: React.FC = () => {
                 setItemsPerPage(Number(e.target.value));
                 setCurrentPage(1);
               }}
-              className="bg-[#F4F7FA] border border-[#003865]/10 rounded-lg px-2 py-1 text-xs text-[#003865] font-bold outline-none cursor-pointer"
+              className="bg-[#f6f4fb] border border-[#0a1f3c]/10 rounded-lg px-2 py-1 text-xs text-[#0a1f3c] font-bold cursor-pointer"
             >
               <option value={12}>12</option>
               <option value={24}>24</option>
@@ -478,7 +478,7 @@ export const DownloadsSection: React.FC = () => {
           <button
             onClick={() => handlePageChange(1)}
             disabled={currentPage === 1}
-            className="w-8 h-8 rounded-lg border border-[#003865]/10 bg-white grid place-items-center text-[#003865] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#F4F7FA] transition-colors"
+            className="w-8 h-8 rounded-lg border border-[#0a1f3c]/10 bg-white grid place-items-center text-[#0a1f3c] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f6f4fb] transition-colors"
             title="First page"
           >
             <ChevronsLeft className="w-4 h-4" />
@@ -488,7 +488,7 @@ export const DownloadsSection: React.FC = () => {
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
-            className="w-8 h-8 rounded-lg border border-[#003865]/10 bg-white grid place-items-center text-[#003865] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#F4F7FA] transition-colors"
+            className="w-8 h-8 rounded-lg border border-[#0a1f3c]/10 bg-white grid place-items-center text-[#0a1f3c] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f6f4fb] transition-colors"
             title="Previous page"
           >
             <ChevronLeft className="w-4 h-4" />
@@ -510,8 +510,8 @@ export const DownloadsSection: React.FC = () => {
                   onClick={() => handlePageChange(pageNum)}
                   className={`w-8 h-8 rounded-lg text-xs font-archivo font-bold transition-all ${
                     currentPage === pageNum
-                      ? "bg-[#003865] text-white shadow-sm"
-                      : "bg-[#F4F7FA] text-[#003865] hover:bg-[#D8E7F3]"
+                      ? "bg-[#0a1f3c] text-white shadow-sm"
+                      : "bg-[#f6f4fb] text-[#0a1f3c] hover:bg-[#dcebfb]"
                   }`}
                 >
                   {pageNum}
@@ -524,7 +524,7 @@ export const DownloadsSection: React.FC = () => {
           <button
             onClick={() => handlePageChange(currentPage + 1)}
             disabled={currentPage === totalPages}
-            className="w-8 h-8 rounded-lg border border-[#003865]/10 bg-white grid place-items-center text-[#003865] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#F4F7FA] transition-colors"
+            className="w-8 h-8 rounded-lg border border-[#0a1f3c]/10 bg-white grid place-items-center text-[#0a1f3c] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f6f4fb] transition-colors"
             title="Next page"
           >
             <ChevronRight className="w-4 h-4" />
@@ -534,7 +534,7 @@ export const DownloadsSection: React.FC = () => {
           <button
             onClick={() => handlePageChange(totalPages)}
             disabled={currentPage === totalPages}
-            className="w-8 h-8 rounded-lg border border-[#003865]/10 bg-white grid place-items-center text-[#003865] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#F4F7FA] transition-colors"
+            className="w-8 h-8 rounded-lg border border-[#0a1f3c]/10 bg-white grid place-items-center text-[#0a1f3c] disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#f6f4fb] transition-colors"
             title="Last page"
           >
             <ChevronsRight className="w-4 h-4" />

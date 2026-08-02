@@ -14,28 +14,28 @@ export const CATEGORIES: CategoryItem[] = [
     name: "Ventilation & Sleep Therapy",
     count: "14 Devices",
     image: "/images/site/home_csm_luisa_home_ventilation_bedside_horizontal_wide_angle_81fcaaeec1.png",
-    bg: "#EEF3F8",
+    bg: "#f6f4fb",
   },
   {
     id: "cat-2",
     name: "Sleep Diagnostics",
     count: "4 Systems",
     image: "/images/site/anesthesia_csm_leolytics_anaesthesia_software_surgery_leon_plus_56a81bb987.png",
-    bg: "#F0F6FA",
+    bg: "#f6f4fb",
   },
   {
     id: "cat-3",
     name: "Masks & Patient Interfaces",
     count: "12 Models",
     image: "/images/site/masks_lena_csm_lena_mask_patient_interface_fullface_right_65ae40c267.png",
-    bg: "#EEF3F8",
+    bg: "#f6f4fb",
   },
 ];
 
 export const PRODUCTS: Product[] = [
   {
     "id": "l-wenstein-prisma-20a",
-    "name": "-P-r-i-s-m-a- -2-0-A-",
+    "name": "Prisma 20A",
     "category": "Ventilation & Sleep",
     "price": 850.0,
     "originalPrice": 1062.5,
@@ -67,7 +67,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-prisma-smart",
-    "name": "-P-r-i-s-m-a- -S-m-a-r-t-",
+    "name": "Prisma Smart",
     "category": "Ventilation & Sleep",
     "price": 750.0,
     "originalPrice": 937.5,
@@ -99,7 +99,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-prisma-smart-plus",
-    "name": "-P-r-i-s-m-a- -S-m-a-r-t- -P-l-u-s-",
+    "name": "Prisma Smart Plus",
     "category": "Ventilation & Sleep",
     "price": 750.0,
     "originalPrice": 937.5,
@@ -131,7 +131,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-prisma-cr",
-    "name": "-P-r-i-s-m-a- -C-R-",
+    "name": "Prisma CR",
     "category": "Ventilation & Sleep",
     "price": 1250.0,
     "originalPrice": 1562.5,
@@ -163,7 +163,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-prisma-lab",
-    "name": "-P-r-i-s-m-a- -L-A-B-",
+    "name": "Prisma LAB",
     "category": "Ventilation & Sleep",
     "price": 1450.0,
     "originalPrice": 1812.5,
@@ -195,7 +195,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-prisma-aqua",
-    "name": "-P-r-i-s-m-a- -A-Q-U-A-",
+    "name": "Prisma AQUA",
     "category": "Ventilation & Sleep",
     "price": 220.0,
     "originalPrice": 275.0,
@@ -227,7 +227,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-luisa-ventilator",
-    "name": "-L-u-i-s-a- -–- -V-e-n-t-i-l-a-t-o-r-",
+    "name": "Luisa -–- Ventilator",
     "category": "Ventilation & Sleep",
     "price": 3400.0,
     "originalPrice": 4250.0,
@@ -259,7 +259,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-prisma-vent-40",
-    "name": "-P-r-i-s-m-a- -V-e-n-t- -4-0-",
+    "name": "Prisma Vent 40",
     "category": "Ventilation & Sleep",
     "price": 2800.0,
     "originalPrice": 3500.0,
@@ -291,7 +291,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-prisma-vent-50c",
-    "name": "-P-r-i-s-m-a- -V-e-n-t- -5-0-C-",
+    "name": "Prisma Vent 50C",
     "category": "Ventilation & Sleep",
     "price": 3100.0,
     "originalPrice": 3875.0,
@@ -323,7 +323,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "inogen-rove-6",
-    "name": "-I-n-o-g-e-n- -R-o-v-e- -6-",
+    "name": "Inogen Rove 6",
     "category": "Ventilation & Sleep",
     "price": 1950.0,
     "originalPrice": 2437.5,
@@ -355,7 +355,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "nidek-neo-5",
-    "name": "-N-i-d-e-k- -N-e-o- -5-",
+    "name": "Nidek Neo 5",
     "category": "Ventilation & Sleep",
     "price": 980.0,
     "originalPrice": 1225.0,
@@ -387,7 +387,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-polygraphy-devices-samoa",
-    "name": "-P-o-l-y-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-a-m-o-a-",
+    "name": "Polygraphy Devices -–- Samoa",
     "category": "Diagnostic",
     "price": 1150.0,
     "originalPrice": 1437.5,
@@ -419,7 +419,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-polygraphy-devices-scala",
-    "name": "-P-o-l-y-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-c-a-l-a-",
+    "name": "Polygraphy Devices -–- Scala",
     "category": "Diagnostic",
     "price": 1650.0,
     "originalPrice": 2062.5,
@@ -451,7 +451,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-polysomnography-devices-sonata",
-    "name": "-P-o-l-y-s-o-m-n-o-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-o-n-a-t-a-",
+    "name": "Polysomnography Devices -–- Sonata",
     "category": "Diagnostic",
     "price": 2400.0,
     "originalPrice": 3000.0,
@@ -483,7 +483,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-cara-full-face",
-    "name": "-C-A-R-A- -F-u-l-l- -F-a-c-e-",
+    "name": "CARA Full Face",
     "category": "PPE & Protection",
     "price": 180.0,
     "originalPrice": 225.0,
@@ -515,7 +515,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-joyceone-full-face",
-    "name": "-J-O-Y-C-E-o-n-e- -F-u-l-l- -F-a-c-e-",
+    "name": "JOYCEone Full Face",
     "category": "PPE & Protection",
     "price": 195.0,
     "originalPrice": 243.75,
@@ -547,7 +547,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-lena",
-    "name": "-L-E-N-A-",
+    "name": "LENA",
     "category": "PPE & Protection",
     "price": 210.0,
     "originalPrice": 262.5,
@@ -579,7 +579,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-cara",
-    "name": "-C-A-R-A-",
+    "name": "CARA",
     "category": "PPE & Protection",
     "price": 145.0,
     "originalPrice": 181.25,
@@ -611,7 +611,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     "id": "l-wenstein-joyceone",
-    "name": "-J-O-Y-C-E-o-n-e-",
+    "name": "JOYCEone",
     "category": "PPE & Protection",
     "price": 160.0,
     "originalPrice": 200.0,

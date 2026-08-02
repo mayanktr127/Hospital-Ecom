@@ -54,7 +54,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-[#001E36]/50 backdrop-blur-md"
+            className="fixed inset-0 bg-[#0a1f3c]/50 backdrop-blur-md"
           />
 
           {/* Modal content */}
@@ -63,22 +63,22 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: -10 }}
             transition={{ duration: 0.2, ease: [0.22, 0.61, 0.36, 1] }}
-            className="relative bg-white w-full max-w-2xl rounded-[34px] shadow-[0_28px_60px_-24px_rgba(0,56,101,0.35)] overflow-hidden border border-[#003865]/10 z-10 flex flex-col max-h-[80vh]"
+            className="relative bg-white w-full max-w-2xl rounded-[28px] shadow-[0_30px_70px_rgba(24,42,65,0.14)] overflow-hidden border border-[#e9edf4] z-10 flex flex-col max-h-[80vh]"
           >
             {/* Search Input Bar */}
-            <div className="flex items-center gap-3 px-6 py-4 border-b border-[#003865]/08">
-              <Search className="w-5 h-5 text-[#003865]" />
+            <div className="flex items-center gap-3 px-6 py-4 border-b border-[#e9edf4] focus-within:border-[#7fb0ee]">
+              <Search className="w-5 h-5 text-[#0a1f3c]" />
               <input
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search Löwenstein ventilation, diagnostics, PPE..."
                 autoFocus
-                className="w-full bg-transparent border-0 outline-none text-[#0A192F] font-inter text-base placeholder-[#4A607A]/60"
+                className="w-full bg-transparent border-0 text-[#182a41] font-inter text-base placeholder-[#64748b]"
               />
               <button
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-[#003865]/05 text-[#4A607A] transition-colors"
+                className="p-2 rounded-full hover:bg-[#f6f4fb] text-[#64748b] transition-colors"
                 aria-label="Close search"
               >
                 <X className="w-5 h-5" />
@@ -88,15 +88,15 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
             {/* Content list */}
             <div className="p-6 overflow-y-auto space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-[#4A607A]">
+                <span className="text-[11px] uppercase tracking-[0.18em] font-semibold text-[#64748b]">
                   {query ? `Search Results (${filteredProducts.length})` : "Featured Löwenstein Devices"}
                 </span>
-                <span className="text-xs text-[#4A607A]">Press ESC to exit</span>
+                <span className="text-xs text-[#64748b]">Press ESC to exit</span>
               </div>
 
               {filteredProducts.length === 0 ? (
-                <div className="py-12 text-center text-[#4A607A]">
-                  <p className="font-archivo font-bold text-lg text-[#003865]">No devices found</p>
+                <div className="glass !py-12 text-center text-[#64748b]">
+                  <p className="font-archivo font-medium text-lg tracking-[-0.03em] text-[#0a1f3c]">No devices found</p>
                   <p className="text-sm mt-1">Try searching for &quot;microscope&quot;, &quot;oximeter&quot;, or &quot;sanitizer&quot;</p>
                 </div>
               ) : (
@@ -104,7 +104,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
-                      className="group flex items-center justify-between p-3 rounded-2xl border border-[#003865]/06 hover:border-[#003865]/30 hover:shadow-[0_4px_8px_rgba(0,56,101,0.05)] transition-all bg-[#F8FAFC]"
+                      className="group flex items-center justify-between p-3 rounded-[14px] border border-[#e9edf4] hover:border-[#dcebfb] hover:shadow-[0_16px_44px_rgba(24,42,65,0.09)] transition-all bg-white"
                     >
                       <div
                         onClick={() => {
@@ -113,7 +113,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                         }}
                         className="flex items-center gap-4 cursor-pointer flex-1"
                       >
-                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#D8E7F3] to-white flex items-center justify-center p-2 shrink-0 border border-[#003865]/05">
+                        <div className="w-14 h-14 rounded-[14px] bg-gradient-to-br from-[#e9e6fb] to-white flex items-center justify-center p-2 shrink-0 border border-[#e9edf4]">
                           <Image
                             src={product.image}
                             alt={product.name}
@@ -123,13 +123,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                           />
                         </div>
                         <div>
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-[#007AC1]">
+                          <span className="eyebrow text-[10px]">
                             {product.category}
                           </span>
-                          <h4 className="font-archivo font-semibold text-sm text-[#0A192F] group-hover:text-[#003865] transition-colors leading-tight">
+                          <h4 className="font-archivo font-semibold text-sm text-[#182a41] group-hover:text-[#0a1f3c] transition-colors leading-tight">
                             {product.name}
                           </h4>
-                          <span className="font-archivo font-bold text-sm text-[#003865] mt-0.5 block">
+                          <span className="font-archivo font-bold text-sm text-[#0a1f3c] mt-0.5 block">
                             ${product.price.toFixed(2)}
                           </span>
                         </div>
@@ -141,7 +141,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                             addToCart(product);
                             addToast("Added to Cart", `${product.name} added to your cart.`);
                           }}
-                          className="px-3 py-2 rounded-full bg-[#003865] text-white text-xs font-inter font-semibold flex items-center gap-1.5 hover:bg-[#005A9C] transition-colors shadow-sm"
+                          className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
                         >
                           <ShoppingBag className="w-3.5 h-3.5" />
                           <span>Add</span>

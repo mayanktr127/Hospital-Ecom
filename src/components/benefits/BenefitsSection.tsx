@@ -38,10 +38,10 @@ export const BenefitsSection: React.FC = () => {
   ];
 
   return (
-    <section id="benefits" className="benefits bg-[#003865] border-radius-[48px] rounded-[48px] p-8 sm:p-14 text-white shadow-[0_4px_8px_rgba(0,56,101,0.05),0_28px_60px_-24px_rgba(0,56,101,0.35)] relative overflow-hidden mt-24">
-      <div className="absolute -top-[90px] -right-[90px] w-[340px] h-[340px] rounded-full bg-radial from-[#007AC1]/40 to-transparent pointer-events-none" />
+    <section id="benefits" className="benefits bg-[#0a1f3c] border-radius-[48px] rounded-[28px] p-8 sm:p-14 text-white shadow-[0_4px_8px_rgba(24,42,65,0.05),0_28px_60px_-24px_rgba(24,42,65,0.35)] relative overflow-hidden mt-24">
+      <div className="absolute -top-[90px] -right-[90px] w-[340px] h-[340px] rounded-full bg-radial from-[#2a6ecb]/40 to-transparent pointer-events-none" />
 
-      <h2 className="font-archivo font-extrabold text-[clamp(34px,5vw,58px)] text-[#EAF5F5] max-w-[620px] leading-tight relative z-10">
+      <h2 className="font-archivo font-semibold text-[clamp(34px,5vw,58px)] text-[#e0f3ec] max-w-[620px] leading-tight relative z-10">
         German Engineering & Clinical Reliability
       </h2>
 
@@ -53,13 +53,13 @@ export const BenefitsSection: React.FC = () => {
               key={idx}
               className="bg-white/[0.08] border border-white/15 rounded-[22px] p-5.5 backdrop-blur-[8px] hover:bg-white/[0.14] transition-colors"
             >
-              <div className="w-10 h-10 rounded-xl bg-[#007AC1]/30 text-[#D8E7F3] flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-xl bg-[#2a6ecb]/30 text-[#dcebfb] flex items-center justify-center mb-3">
                 <Icon className="w-5 h-5" />
               </div>
               <h4 className="font-archivo font-semibold text-lg text-white tracking-tight leading-tight m-0 mb-1.5">
                 {item.title}
               </h4>
-              <p className="text-xs font-inter text-[#D8E7F3]/80 leading-[1.55] m-0">
+              <p className="text-xs font-inter text-[#dcebfb]/80 leading-[1.55] m-0">
                 {item.desc}
               </p>
             </div>

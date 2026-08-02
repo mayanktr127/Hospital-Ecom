@@ -33,41 +33,41 @@ export default function AcademyPage() {
 
       <main className="wrap max-w-[1140px] w-full mx-auto px-4 md:px-6 flex-1 py-10">
         {/* Page Hero Header */}
-        <div className="rounded-[36px] bg-[#003865] text-white p-8 md:p-14 mb-12 shadow-[0_28px_60px_-24px_rgba(0,56,101,0.4)] relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-96 h-96 bg-[#007AC1]/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="pastel-canvas rounded-[28px] text-[#182a41] p-8 md:p-14 mb-12 border border-white/80 shadow-[0_2px_8px_rgba(24,42,65,0.05)] relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-96 h-96 bg-[#e9e6fb] rounded-full blur-3xl pointer-events-none" />
           
-          <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 text-white text-xs font-semibold font-archivo mb-4 border border-white/20">
-            <GraduationCap className="w-4 h-4 text-emerald-400" />
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md eyebrow mb-4 border border-white">
+            <GraduationCap className="w-4 h-4 text-[#1fb37a]" />
             Clinical Education &amp; Training
           </span>
 
-          <h1 className="font-archivo font-extrabold text-4xl md:text-6xl text-white mb-4 leading-tight">
+          <h1 className="font-archivo font-medium text-4xl md:text-[64px] tracking-[-0.04em] text-[#0a1f3c] mb-4 leading-[1.0]">
             Löwenstein Medical Academy
           </h1>
 
-          <p className="text-base md:text-lg font-inter text-white/85 max-w-3xl leading-relaxed">
+          <p className="text-base md:text-lg font-inter text-[#182a41] max-w-3xl leading-relaxed">
             Empowering physicians, clinical nurses, sleep specialists, and service technicians with certified CME education, hands-on ventilator workshops, and device operation masterclasses.
           </p>
         </div>
 
         {/* Courses Grid */}
-        <div className="space-y-6 mb-12 font-inter text-[#003865]">
-          <h2 className="font-archivo font-bold text-2xl text-[#003865] mb-4">Upcoming Accredited Seminars &amp; CME Courses</h2>
+        <div className="space-y-6 mb-12 font-inter text-[#0a1f3c]">
+          <h2 className="font-archivo font-bold text-2xl text-[#0a1f3c] mb-4">Upcoming Accredited Seminars &amp; CME Courses</h2>
 
           {courses.map((c) => (
             <div
               key={c.title}
-              className="bg-white border border-[#003865]/12 rounded-[28px] p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-[#007AC1]/40 transition-colors"
+              className="bg-white border border-[#e9edf4] rounded-[28px] p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-[#2a6ecb]/40 transition-colors"
             >
               <div>
-                <span className="bg-[#F0F6FA] text-[#007AC1] text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-[#003865]/08 mb-2 inline-block">
+                <span className="bg-[#f6f4fb] text-[#2a6ecb] text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-[#e9edf4] mb-2 inline-block">
                   CME Certified
                 </span>
-                <h3 className="font-archivo font-bold text-xl text-[#003865] mb-2">{c.title}</h3>
-                <p className="text-xs md:text-sm text-[#4A607A] mb-2">Target Audience: {c.target}</p>
-                <div className="flex flex-wrap items-center gap-4 text-xs text-[#4A607A]">
+                <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">{c.title}</h3>
+                <p className="text-xs md:text-sm text-[#64748b] mb-2">Target Audience: {c.target}</p>
+                <div className="flex flex-wrap items-center gap-4 text-xs text-[#64748b]">
                   <span className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-[#007AC1]" /> {c.duration}
+                    <Calendar className="w-3.5 h-3.5 text-[#2a6ecb]" /> {c.duration}
                   </span>
                   <span>•</span>
                   <span>Location: {c.location}</span>
@@ -76,7 +76,7 @@ export default function AcademyPage() {
 
               <button
                 onClick={() => alert("Registration request submitted to Löwenstein Academy.")}
-                className="px-5 py-2.5 rounded-full bg-[#003865] text-white font-inter font-semibold text-xs hover:bg-[#005A9C] shadow-sm shrink-0"
+                className="px-5 py-2.5 rounded-full bg-[#0a1f3c] text-white font-inter font-semibold text-xs hover:bg-[#12315c] shadow-sm shrink-0"
               >
                 Register for Course
               </button>

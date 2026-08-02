@@ -18,21 +18,21 @@ export const ToastContainer: React.FC = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.25, ease: [0.22, 0.61, 0.36, 1] }}
-            className="pointer-events-auto bg-white/95 backdrop-blur-md border border-[#003865]/10 rounded-2xl p-4 shadow-[0_12px_28px_-12px_rgba(0,56,101,0.25)] flex items-start gap-3 text-[#0A192F]"
+            className="pointer-events-auto glass !rounded-[20px] border border-[#e9edf4] !p-4 shadow-[0_16px_44px_rgba(24,42,65,0.09)] flex items-start gap-3 text-[#182a41]"
           >
             <div className="mt-0.5 shrink-0">
-              {toast.type === "success" && <CheckCircle2 className="w-5 h-5 text-[#007AC1]" />}
-              {toast.type === "error" && <AlertCircle className="w-5 h-5 text-red-600" />}
-              {toast.type === "info" && <Info className="w-5 h-5 text-[#003865]" />}
-              {toast.type === "warning" && <AlertCircle className="w-5 h-5 text-amber-500" />}
+              {toast.type === "success" && <CheckCircle2 className="w-5 h-5 text-[#1fb37a]" />}
+              {toast.type === "error" && <AlertCircle className="w-5 h-5 text-[#dc4b56]" />}
+              {toast.type === "info" && <Info className="w-5 h-5 text-[#2a6ecb]" />}
+              {toast.type === "warning" && <AlertCircle className="w-5 h-5 text-[#e8a33d]" />}
             </div>
 
             <div className="flex-1">
-              <h4 className="font-archivo font-bold text-sm leading-tight text-[#003865]">
+              <h4 className="font-archivo font-semibold text-sm leading-tight text-[#0a1f3c]">
                 {toast.title}
               </h4>
               {toast.description && (
-                <p className="text-xs text-[#4A607A] mt-1 leading-snug">
+                <p className="text-xs text-[#64748b] mt-1 leading-snug">
                   {toast.description}
                 </p>
               )}
@@ -40,7 +40,7 @@ export const ToastContainer: React.FC = () => {
 
             <button
               onClick={() => removeToast(toast.id)}
-              className="text-[#4A607A] hover:text-[#003865] p-1 transition-colors"
+              className="text-[#64748b] hover:text-[#0a1f3c] p-1 transition-colors"
               aria-label="Close notification"
             >
               <X className="w-4 h-4" />

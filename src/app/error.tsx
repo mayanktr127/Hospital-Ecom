@@ -15,17 +15,17 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center bg-white text-[#003865]">
-      <div className="max-w-md bg-[#EEF3F8] p-8 rounded-3xl border border-[#003865]/15 shadow-sm">
-        <h2 className="font-archivo font-bold text-2xl mb-3 text-[#003865]">
+    <div className="min-h-[60vh] flex flex-col items-center justify-center p-6 text-center bg-white text-[#0a1f3c]">
+      <div className="glass max-w-md !p-8 !rounded-[28px] border border-[#dc4b56]/30 bg-[#fbe6ee]">
+        <h2 className="font-archivo font-medium text-2xl tracking-[-0.03em] mb-3 text-[#dc4b56]">
           Something went wrong
         </h2>
-        <p className="text-sm text-[#4A607A] mb-6 leading-relaxed font-inter">
+        <p className="text-sm text-[#64748b] mb-6 leading-relaxed font-inter">
           An error occurred while displaying this page. Click below to reload the section.
         </p>
         <button
           onClick={() => reset()}
-          className="px-6 py-3 bg-[#003865] hover:bg-[#007AC1] text-white font-archivo font-bold text-sm rounded-full transition-colors shadow-md cursor-pointer"
+          className="btn btn-primary cursor-pointer"
         >
           Try again
         </button>

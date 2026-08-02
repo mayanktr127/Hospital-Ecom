@@ -14,6 +14,7 @@ interface SlideData {
   ctaAction: string;
   bgGradient: string;
   image: string;
+  bannerImage: string;
 }
 
 export const ShowcaseSlider: React.FC = () => {
@@ -28,8 +29,9 @@ export const ShowcaseSlider: React.FC = () => {
       subtitle: "High-performance clinical ventilation for hospital & homecare.",
       ctaText: "Explore prismaVENT",
       ctaAction: "/ventilation/prisma-vent40",
-      bgGradient: "from-[#0060A9] via-[#004D88] to-[#003865]",
-      image: "/images/site/ventilation_csm_prisma_vent_40_home_ventilation_device_right_01_d8daadf9fd.jpg",
+      bgGradient: "from-[#0a1f3c] via-[#1a4079] to-[#0a1f3c]",
+      image: "/images/site/carousel_prismavent_series.png",
+      bannerImage: "/images/site/designer_banner_prismavent.png",
     },
     {
       id: "slide-2",
@@ -38,8 +40,9 @@ export const ShowcaseSlider: React.FC = () => {
       subtitle: "Life-sustaining mobile ventilation for pediatric & adult patients.",
       ctaText: "Discover LUISA",
       ctaAction: "/ventilation/luisa",
-      bgGradient: "from-[#007AC1] via-[#005A9C] to-[#003865]",
-      image: "/images/site/home_csm_luisa_home_ventilation_bedside_horizontal_wide_angle_81fcaaeec1.jpg",
+      bgGradient: "from-[#1a4079] via-[#12315c] to-[#0a1f3c]",
+      image: "/images/site/carousel_luisa_ventilator.png",
+      bannerImage: "/images/site/designer_banner_luisa.png",
     },
     {
       id: "slide-3",
@@ -48,8 +51,9 @@ export const ShowcaseSlider: React.FC = () => {
       subtitle: "True to itself. Ready for the future of clinical surgery.",
       ctaText: "Discover LEON plus",
       ctaAction: "/anesthesia/leon-plus-edition",
-      bgGradient: "from-[#0A2647] via-[#003865] to-[#001E36]",
-      image: "/images/site/anesthesia_csm_leon_plus_anaesthesia_device_frontal_loops_c23d5c46f1.jpg",
+      bgGradient: "from-[#0a1f3c] via-[#0a1f3c] to-[#0a1f3c]",
+      image: "/images/site/carousel_leon_anesthesia.png",
+      bannerImage: "/images/site/designer_banner_leon.png",
     },
     {
       id: "slide-4",
@@ -58,8 +62,9 @@ export const ShowcaseSlider: React.FC = () => {
       subtitle: "Next-generation intensive care ventilators with universal ventilation modes.",
       ctaText: "Explore elisa 800",
       ctaAction: "/intensive-care-ventilation/elisa-800",
-      bgGradient: "from-[#005A9C] via-[#003865] to-[#001E36]",
-      image: "/images/site/intensive_care_csm_elisa_800_intensive_care_ventilators_device_frontal_f3c59a79e7.jpg",
+      bgGradient: "from-[#12315c] via-[#0a1f3c] to-[#0a1f3c]",
+      image: "/images/site/carousel_elisa_icu.png",
+      bannerImage: "/images/site/designer_banner_elisa.png",
     },
     {
       id: "slide-5",
@@ -68,8 +73,9 @@ export const ShowcaseSlider: React.FC = () => {
       subtitle: "Maximum therapy compliance with ultra-quiet exhalation systems.",
       ctaText: "View Patient Interfaces",
       ctaAction: "/masks/lena",
-      bgGradient: "from-[#0060A9] via-[#004A85] to-[#002A4E]",
-      image: "/images/site/masks_lena_csm_lena_mask_patient_interface_fullface_right_65ae40c267.jpg",
+      bgGradient: "from-[#1a4079] via-[#1a4079] to-[#12315c]",
+      image: "/images/site/carousel_cara_masks.png",
+      bannerImage: "/images/site/designer_banner_cara.png",
     },
   ];
 
@@ -93,8 +99,10 @@ export const ShowcaseSlider: React.FC = () => {
 
   return (
     <section className="wrap max-w-[1240px] mx-auto px-4 md:px-6 pt-3">
-      {/* Outer Hero Container */}
-      <div className="w-full rounded-[28px] sm:rounded-[36px] md:rounded-[48px] overflow-hidden relative shadow-2xl min-h-[520px] sm:min-h-[480px] md:min-h-[540px] flex items-center border border-[#003865]/10">
+      {/* Pastel canvas frame (newdesign.md §4) — hero sits on the marketing wash */}
+      <div className="pastel-canvas rounded-[28px] sm:rounded-[28px] md:rounded-[28px] p-3 sm:p-4 border border-white/70 shadow-[0_16px_44px_rgba(24,42,65,0.09)]">
+        {/* Outer Hero Container */}
+        <div className="w-full rounded-[24px] sm:rounded-[28px] md:rounded-[28px] overflow-hidden relative shadow-[0_30px_70px_rgba(24,42,65,0.14)] min-h-[520px] sm:min-h-[480px] md:min-h-[540px] flex items-center border border-white/40 bg-[#0a1f3c]">
         <AnimatePresence mode="wait">
           <motion.div
             key={active.id}
@@ -102,49 +110,49 @@ export const ShowcaseSlider: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.02 }}
             transition={{ duration: 0.45, ease: [0.22, 0.61, 0.36, 1] }}
-            className={`absolute inset-0 bg-gradient-to-r ${active.bgGradient} p-6 sm:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-6 pb-20 sm:pb-16`}
+            className="absolute inset-0 p-6 sm:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-6 pb-20 sm:pb-16 overflow-hidden"
           >
+            {/* Full Designer Banner Background Image */}
+            <div className="absolute inset-0 z-0">
+              <img
+                src={active.bannerImage}
+                alt={active.title}
+                className="w-full h-full object-cover object-center scale-105 transition-transform duration-1000"
+              />
+              {/* Dual Directional Dark Overlays for maximum text clarity & depth */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0a1f3c]/90 via-[#0a1f3c]/75 to-[#0a1f3c]/40" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a1f3c]/80 via-transparent to-black/30" />
+            </div>
+
             {/* Tech Grid Overlay Texture */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0f_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0f_1px,transparent_1px)] bg-[size:28px_28px] opacity-40 pointer-events-none" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0f_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0f_1px,transparent_1px)] bg-[size:28px_28px] opacity-30 pointer-events-none z-1" />
 
             {/* Left Content Column */}
-            <div className="max-w-xl z-10 text-left w-full">
+            <div className="max-w-2xl z-10 text-left w-full">
               {/* Category Pill Badge */}
-              <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[10px] sm:text-xs font-archivo font-bold uppercase tracking-wider mb-3 sm:mb-6 shadow-xs">
-                <span className="w-2 h-2 rounded-full bg-cyan-300 animate-pulse" />
+              <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] sm:text-xs font-archivo font-bold uppercase tracking-wider mb-3 sm:mb-6 shadow-md">
+                <span className="w-2 h-2 rounded-full bg-[#7fb0ee] animate-pulse" />
                 <span>{active.badge}</span>
               </div>
 
               {/* Display Headline */}
-              <h1 className="font-archivo font-extrabold text-3xl sm:text-5xl lg:text-7xl text-white tracking-tight leading-[1.08] mb-3 sm:mb-5 drop-shadow-xs">
+              <h1 className="font-archivo font-semibold text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-[1.08] mb-3 sm:mb-5 drop-shadow-md">
                 {active.title}
               </h1>
 
               {/* Subtitle text */}
-              <p className="text-white/90 text-xs sm:text-lg lg:text-xl font-inter font-normal leading-relaxed max-w-xl mb-5 sm:mb-8 line-clamp-2 sm:line-clamp-none">
+              <p className="text-white/95 text-xs sm:text-lg lg:text-xl font-inter font-normal leading-relaxed max-w-xl mb-5 sm:mb-8 line-clamp-2 sm:line-clamp-none drop-shadow-xs">
                 {active.subtitle}
               </p>
 
               {/* Primary White Pill CTA Button */}
               <Link
                 href={active.ctaAction}
-                className="inline-flex items-center gap-2.5 bg-white text-[#003865] hover:bg-white/95 px-6 py-3 sm:px-8 sm:py-4 rounded-full font-archivo font-bold text-xs sm:text-base shadow-xl transition-all group"
+                className="inline-flex items-center gap-2.5 bg-white text-[#0a1f3c] hover:bg-white/95 px-6 py-3 sm:px-8 sm:py-4 rounded-full font-archivo font-bold text-xs sm:text-base shadow-2xl transition-all group"
               >
                 <span>{active.ctaText}</span>
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#003865] group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#0a1f3c] group-hover:translate-x-1 transition-transform" />
               </Link>
-            </div>
-
-            {/* Right Column: Product Device Image Container (Visible on Mobile & Desktop) */}
-            <div className="w-full max-w-[260px] sm:max-w-[340px] lg:w-[440px] aspect-square rounded-[24px] sm:rounded-[36px] bg-white/15 backdrop-blur-md border border-white/25 p-4 sm:p-8 flex items-center justify-center relative shadow-2xl overflow-hidden z-10 shrink-0 max-h-48 sm:max-h-72 lg:max-h-full">
-              <img
-                src={active.image}
-                alt={active.title}
-                className="w-full h-full object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] mix-blend-multiply transition-transform duration-500"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).src = "/images/products/microscope.png";
-                }}
-              />
             </div>
           </motion.div>
         </AnimatePresence>
@@ -162,7 +170,7 @@ export const ShowcaseSlider: React.FC = () => {
             </div>
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="text-white hover:text-cyan-300 transition-colors p-0.5 cursor-pointer"
+              className="text-white hover:text-[#7fb0ee] transition-colors p-0.5 cursor-pointer"
               aria-label="Toggle carousel auto-play"
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
@@ -188,6 +196,7 @@ export const ShowcaseSlider: React.FC = () => {
             </button>
           </div>
         </div>
+      </div>
       </div>
     </section>
   );

@@ -34,7 +34,7 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="w-full bg-[#002A4E] text-white pt-14 pb-8 border-t border-white/10 font-inter">
+    <footer className="w-full bg-[#0a1f3c] text-white pt-14 pb-8 border-t border-white/10 font-inter">
       <div className="wrap max-w-[1240px] w-full mx-auto px-4 md:px-6">
         {/* 3-Column Footer Grid matching User Screenshot */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-12 pb-12 border-b border-white/15">
@@ -51,11 +51,11 @@ export const Footer: React.FC = () => {
 
             <div className="space-y-2 text-xs md:text-sm text-white/85 mb-6">
               <div className="flex items-center gap-2">
-                <Phone className="w-3.5 h-3.5 text-[#007AC1]" />
+                <Phone className="w-3.5 h-3.5 text-[#7fb0ee]" />
                 <span>+91 9343444428</span>
               </div>
               <div className="flex items-center gap-2">
-                <Mail className="w-3.5 h-3.5 text-[#007AC1]" />
+                <Mail className="w-3.5 h-3.5 text-[#7fb0ee]" />
                 <a href="mailto:enquiry@pulmocare.in" className="hover:underline text-white">
                   enquiry@pulmocare.in
                 </a>
@@ -68,7 +68,7 @@ export const Footer: React.FC = () => {
                 href="https://www.youtube.com/@LoewensteinMedicalGlobal"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#007AC1] grid place-items-center transition-all text-white border border-white/10 hover:border-[#007AC1]"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
                 aria-label="Official Löwenstein Medical YouTube Channel"
               >
                 <Youtube className="w-4 h-4" />
@@ -77,7 +77,7 @@ export const Footer: React.FC = () => {
                 href="https://www.facebook.com/loewensteinmedical/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#007AC1] grid place-items-center transition-all text-white border border-white/10 hover:border-[#007AC1]"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
                 aria-label="Official Löwenstein Medical Facebook Page"
               >
                 <Facebook className="w-4 h-4" />
@@ -86,7 +86,7 @@ export const Footer: React.FC = () => {
                 href="https://www.instagram.com/loewensteinmedical?igsh=MW9kY3luZnFidzdqYw%3D%3D&utm_source=qr"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#007AC1] grid place-items-center transition-all text-white border border-white/10 hover:border-[#007AC1]"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
                 aria-label="Official Löwenstein Medical Instagram Profile"
               >
                 <Instagram className="w-4 h-4" />
@@ -95,7 +95,7 @@ export const Footer: React.FC = () => {
                 href="https://www.linkedin.com/company/loewensteinmedical/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#007AC1] grid place-items-center transition-all text-white border border-white/10 hover:border-[#007AC1]"
+                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
                 aria-label="Official Löwenstein Medical LinkedIn Company Page"
               >
                 <Linkedin className="w-4 h-4" />
@@ -127,9 +127,9 @@ export const Footer: React.FC = () => {
             {/* Clinical Blog Link */}
             <Link
               href="/blog"
-              className="group flex items-center gap-2 text-xs md:text-sm font-medium text-white hover:text-[#007AC1] transition-colors py-1"
+              className="group flex items-center gap-2 text-xs md:text-sm font-medium text-white hover:text-[#7fb0ee] transition-colors py-1"
             >
-              <BookOpen className="w-4 h-4 text-[#007AC1] group-hover:translate-x-0.5 transition-transform" />
+              <BookOpen className="w-4 h-4 text-[#7fb0ee] group-hover:translate-x-0.5 transition-transform" />
               <div className="text-left">
                 <span>Clinical Blog &amp; Insights</span>
                 <span className="block text-xs text-white/70">Articles &amp; Guides</span>
@@ -141,39 +141,39 @@ export const Footer: React.FC = () => {
           <div>
             <ul className="space-y-3 list-none p-0 m-0 text-sm md:text-base font-normal text-white/90 mb-8">
               <li>
-                <Link href="/blog" className="hover:text-[#007AC1] transition-colors">
+                <Link href="/blog" className="hover:text-[#7fb0ee] transition-colors">
                   Blog &amp; Articles
                 </Link>
               </li>
               <li>
-                <Link href="/admin" className="hover:text-[#007AC1] font-semibold text-[#007AC1] transition-colors">
+                <Link href="/admin" className="hover:text-[#7fb0ee] font-semibold text-[#7fb0ee] transition-colors">
                   Admin Portal
                 </Link>
               </li>
               <li>
-                <Link href="/legal-notice" className="hover:text-[#007AC1] transition-colors">
+                <Link href="/legal-notice" className="hover:text-[#7fb0ee] transition-colors">
                   Legal Notice
                 </Link>
               </li>
               <li>
-                <Link href="/privacy-policy" className="hover:text-[#007AC1] transition-colors">
+                <Link href="/privacy-policy" className="hover:text-[#7fb0ee] transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href="/gtcs" className="hover:text-[#007AC1] transition-colors">
+                <Link href="/gtcs" className="hover:text-[#7fb0ee] transition-colors">
                   GTCs
                 </Link>
               </li>
               <li>
-                <Link href="/sitemap" className="hover:text-[#007AC1] transition-colors">
+                <Link href="/sitemap" className="hover:text-[#7fb0ee] transition-colors">
                   Sitemap
                 </Link>
               </li>
               <li>
                 <button
                   onClick={() => setPrivacyModalOpen(true)}
-                  className="hover:text-[#007AC1] transition-colors text-left cursor-pointer"
+                  className="hover:text-[#7fb0ee] transition-colors text-left cursor-pointer"
                 >
                   Change data privacy settings
                 </button>
@@ -193,10 +193,10 @@ export const Footer: React.FC = () => {
           {/* "With people in mind" Slogan with Cyan Arcs */}
           <div className="flex items-center gap-3">
             <div className="relative flex items-center gap-2">
-              <div className="w-6 h-6 rounded-full border-2 border-[#007AC1] border-r-transparent border-b-transparent rotate-45 flex items-center justify-center">
-                <div className="w-3 h-3 rounded-full border border-cyan-400" />
+              <div className="w-6 h-6 rounded-full border-2 border-[#7fb0ee] border-r-transparent border-b-transparent rotate-45 flex items-center justify-center">
+                <div className="w-3 h-3 rounded-full border border-[#7fb0ee]" />
               </div>
-              <span className="font-archivo font-extrabold text-base md:text-lg text-white tracking-tight">
+              <span className="font-archivo font-semibold text-base md:text-lg text-white tracking-tight">
                 With people in mind
               </span>
             </div>
@@ -213,54 +213,54 @@ export const Footer: React.FC = () => {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setPrivacyModalOpen(false)}
-              className="fixed inset-0 bg-[#001E36]/60 backdrop-blur-md"
+              className="fixed inset-0 bg-[#0a1f3c]/60 backdrop-blur-md"
             />
 
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 15 }}
-              className="relative bg-white text-[#003865] w-full max-w-md rounded-[28px] p-6 shadow-2xl border border-[#003865]/10 z-10 font-inter"
+              className="relative bg-white text-[#0a1f3c] w-full max-w-md rounded-[28px] p-6 shadow-2xl border border-[#0a1f3c]/10 z-10 font-inter"
             >
-              <div className="flex items-center justify-between pb-4 border-b border-[#003865]/10">
+              <div className="flex items-center justify-between pb-4 border-b border-[#0a1f3c]/10">
                 <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-[#007AC1]" />
-                  <h3 className="font-archivo font-bold text-lg text-[#003865]">Data Privacy Preferences</h3>
+                  <ShieldCheck className="w-5 h-5 text-[#2a6ecb]" />
+                  <h3 className="font-archivo font-bold text-lg text-[#0a1f3c]">Data Privacy Preferences</h3>
                 </div>
                 <button
                   onClick={() => setPrivacyModalOpen(false)}
-                  className="p-1.5 rounded-full hover:bg-[#003865]/05 text-[#4A607A]"
+                  className="p-1.5 rounded-full hover:bg-[#f6f4fb] text-[#64748b]"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="py-4 space-y-4 text-xs text-[#4A607A]">
+              <div className="py-4 space-y-4 text-xs text-[#64748b]">
                 <p>
                   Manage your data consent preferences for analytics, telemetry, and medical device portal cookies.
                 </p>
 
                 <div className="space-y-3">
-                  <label className="flex items-center justify-between p-3 rounded-xl bg-[#F0F6FA] border border-[#003865]/10 cursor-pointer">
+                  <label className="flex items-center justify-between p-3 rounded-xl bg-[#f6f4fb] border border-[#0a1f3c]/10 cursor-pointer">
                     <div>
-                      <span className="font-bold text-[#003865] block text-xs">Essential Functional Cookies</span>
-                      <span className="text-[10px] text-[#4A607A]">Required for medical download portal authentication</span>
+                      <span className="font-bold text-[#0a1f3c] block text-xs">Essential Functional Cookies</span>
+                      <span className="text-[10px] text-[#64748b]">Required for medical download portal authentication</span>
                     </div>
-                    <input type="checkbox" checked disabled className="accent-[#003865] w-4 h-4 cursor-not-allowed" />
+                    <input type="checkbox" checked disabled className="accent-[#0a1f3c] w-4 h-4 cursor-not-allowed" />
                   </label>
 
-                  <label className="flex items-center justify-between p-3 rounded-xl bg-[#F0F6FA] border border-[#003865]/10 cursor-pointer">
+                  <label className="flex items-center justify-between p-3 rounded-xl bg-[#f6f4fb] border border-[#0a1f3c]/10 cursor-pointer">
                     <div>
-                      <span className="font-bold text-[#003865] block text-xs">Performance &amp; Telemetry Analytics</span>
-                      <span className="text-[10px] text-[#4A607A]">Helps improve device firmware documentation speed</span>
+                      <span className="font-bold text-[#0a1f3c] block text-xs">Performance &amp; Telemetry Analytics</span>
+                      <span className="text-[10px] text-[#64748b]">Helps improve device firmware documentation speed</span>
                     </div>
-                    <input type="checkbox" defaultChecked className="accent-[#003865] w-4 h-4 cursor-pointer" />
+                    <input type="checkbox" defaultChecked className="accent-[#0a1f3c] w-4 h-4 cursor-pointer" />
                   </label>
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-[#003865]/10 flex items-center justify-between">
-                <span className="text-[10px] text-emerald-600 font-semibold flex items-center gap-1">
+              <div className="pt-3 border-t border-[#0a1f3c]/10 flex items-center justify-between">
+                <span className="text-[10px] text-[#1fb37a] font-semibold flex items-center gap-1">
                   <CheckCircle className="w-3.5 h-3.5" /> GDPR Compliant
                 </span>
                 <button
@@ -268,7 +268,7 @@ export const Footer: React.FC = () => {
                     setPrivacyModalOpen(false);
                     addToast("Privacy Saved", "Your data privacy settings have been updated.");
                   }}
-                  className="px-5 py-2 rounded-full bg-[#003865] text-white text-xs font-semibold hover:bg-[#005A9C] transition-colors"
+                  className="px-5 py-2 rounded-full bg-[#0a1f3c] text-white text-xs font-semibold hover:bg-[#12315c] transition-colors"
                 >
                   Save Preferences
                 </button>
