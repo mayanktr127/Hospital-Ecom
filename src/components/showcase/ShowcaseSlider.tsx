@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import Link from "next/link";
 
+import Image from "next/image";
+
 interface SlideData {
   id: string;
   badge: string;
@@ -110,25 +112,28 @@ export const ShowcaseSlider: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.02 }}
             transition={{ duration: 0.45, ease: [0.22, 0.61, 0.36, 1] }}
-            className="absolute inset-0 p-6 sm:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-6 pb-20 sm:pb-16 overflow-hidden"
+            className="absolute inset-0 p-6 sm:p-10 lg:p-14 flex flex-col lg:flex-row items-center justify-between gap-6 pb-20 sm:pb-16 overflow-hidden"
           >
             {/* Full Designer Banner Background Image */}
             <div className="absolute inset-0 z-0">
-              <img
+              <Image
                 src={active.bannerImage}
                 alt={active.title}
-                className="w-full h-full object-cover object-center scale-105 transition-transform duration-1000"
+                fill
+                priority
+                sizes="(max-width: 1240px) 100vw, 1240px"
+                className="object-cover object-center scale-105 transition-transform duration-1000"
               />
-              {/* Dual Directional Dark Overlays for maximum text clarity & depth */}
-              <div className="absolute inset-0 bg-gradient-to-r from-[#0a1f3c]/90 via-[#0a1f3c]/75 to-[#0a1f3c]/40" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a1f3c]/80 via-transparent to-black/30" />
+              {/* Directional Overlay tuned so text is crystal clear while background atmosphere remains visible */}
+              <div className="absolute inset-0 bg-gradient-to-r from-[#0a1f3c]/90 via-[#0a1f3c]/70 to-[#0a1f3c]/50" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0a1f3c]/80 via-transparent to-transparent" />
             </div>
 
             {/* Tech Grid Overlay Texture */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0f_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0f_1px,transparent_1px)] bg-[size:28px_28px] opacity-30 pointer-events-none z-1" />
 
             {/* Left Content Column */}
-            <div className="max-w-2xl z-10 text-left w-full">
+            <div className="max-w-xl z-10 text-left w-full lg:w-1/2">
               {/* Category Pill Badge */}
               <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-white/20 backdrop-blur-md border border-white/30 text-white text-[10px] sm:text-xs font-archivo font-bold uppercase tracking-wider mb-3 sm:mb-6 shadow-md">
                 <span className="w-2 h-2 rounded-full bg-[#7fb0ee] animate-pulse" />
@@ -153,6 +158,20 @@ export const ShowcaseSlider: React.FC = () => {
                 <span>{active.ctaText}</span>
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#0a1f3c] group-hover:translate-x-1 transition-transform" />
               </Link>
+            </div>
+
+            {/* Right Content Column: High Resolution Slide Product Image */}
+            <div className="relative z-10 w-full lg:w-1/2 flex justify-center lg:justify-end items-center h-full">
+              <div className="relative w-full max-w-[280px] sm:max-w-[360px] lg:max-w-[400px] aspect-square flex items-center justify-center p-4 bg-white/10 backdrop-blur-md rounded-[28px] border border-white/25 shadow-[0_25px_60px_rgba(0,0,0,0.35)]">
+                <Image
+                  src={active.image}
+                  alt={active.title}
+                  fill
+                  priority
+                  sizes="(max-width: 768px) 100vw, 400px"
+                  className="object-contain p-3 drop-shadow-[0_15px_25px_rgba(0,0,0,0.4)] hover:scale-105 transition-transform duration-500"
+                />
+              </div>
             </div>
           </motion.div>
         </AnimatePresence>

@@ -176,12 +176,15 @@ export const Hero: React.FC<HeroProps> = ({ onQuickView }) => {
               >
                 {/* Full Designer Background Image */}
                 <div className="absolute inset-0 z-0">
-                  <img
+                  <Image
                     src={activeSlide.image}
                     alt={activeSlide.title}
-                    className="w-full h-full object-cover object-center scale-105 transition-transform duration-1000"
+                    fill
+                    priority
+                    sizes="(max-width: 1240px) 100vw, 1240px"
+                    className="object-cover object-center scale-105 transition-transform duration-1000"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-r from-[#0a1f3c]/90 via-[#0a1f3c]/75 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-r from-[#0a1f3c]/85 via-[#0a1f3c]/40 to-transparent" />
                 </div>
 
                 {/* Carousel Text Content */}
