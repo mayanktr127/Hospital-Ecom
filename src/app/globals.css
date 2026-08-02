@@ -1,0 +1,132 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Löwenstein Medical German Clinical Palette */
+  --loewenstein-navy: #003865;
+  --loewenstein-blue: #005A9C;
+  --loewenstein-accent: #007AC1;
+  --loewenstein-ice-100: #F0F6FA;
+  --loewenstein-ice-200: #D8E7F3;
+  --loewenstein-dark: #001E36;
+  
+  --ink: #0A192F;
+  --paper: #F8FAFC;
+  --muted: #4A607A;
+
+  --card-ice: #EBF3FA;
+  --card-slate: #E2EEF5;
+  --card-mint: #E4F4F2;
+
+  --r-sm: 14px;
+  --r-md: 22px;
+  --r-lg: 34px;
+  --r-xl: 48px;
+
+  --shadow-soft: 0 2px 4px rgba(0,56,101,.04), 0 12px 28px -12px rgba(0,56,101,.18);
+  --shadow-lift: 0 4px 8px rgba(0,56,101,.05), 0 28px 60px -24px rgba(0,56,101,.35);
+  --shadow-inset: inset 0 1px 0 rgba(255,255,255,.8);
+  --product-drop: drop-shadow(0 26px 22px rgba(0,56,101,.22)) drop-shadow(0 4px 6px rgba(0,56,101,.12));
+  --ease: cubic-bezier(.22,.61,.36,1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+}
+
+/* Custom Utilities for Löwenstein Theme */
+.hero-gradient {
+  background: radial-gradient(120% 140% at 8% 0%, #EBF4FC 0%, var(--loewenstein-ice-200) 45%, #D0E3F3 100%);
+}
+
+.hero-sheen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 60% at 78% 12%, rgba(255,255,255,.7), transparent 60%);
+  mix-blend-mode: soft-light;
+}
+
+.hero-h1-em {
+  font-style: normal;
+  -webkit-text-stroke: 2px var(--loewenstein-navy);
+  color: transparent;
+}
+
+.product-drop-shadow {
+  filter: var(--product-drop);
+}
+
+.float-animation {
+  animation: float 7s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(-0.4deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(0.4deg);
+  }
+}
+
+.thumb-ground-shadow::before {
+  content: "";
+  position: absolute;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56%;
+  height: 14px;
+  background: radial-gradient(ellipse at center, rgba(0, 56, 101, 0.28) 0%, transparent 72%);
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(2px);
+}
+
+/* Seamless Horizontal Infinity Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-33.333333%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Custom Scrollbar Hiding Utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

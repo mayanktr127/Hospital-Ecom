@@ -1,0 +1,435 @@
+[
+  {
+    "id": "l-wenstein-prisma-20a",
+    "name": "-P-r-i-s-m-a- -2-0-A-",
+    "category": "Ventilation & Sleep",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-prisma-20a.png",
+    "originalUrl": "https://pulmocare.in/product/prisma-20a/",
+    "description": "Official Löwenstein Prisma 20A from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-prisma-smart",
+    "name": "-P-r-i-s-m-a- -S-m-a-r-t-",
+    "category": "Ventilation & Sleep",
+    "price": "₹",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-prisma-smart.png",
+    "originalUrl": "https://pulmocare.in/product/prisma-smart/",
+    "description": "Official Löwenstein Prisma Smart from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-prisma-smart-plus",
+    "name": "-P-r-i-s-m-a- -S-m-a-r-t- -P-l-u-s-",
+    "category": "Ventilation & Sleep",
+    "price": "₹",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-prisma-smart-plus.png",
+    "originalUrl": "https://pulmocare.in/product/prisma-smart-plus/",
+    "description": "Official Löwenstein Prisma Smart Plus from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-prisma-cr",
+    "name": "-P-r-i-s-m-a- -C-R-",
+    "category": "Ventilation & Sleep",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-prisma-cr.png",
+    "originalUrl": "https://pulmocare.in/product/prisma-cr/",
+    "description": "Official Löwenstein Prisma CR from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-prisma-lab",
+    "name": "-P-r-i-s-m-a- -L-A-B-",
+    "category": "Ventilation & Sleep",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-prisma-lab.png",
+    "originalUrl": "https://pulmocare.in/product/prisma-lab/",
+    "description": "Official Löwenstein Prisma LAB from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-prisma-aqua",
+    "name": "-P-r-i-s-m-a- -A-Q-U-A-",
+    "category": "Ventilation & Sleep",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-prisma-aqua.png",
+    "originalUrl": "https://pulmocare.in/product/prisma-aqua/",
+    "description": "Official Löwenstein Prisma AQUA from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-luisa-ventilator",
+    "name": "-L-u-i-s-a- -–- -V-e-n-t-i-l-a-t-o-r-",
+    "category": "Ventilation & Sleep",
+    "price": "₹",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-luisa-ventilator.png",
+    "originalUrl": "https://pulmocare.in/product/luisa-ventilator/",
+    "description": "Official Löwenstein Luisa – Ventilator from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-prisma-vent-40",
+    "name": "-P-r-i-s-m-a- -V-e-n-t- -4-0-",
+    "category": "Ventilation & Sleep",
+    "price": "₹",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-prisma-vent-40.png",
+    "originalUrl": "https://pulmocare.in/product/prisma-vent-40/",
+    "description": "Official Löwenstein Prisma Vent 40 from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-prisma-vent-50c",
+    "name": "-P-r-i-s-m-a- -V-e-n-t- -5-0-C-",
+    "category": "Ventilation & Sleep",
+    "price": "₹",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-prisma-vent-50c.png",
+    "originalUrl": "https://pulmocare.in/product/prisma-vent-50c/",
+    "description": "Official Löwenstein Prisma Vent 50C from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "inogen-rove-6",
+    "name": "-I-n-o-g-e-n- -R-o-v-e- -6-",
+    "category": "Ventilation & Sleep",
+    "price": "₹",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_inogen-rove-6.png",
+    "originalUrl": "https://pulmocare.in/product/inogen-rove-6/",
+    "description": "Official Inogen Rove 6 from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "nidek-neo-5",
+    "name": "-N-i-d-e-k- -N-e-o- -5-",
+    "category": "Ventilation & Sleep",
+    "price": "₹",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_nidek-neo-5.png",
+    "originalUrl": "https://pulmocare.in/product/simply-go-mini-copy/",
+    "description": "Official Nidek Neo 5 from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-polygraphy-devices-samoa",
+    "name": "-P-o-l-y-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-a-m-o-a-",
+    "category": "Diagnostic",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-polygraphy-devices-samoa.png",
+    "originalUrl": "https://pulmocare.in/product/polygraphy-devices-samoa/",
+    "description": "Official Löwenstein Polygraphy Devices – Samoa from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-polygraphy-devices-scala",
+    "name": "-P-o-l-y-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-c-a-l-a-",
+    "category": "Diagnostic",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-polygraphy-devices-scala.png",
+    "originalUrl": "https://pulmocare.in/product/polygraphy-devices-scala/",
+    "description": "Official Löwenstein Polygraphy Devices – Scala from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-polysomnography-devices-sonata",
+    "name": "-P-o-l-y-s-o-m-n-o-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-o-n-a-t-a-",
+    "category": "Diagnostic",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-polysomnography-devices-sonata.png",
+    "originalUrl": "https://pulmocare.in/product/polysomnography-devices-sonata/",
+    "description": "Official Löwenstein Polysomnography Devices – Sonata from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-cara-full-face",
+    "name": "-C-A-R-A- -F-u-l-l- -F-a-c-e-",
+    "category": "PPE & Protection",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-cara-full-face.png",
+    "originalUrl": "https://pulmocare.in/product/cara-full-face/",
+    "description": "Official Löwenstein CARA Full Face from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-joyceone-full-face",
+    "name": "-J-O-Y-C-E-o-n-e- -F-u-l-l- -F-a-c-e-",
+    "category": "PPE & Protection",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-joyceone-full-face.png",
+    "originalUrl": "https://pulmocare.in/product/joyceone-full-face/",
+    "description": "Official Löwenstein JOYCEone Full Face from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-lena",
+    "name": "-L-E-N-A-",
+    "category": "PPE & Protection",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-lena.png",
+    "originalUrl": "https://pulmocare.in/product/lena/",
+    "description": "Official Löwenstein LENA from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-cara",
+    "name": "-C-A-R-A-",
+    "category": "PPE & Protection",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-cara.png",
+    "originalUrl": "https://pulmocare.in/product/cara/",
+    "description": "Official Löwenstein CARA from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "l-wenstein-joyceone",
+    "name": "-J-O-Y-C-E-o-n-e-",
+    "category": "PPE & Protection",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-joyceone.png",
+    "originalUrl": "https://pulmocare.in/product/joyceone/",
+    "description": "Official Löwenstein JOYCEone from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India"
+    }
+  },
+  {
+    "id": "pulmo-prisma-25s",
+    "name": "Prisma 25S BiLevel Device",
+    "category": "Ventilation & Sleep",
+    "price": "Contact for Price",
+    "rating": 4.9,
+    "reviewsCount": 18,
+    "image": "/images/site/sleep_prisma25s_csm_prisma25S_Bilevel_S_ST_device_left_586616a621.jpg",
+    "description": "High-performance BiLevel therapy device for sleep apnea patients with high pressure requirements.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Therapy Mode": "BiLevel-S",
+      "Pressure Range": "4 - 25 hPa",
+      "Compliance": "CE / ISO 13485 Certified"
+    }
+  },
+  {
+    "id": "pulmo-prisma-25st",
+    "name": "Prisma 25ST BiLevel Device",
+    "category": "Ventilation & Sleep",
+    "price": "Contact for Price",
+    "rating": 4.9,
+    "reviewsCount": 22,
+    "image": "/images/site/sleep_prisma25s_csm_prisma25S_Bilevel_S_ST_device_left_586616a621.jpg",
+    "description": "BiLevel-ST device with target volume and automatic backup frequency for maximum respiratory support.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Therapy Mode": "BiLevel-ST",
+      "Pressure Range": "4 - 25 hPa",
+      "Compliance": "CE / ISO 13485 Certified"
+    }
+  },
+  {
+    "id": "pulmo-elisa-800",
+    "name": "elisa 800 ICU Ventilator",
+    "category": "Emergency",
+    "price": "Contact for Price",
+    "rating": 5.0,
+    "reviewsCount": 42,
+    "image": "/images/site/intensive_care_csm_elisa_800_intensive_care_ventilators_device_frontal_f3c59a79e7.png",
+    "description": "Premium intensive care ventilator platform with advanced lung monitoring and universal ventilation modes.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Application": "Intensive Care Unit (ICU)",
+      "Screen": "18.5\" Capacitive Touch Display",
+      "Compliance": "CE / ISO 13485 Certified"
+    }
+  },
+  {
+    "id": "pulmo-leon-plus",
+    "name": "LEON Plus Anesthesia Workstation",
+    "category": "Surgical",
+    "price": "Contact for Price",
+    "rating": 4.9,
+    "reviewsCount": 16,
+    "image": "/images/site/anesthesia_csm_leon_plus_anaesthesia_device_frontal_loops_c23d5c46f1.png",
+    "description": "Advanced anesthesia workstation featuring precise gas mixing, rebreathing system, and integrated monitoring.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Application": "Surgical Operating Theater",
+      "Ventilation": "Volume & Pressure Control",
+      "Compliance": "CE / ISO 13485 Certified"
+    }
+  }
+]
