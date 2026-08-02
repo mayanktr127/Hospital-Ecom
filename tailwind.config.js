@@ -8,35 +8,64 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        loewenstein: {
-          navy: "#003865",
-          blue: "#005A9C",
-          accent: "#007AC1",
-          ice100: "#F0F6FA",
-          ice200: "#D8E7F3",
-          dark: "#001E36",
+        /* PulmoCare pastel system (newdesign.md §1) */
+        navy: {
+          900: "#0a1f3c",
+          800: "#12315c",
+          700: "#1a4079",
         },
-        ink: "#0A192F",
-        paper: "#F8FAFC",
-        muted: "#4A607A",
-        cardIce: "#EBF3FA",
-        cardSlate: "#E2EEF5",
-        cardMint: "#E4F4F2",
+        brand: {
+          600: "#2a6ecb",
+          500: "#4b8ee6",
+          400: "#7fb0ee",
+        },
+        lilac: "#e9e6fb",
+        sky: "#dcebfb",
+        blush: "#fbe6ee",
+        mint: "#e0f3ec",
+        peach: "#fdeadf",
+        cream: "#f6f4fb",
+        line: "#e9edf4",
+        ok: "#1fb37a",
+        warn: "#e8a33d",
+        danger: "#dc4b56",
+
+        /* Legacy keys kept so existing utilities keep compiling — values
+           remapped onto the pastel palette. Do not rename: JSX references
+           these class names. */
+        loewenstein: {
+          navy: "#0a1f3c",
+          blue: "#12315c",
+          accent: "#2a6ecb",
+          ice100: "#f6f4fb",
+          ice200: "#dcebfb",
+          dark: "#0a1f3c",
+        },
+        ink: "#182a41",
+        paper: "#f7f6fb",
+        muted: "#64748b",
+        cardIce: "#dcebfb",
+        cardSlate: "#e9e6fb",
+        cardMint: "#e0f3ec",
       },
       fontFamily: {
-        archivo: ["var(--font-archivo)", "system-ui", "sans-serif"],
-        inter: ["var(--font-inter)", "system-ui", "sans-serif"],
+        archivo: ["var(--font-archivo)", "Space Grotesk", "system-ui", "sans-serif"],
+        inter: ["var(--font-inter)", "Inter", "system-ui", "sans-serif"],
       },
       borderRadius: {
         sm: "14px",
-        md: "22px",
-        lg: "34px",
-        xl: "48px",
+        md: "20px",
+        lg: "28px",
+        xl: "36px",
       },
       boxShadow: {
-        soft: "0 2px 4px rgba(0, 56, 101, .04), 0 12px 28px -12px rgba(0, 56, 101, .18)",
-        lift: "0 4px 8px rgba(0, 56, 101, .05), 0 28px 60px -24px rgba(0, 56, 101, .35)",
+        soft: "0 2px 8px rgba(24, 42, 65, .05)",
+        lift: "0 16px 44px rgba(24, 42, 65, .09)",
+        deep: "0 30px 70px rgba(24, 42, 65, .14)",
         inset: "inset 0 1px 0 rgba(255,255,255,.8)",
+      },
+      maxWidth: {
+        wrap: "1240px",
       },
     },
   },

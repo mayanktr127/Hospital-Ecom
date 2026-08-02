@@ -32,7 +32,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 bg-[#001E36]/50 backdrop-blur-md"
+          className="fixed inset-0 bg-[#0a1f3c]/50 backdrop-blur-md"
         />
 
         {/* Modal Window */}
@@ -41,12 +41,12 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.3, ease: [0.22, 0.61, 0.36, 1] }}
-          className="relative bg-white w-full max-w-3xl rounded-[34px] shadow-[0_28px_60px_-24px_rgba(0,56,101,0.35)] overflow-hidden border border-[#003865]/10 z-10 my-8"
+          className="relative bg-white w-full max-w-3xl rounded-[28px] shadow-[0_30px_70px_rgba(24,42,65,0.14)] overflow-hidden border border-[#e9edf4] z-10 my-8"
         >
           {/* Close button */}
           <button
             onClick={onClose}
-            className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white/80 backdrop-blur-md border border-[#003865]/10 flex items-center justify-center text-[#4A607A] hover:text-[#003865] hover:bg-white transition-all shadow-sm"
+            className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-white/80 backdrop-blur-md border border-[#e9edf4] flex items-center justify-center text-[#64748b] hover:text-[#2a6ecb] hover:bg-white transition-all shadow-[0_2px_8px_rgba(24,42,65,0.05)]"
             aria-label="Close modal"
           >
             <X className="w-5 h-5" />
@@ -54,9 +54,9 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
 
           <div className="grid grid-cols-1 md:grid-cols-2">
             {/* Left: Thumbnail container with ground shadow */}
-            <div className="bg-gradient-to-br from-[#D8E7F3] via-[#F0F6FA] to-white p-8 flex flex-col items-center justify-center relative min-h-[320px]">
+            <div className="bg-gradient-to-br from-[#e9e6fb] via-[#dcebfb] to-white p-8 flex flex-col items-center justify-center relative min-h-[320px]">
               {product.badge && (
-                <span className="absolute top-4 left-4 bg-[#003865] text-white text-[11px] font-bold font-archivo uppercase tracking-wider px-3 py-1 rounded-full">
+                <span className="absolute top-4 left-4 bg-[#0a1f3c] text-white text-[11px] font-bold font-archivo uppercase tracking-wider px-3 py-1 rounded-full">
                   {product.badge}
                 </span>
               )}
@@ -76,49 +76,49 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
             <div className="p-8 flex flex-col justify-between space-y-6">
               <div>
                 <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-widest text-[#007AC1]">
+                  <span className="eyebrow text-[11px]">
                     {product.category}
                   </span>
 
-                  <div className="flex items-center gap-1 text-amber-500 text-xs font-bold font-archivo">
-                    <Star className="w-3.5 h-3.5 fill-amber-500 text-amber-500" />
+                  <div className="flex items-center gap-1 text-[#f2b134] text-xs font-bold font-archivo">
+                    <Star className="w-3.5 h-3.5 fill-[#f2b134] text-[#f2b134]" />
                     <span>{product.rating}</span>
-                    <span className="text-[#4A607A] font-normal">({product.reviewsCount})</span>
+                    <span className="text-[#64748b] font-normal">({product.reviewsCount})</span>
                   </div>
                 </div>
 
-                <h2 className="font-archivo font-extrabold text-2xl text-[#0A192F] mt-1 leading-tight">
+                <h2 className="font-archivo font-medium text-[28px] tracking-[-0.04em] text-[#0a1f3c] mt-1 leading-tight">
                   {product.name}
                 </h2>
 
                 <div className="flex items-baseline gap-3 mt-3">
-                  <span className="font-archivo font-bold text-2xl text-[#003865]">
+                  <span className="font-archivo font-bold text-2xl text-[#0a1f3c]">
                     ${product.price.toFixed(2)}
                   </span>
                   {product.originalPrice && (
-                    <s className="text-sm font-archivo text-[#4A607A]/60 font-medium">
+                    <s className="text-sm font-inter text-[#64748b] font-medium">
                       ${product.originalPrice.toFixed(2)}
                     </s>
                   )}
-                  <span className="ml-auto text-xs font-semibold text-[#003865] bg-[#F0F6FA] px-2.5 py-0.5 rounded-full border border-[#003865]/15">
+                  <span className="ml-auto text-xs font-semibold text-[#2a6ecb] bg-[#dcebfb] px-2.5 py-1 rounded-full">
                     Löwenstein Certified
                   </span>
                 </div>
 
-                <p className="text-xs text-[#4A607A] mt-3 leading-relaxed">
+                <p className="text-xs text-[#64748b] mt-3 leading-relaxed">
                   {product.description}
                 </p>
 
                 {/* Specifications sheet */}
-                <div className="mt-5 pt-4 border-t border-[#003865]/08">
-                  <h4 className="text-xs font-bold font-archivo text-[#003865] uppercase tracking-wider mb-2">
+                <div className="mt-5 pt-4 border-t border-[#e9edf4]">
+                  <h4 className="text-xs font-bold font-archivo text-[#0a1f3c] uppercase tracking-wider mb-2">
                     German Technical Specifications
                   </h4>
                   <div className="grid grid-cols-2 gap-2 text-xs">
                     {product.specifications.map((spec, i) => (
-                      <div key={i} className="bg-[#F8FAFC] p-2 rounded-xl border border-[#003865]/05">
-                        <span className="text-[#4A607A] block text-[10px] uppercase font-semibold">{spec.label}</span>
-                        <span className="font-archivo font-bold text-[#0A192F] block mt-0.5">{spec.value}</span>
+                      <div key={i} className="bg-[#f6f4fb] p-2.5 rounded-[14px] border border-[#e9edf4]">
+                        <span className="text-[#64748b] block text-[10px] uppercase font-semibold">{spec.label}</span>
+                        <span className="font-archivo font-bold text-[#182a41] block mt-0.5">{spec.value}</span>
                       </div>
                     ))}
                   </div>
@@ -129,19 +129,19 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
               <div className="space-y-3 pt-2">
                 <div className="flex items-center gap-3">
                   {/* Quantity selector */}
-                  <div className="flex items-center border border-[#003865]/10 rounded-full bg-[#F8FAFC] h-11 px-2">
+                  <div className="flex items-center border border-[#e9edf4] rounded-full bg-white h-11 px-2">
                     <button
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-[#4A607A] hover:text-[#003865] hover:bg-[#003865]/05 transition-colors"
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
                     >
                       <Minus className="w-3.5 h-3.5" />
                     </button>
-                    <span className="w-8 text-center font-archivo font-bold text-sm text-[#003865]">
+                    <span className="w-8 text-center font-archivo font-bold text-sm text-[#0a1f3c]">
                       {quantity}
                     </span>
                     <button
                       onClick={() => setQuantity(quantity + 1)}
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-[#4A607A] hover:text-[#003865] hover:bg-[#003865]/05 transition-colors"
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -153,7 +153,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                       addToast("Added to Cart", `${quantity}x ${product.name} added to your cart.`);
                       onClose();
                     }}
-                    className="flex-1 py-3 px-6 rounded-full bg-[#003865] text-white font-inter font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[#005A9C] shadow-[0_12px_26px_-14px_#003865] active:scale-[0.98] transition-all"
+                    className="btn btn-primary flex-1 active:scale-[0.98]"
                   >
                     <ShoppingBag className="w-4 h-4" />
                     <span>Add to Cart — ${(product.price * quantity).toFixed(2)}</span>
@@ -167,12 +167,15 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                         favorite ? `${product.name} removed.` : `${product.name} saved to your shortlist.`
                       );
                     }}
-                    className={`p-3 rounded-full border border-[#003865]/10 transition-colors ${
-                      favorite ? "bg-rose-50 text-rose-600 border-rose-200" : "bg-white text-[#0A192F] hover:bg-[#003865]/05"
+                    className={`p-3 rounded-full border transition-colors ${
+                      favorite
+                        ? "bg-[#fbe6ee] text-[#dc4b56] border-[#dc4b56]/30"
+                        : "bg-white text-[#182a41] border-[#e9edf4] hover:bg-[#f6f4fb] hover:border-[#7fb0ee]"
                     }`}
                     aria-label="Wishlist"
+                    aria-pressed={favorite}
                   >
-                    <Heart className={`w-5 h-5 ${favorite ? "fill-rose-600" : ""}`} />
+                    <Heart className={`w-5 h-5 ${favorite ? "fill-[#dc4b56]" : ""}`} />
                   </button>
                 </div>
               </div>

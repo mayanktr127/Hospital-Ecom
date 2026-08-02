@@ -33,21 +33,21 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onSelectCategory }) 
               if (shopSec) shopSec.scrollIntoView({ behavior: "smooth" });
             }}
             style={{ backgroundColor: cat.bg }}
-            className="group relative rounded-[34px] p-7 min-h-[300px] flex flex-col overflow-hidden shadow-[0_2px_4px_rgba(0,56,101,0.04),0_12px_28px_-12px_rgba(0,56,101,0.18)] hover:shadow-[0_4px_8px_rgba(0,56,101,0.05),0_28px_60px_-24px_rgba(0,56,101,0.35)] cursor-pointer transition-shadow"
+            className="group relative rounded-[28px] p-7 min-h-[300px] flex flex-col overflow-hidden shadow-[0_2px_4px_rgba(24,42,65,0.04),0_12px_28px_-12px_rgba(24,42,65,0.18)] hover:shadow-[0_4px_8px_rgba(24,42,65,0.05),0_28px_60px_-24px_rgba(24,42,65,0.35)] cursor-pointer transition-shadow"
           >
             {/* Header / Arrow Badge */}
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#4A607A]">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#64748b]">
                   {cat.count}
                 </span>
-                <h3 className="font-archivo font-bold text-2xl md:text-3xl text-[#003865] mt-1 max-w-[70%] leading-tight">
+                <h3 className="font-archivo font-bold text-2xl md:text-3xl text-[#0a1f3c] mt-1 max-w-[70%] leading-tight">
                   {cat.name}
                 </h3>
               </div>
 
-              <div className="w-11 h-11 rounded-full bg-white grid place-items-center shadow-[0_2px_4px_rgba(0,56,101,0.04),0_12px_28px_-12px_rgba(0,56,101,0.18)] group-hover:rotate-45 transition-transform duration-400">
-                <ArrowUpRight className="w-5 h-5 text-[#003865]" />
+              <div className="w-11 h-11 rounded-full bg-white grid place-items-center shadow-[0_2px_4px_rgba(24,42,65,0.04),0_12px_28px_-12px_rgba(24,42,65,0.18)] group-hover:rotate-45 transition-transform duration-400">
+                <ArrowUpRight className="w-5 h-5 text-[#0a1f3c]" />
               </div>
             </div>
 
@@ -58,7 +58,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({ onSelectCategory }) 
                 alt={cat.name}
                 width={200}
                 height={200}
-                className="w-[82%] object-contain max-h-[160px] drop-shadow-[0_22px_18px_rgba(0,56,101,0.22)] group-hover:scale-105 transition-transform duration-500"
+                className="w-[82%] object-contain max-h-[160px] drop-shadow-[0_22px_18px_rgba(24,42,65,0.22)] group-hover:scale-105 transition-transform duration-500"
               />
             </div>
           </motion.div>

@@ -29,6 +29,11 @@ export interface Product {
   features?: string[];
   specifications: ProductSpecification[];
   badge?: string;
+  brand?: string;
+  sku?: string;
+  boxContents?: string[];
+  warranty?: string;
+  brochureUrl?: string;
 }
 
 export interface CartItem {

@@ -210,20 +210,24 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
   }, []);
 
   return (
-    <header className="w-full bg-white/95 backdrop-blur-md border-b border-[#003865]/10 sticky top-0 z-50 transition-all duration-200" ref={navContainerRef}>
+    <header
+      className="w-full bg-white/75 backdrop-blur-xl border-b border-[#e9edf4] sticky top-0 z-50 transition-all duration-200 shadow-[0_2px_8px_rgba(24,42,65,0.05)]"
+      ref={navContainerRef}
+      onMouseLeave={() => setActiveDropdown(null)}
+    >
       {/* Top Utility Bar: Contact & Global Portal */}
-      <div className="wrap max-w-[1240px] mx-auto px-4 md:px-6 py-1.5 flex items-center justify-between text-xs text-[#003865] font-inter font-medium border-b border-[#003865]/06">
-        <div className="flex items-center gap-4 text-[#4A607A] w-full sm:w-auto justify-center sm:justify-start">
-          <span>📞 Hotline: <a href="tel:+919343444428" className="font-bold text-[#003865] hover:text-[#007AC1]">+91 9343444428</a></span>
+      <div className="wrap max-w-[1240px] mx-auto px-4 md:px-6 py-1.5 flex items-center justify-between text-xs text-[#0a1f3c] font-inter font-medium border-b border-[#e9edf4]">
+        <div className="flex items-center gap-4 text-[#64748b] w-full sm:w-auto justify-center sm:justify-start">
+          <span>📞 Hotline: <a href="tel:+919343444428" className="font-bold text-[#0a1f3c] hover:text-[#2a6ecb]">+91 9343444428</a></span>
           <span className="hidden sm:inline">|</span>
-          <span className="hidden sm:inline">✉️ <a href="mailto:enquiry@pulmocare.in" className="font-bold text-[#003865] hover:text-[#007AC1]">enquiry@pulmocare.in</a></span>
+          <span className="hidden sm:inline">✉️ <a href="mailto:enquiry@pulmocare.in" className="font-bold text-[#0a1f3c] hover:text-[#2a6ecb]">enquiry@pulmocare.in</a></span>
         </div>
 
         <div className="hidden sm:flex items-center gap-6">
           {/* Admin Portal Link */}
           <Link
             href="/admin"
-            className="flex items-center gap-1 text-[#007AC1] hover:text-[#003865] font-bold transition-colors"
+            className="flex items-center gap-1 text-[#2a6ecb] hover:text-[#0a1f3c] font-bold transition-colors"
           >
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>Admin Portal</span>
@@ -232,9 +236,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
           {/* Safety Information Link */}
           <button
             onClick={() => setSafetyModalOpen(true)}
-            className="flex items-center gap-1.5 hover:text-[#007AC1] transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 hover:text-[#2a6ecb] transition-colors cursor-pointer"
           >
-            <ShieldAlert className="w-3.5 h-3.5 text-[#007AC1]" />
+            <ShieldAlert className="w-3.5 h-3.5 text-[#2a6ecb]" />
             <span>Safety information</span>
           </button>
 
@@ -242,11 +246,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
           <div className="relative" ref={globalRef}>
             <button
               onClick={() => setGlobalWebsiteOpen(!globalWebsiteOpen)}
-              className="flex items-center gap-1.5 hover:text-[#007AC1] transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 hover:text-[#2a6ecb] transition-colors cursor-pointer"
             >
-              <Globe className="w-3.5 h-3.5 text-[#007AC1]" />
+              <Globe className="w-3.5 h-3.5 text-[#2a6ecb]" />
               <span>{selectedLanguage}</span>
-              <ChevronDown className="w-3 h-3 text-[#4A607A]" />
+              <ChevronDown className="w-3 h-3 text-[#64748b]" />
             </button>
 
             <AnimatePresence>
@@ -255,9 +259,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 6 }}
-                  className="absolute right-0 top-full mt-2 w-56 bg-white border border-[#003865]/12 rounded-2xl shadow-xl py-2 z-50 text-xs font-inter"
+                  className="absolute right-0 top-full mt-2 w-56 bg-white border border-[#e9edf4] rounded-2xl shadow-xl py-2 z-50 text-xs font-inter"
                 >
-                  <div className="px-3.5 py-1.5 font-bold text-[#003865] border-b border-[#003865]/08">
+                  <div className="px-3.5 py-1.5 font-bold text-[#0a1f3c] border-b border-[#e9edf4]">
                     Select Region &amp; Language
                   </div>
 
@@ -269,13 +273,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                         setGlobalWebsiteOpen(false);
                         addToast("Region Updated", `Switched to ${lang.label}`);
                       }}
-                      className="w-full flex items-center justify-between px-3.5 py-2 hover:bg-[#F0F6FA] text-left text-[#003865] transition-colors cursor-pointer"
+                      className="w-full flex items-center justify-between px-3.5 py-2 hover:bg-[#f6f4fb] text-left text-[#0a1f3c] transition-colors cursor-pointer"
                     >
                       <div>
                         <span className="block font-medium">{lang.label}</span>
-                        <span className="text-[10px] text-[#4A607A]">{lang.region}</span>
+                        <span className="text-[10px] text-[#64748b]">{lang.region}</span>
                       </div>
-                      {selectedLanguage === lang.label && <Check className="w-3.5 h-3.5 text-[#007AC1]" />}
+                      {selectedLanguage === lang.label && <Check className="w-3.5 h-3.5 text-[#2a6ecb]" />}
                     </button>
                   ))}
                 </motion.div>
@@ -300,17 +304,17 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
         </Link>
 
         {/* Desktop Navigation Links */}
-        <ul className="hidden lg:flex items-center gap-8 font-inter font-medium text-sm text-[#003865] list-none p-0 m-0">
+        <ul className="hidden lg:flex items-center gap-8 font-inter font-medium text-sm text-[#0a1f3c] list-none p-0 m-0">
           <li className="relative">
             <button
               onClick={() => setActiveDropdown(activeDropdown === "company" ? null : "company")}
               onMouseEnter={() => setActiveDropdown("company")}
               className={`flex items-center gap-1.5 py-1 transition-colors ${
-                activeDropdown === "company" ? "text-[#007AC1] font-semibold" : "hover:text-[#007AC1]"
+                activeDropdown === "company" ? "text-[#2a6ecb] font-semibold" : "hover:text-[#2a6ecb]"
               }`}
             >
               <span>Company</span>
-              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === "company" ? "rotate-180 text-[#007AC1]" : ""}`} />
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === "company" ? "rotate-180 text-[#2a6ecb]" : ""}`} />
             </button>
           </li>
 
@@ -319,11 +323,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
               onClick={() => setActiveDropdown(activeDropdown === "professionals" ? null : "professionals")}
               onMouseEnter={() => setActiveDropdown("professionals")}
               className={`flex items-center gap-1.5 py-1 transition-colors ${
-                activeDropdown === "professionals" ? "text-[#007AC1] font-semibold" : "hover:text-[#007AC1]"
+                activeDropdown === "professionals" ? "text-[#2a6ecb] font-semibold" : "hover:text-[#2a6ecb]"
               }`}
             >
               <span>Professionals</span>
-              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === "professionals" ? "rotate-180 text-[#007AC1]" : ""}`} />
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === "professionals" ? "rotate-180 text-[#2a6ecb]" : ""}`} />
             </button>
           </li>
 
@@ -332,16 +336,16 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
               onClick={() => setActiveDropdown(activeDropdown === "products" ? null : "products")}
               onMouseEnter={() => setActiveDropdown("products")}
               className={`flex items-center gap-1.5 py-1 transition-colors ${
-                activeDropdown === "products" ? "text-[#007AC1] font-semibold" : "hover:text-[#007AC1]"
+                activeDropdown === "products" ? "text-[#2a6ecb] font-semibold" : "hover:text-[#2a6ecb]"
               }`}
             >
               <span>Products</span>
-              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === "products" ? "rotate-180 text-[#007AC1]" : ""}`} />
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${activeDropdown === "products" ? "rotate-180 text-[#2a6ecb]" : ""}`} />
             </button>
           </li>
 
           <li>
-            <Link href="/blog" className="hover:text-[#007AC1] transition-colors py-1">
+            <Link href="/blog" className="hover:text-[#2a6ecb] transition-colors py-1">
               Blog
             </Link>
           </li>
@@ -352,9 +356,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
           {onOpenSearch && (
             <button
               onClick={onOpenSearch}
-              className="hidden sm:inline-flex items-center gap-2 h-10 px-4 rounded-full border border-[#003865]/12 bg-white text-xs text-[#4A607A] hover:text-[#003865] hover:border-[#003865]/30 shadow-xs transition-all cursor-pointer"
+              className="hidden sm:inline-flex items-center gap-2 h-10 px-4 rounded-full border border-[#e9edf4] bg-white text-xs text-[#64748b] hover:text-[#2a6ecb] hover:border-[#7fb0ee] shadow-[0_2px_8px_rgba(24,42,65,0.05)] transition-all cursor-pointer"
             >
-              <Search className="w-3.5 h-3.5 text-[#003865]" />
+              <Search className="w-3.5 h-3.5 text-[#0a1f3c]" />
               <span>Search</span>
             </button>
           )}
@@ -362,12 +366,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
           {/* Wishlist Button */}
           <button
             onClick={toggleWishlist}
-            className="w-10 h-10 rounded-full border border-[#003865]/15 bg-white flex items-center justify-center text-[#003865] hover:bg-[#F0F6FA] hover:text-[#007AC1] transition-colors relative shrink-0 cursor-pointer shadow-xs"
+            className="w-10 h-10 rounded-full border border-[#e9edf4] bg-white flex items-center justify-center text-[#0a1f3c] hover:bg-[#fbe6ee] hover:text-[#2a6ecb] hover:border-[#7fb0ee] transition-colors relative shrink-0 cursor-pointer shadow-[0_2px_8px_rgba(24,42,65,0.05)]"
             aria-label="Wishlist"
           >
-            <Heart className="w-5 h-5 text-[#003865]" />
+            <Heart className="w-5 h-5 text-[#0a1f3c]" />
             {wishlist.length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-[#007AC1] text-white text-[10px] font-archivo font-extrabold flex items-center justify-center border-2 border-white shadow-md z-10 leading-none">
+              <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-[#2a6ecb] text-white text-[10px] font-archivo font-semibold flex items-center justify-center border-2 border-white shadow-md z-10 leading-none">
                 {wishlist.length}
               </span>
             )}
@@ -376,12 +380,12 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
           {/* Cart Button */}
           <button
             onClick={toggleCart}
-            className="w-10 h-10 rounded-full border border-[#003865]/15 bg-white flex items-center justify-center text-[#003865] hover:bg-[#F0F6FA] hover:text-[#007AC1] transition-colors relative shrink-0 cursor-pointer shadow-xs"
+            className="w-10 h-10 rounded-full border border-[#e9edf4] bg-white flex items-center justify-center text-[#0a1f3c] hover:bg-[#dcebfb] hover:text-[#2a6ecb] hover:border-[#7fb0ee] transition-colors relative shrink-0 cursor-pointer shadow-[0_2px_8px_rgba(24,42,65,0.05)]"
             aria-label="Cart"
           >
-            <ShoppingBag className="w-5 h-5 text-[#003865]" />
+            <ShoppingBag className="w-5 h-5 text-[#0a1f3c]" />
             {totalItems > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-[#003865] text-white text-[10px] font-archivo font-extrabold flex items-center justify-center border-2 border-white shadow-md z-10 leading-none">
+              <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-[20px] px-1 rounded-full bg-[#0a1f3c] text-white text-[10px] font-archivo font-semibold flex items-center justify-center border-2 border-white shadow-md z-10 leading-none">
                 {totalItems}
               </span>
             )}
@@ -390,10 +394,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
           {/* Mobile Hamburger Button (≡) */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden w-10 h-10 rounded-full border border-[#003865]/12 grid place-items-center text-[#003865] cursor-pointer"
+            className="lg:hidden w-10 h-10 rounded-full border border-[#e9edf4] bg-white grid place-items-center text-[#0a1f3c] cursor-pointer shadow-[0_2px_8px_rgba(24,42,65,0.05)]"
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5 text-[#003865]" /> : <Menu className="w-5 h-5 text-[#003865]" />}
+            {mobileMenuOpen ? <X className="w-5 h-5 text-[#0a1f3c]" /> : <Menu className="w-5 h-5 text-[#0a1f3c]" />}
           </button>
         </div>
 
@@ -404,40 +408,40 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-[#003865]/15 shadow-2xl overflow-hidden z-50 text-xs font-inter"
+              className="lg:hidden absolute top-full left-0 right-0 bg-white border-b border-[#0a1f3c]/15 shadow-2xl overflow-hidden z-50 text-xs font-inter"
             >
               <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
                 {/* 1. Products Accordion */}
-                <div className="border border-[#003865]/10 rounded-2xl p-4 bg-[#F8FAFC]">
+                <div className="border border-[#0a1f3c]/10 rounded-2xl p-4 bg-[#f7f6fb]">
                   <button
                     onClick={() => setMobileProductsOpen(!mobileProductsOpen)}
-                    className="w-full flex items-center justify-between font-archivo font-extrabold text-sm text-[#003865]"
+                    className="w-full flex items-center justify-between font-archivo font-semibold text-sm text-[#0a1f3c]"
                   >
                     <span className="flex items-center gap-2">
-                      <ShoppingBag className="w-4 h-4 text-[#007AC1]" />
+                      <ShoppingBag className="w-4 h-4 text-[#2a6ecb]" />
                       Products &amp; Categories
                     </span>
                     {mobileProductsOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
 
                   {mobileProductsOpen && (
-                    <div className="mt-3 space-y-2 pt-2 border-t border-[#003865]/10">
+                    <div className="mt-3 space-y-2 pt-2 border-t border-[#0a1f3c]/10">
                       {Object.entries(productSubMenuMap).map(([key, cat]) => (
                         <div key={key} className="space-y-1">
                           <Link
                             href={cat.overviewLink}
                             onClick={() => setMobileMenuOpen(false)}
-                            className="block font-bold text-[#007AC1] hover:underline py-1 text-xs"
+                            className="block font-bold text-[#2a6ecb] hover:underline py-1 text-xs"
                           >
                             {cat.title} →
                           </Link>
-                          <div className="pl-3 space-y-1 text-[#4A607A]">
+                          <div className="pl-3 space-y-1 text-[#64748b]">
                             {cat.subGroups[0]?.items.map((item) => (
                               <Link
                                 key={item.name}
                                 href={item.link}
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="block py-1 hover:text-[#003865]"
+                                className="block py-1 hover:text-[#0a1f3c]"
                               >
                                 • {item.name}
                               </Link>
@@ -450,26 +454,26 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                 </div>
 
                 {/* 2. Company Accordion */}
-                <div className="border border-[#003865]/10 rounded-2xl p-4 bg-[#F8FAFC]">
+                <div className="border border-[#0a1f3c]/10 rounded-2xl p-4 bg-[#f7f6fb]">
                   <button
                     onClick={() => setMobileCompanyOpen(!mobileCompanyOpen)}
-                    className="w-full flex items-center justify-between font-archivo font-extrabold text-sm text-[#003865]"
+                    className="w-full flex items-center justify-between font-archivo font-semibold text-sm text-[#0a1f3c]"
                   >
                     <span className="flex items-center gap-2">
-                      <Building2 className="w-4 h-4 text-[#007AC1]" />
+                      <Building2 className="w-4 h-4 text-[#2a6ecb]" />
                       Company Overview
                     </span>
                     {mobileCompanyOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </button>
 
                   {mobileCompanyOpen && (
-                    <div className="mt-3 space-y-2 pt-2 border-t border-[#003865]/10 text-[#4A607A]">
-                      <Link href="/company/about-us" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#007AC1]">About Us</Link>
-                      <Link href="/company/our-values" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#007AC1]">Our Values</Link>
-                      <Link href="/company/compliance" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#007AC1]">Compliance</Link>
-                      <Link href="/company/quality-management" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#007AC1]">Quality Management</Link>
-                      <Link href="/company/sustainability" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#007AC1]">Sustainability</Link>
-                      <Link href="/career/job-openings" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#007AC1]">Job Openings</Link>
+                    <div className="mt-3 space-y-2 pt-2 border-t border-[#0a1f3c]/10 text-[#64748b]">
+                      <Link href="/company/about-us" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#2a6ecb]">About Us</Link>
+                      <Link href="/company/our-values" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#2a6ecb]">Our Values</Link>
+                      <Link href="/company/compliance" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#2a6ecb]">Compliance</Link>
+                      <Link href="/company/quality-management" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#2a6ecb]">Quality Management</Link>
+                      <Link href="/company/sustainability" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#2a6ecb]">Sustainability</Link>
+                      <Link href="/career/job-openings" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#2a6ecb]">Job Openings</Link>
                     </div>
                   )}
                 </div>
@@ -479,30 +483,30 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                   <Link
                     href="/blog"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 font-archivo font-bold text-sm text-[#003865] p-3 rounded-xl hover:bg-[#F0F6FA]"
+                    className="flex items-center gap-2 font-archivo font-bold text-sm text-[#0a1f3c] p-3 rounded-xl hover:bg-[#f6f4fb]"
                   >
-                    <FileText className="w-4 h-4 text-[#007AC1]" />
+                    <FileText className="w-4 h-4 text-[#2a6ecb]" />
                     <span>Clinical Blog &amp; Articles</span>
                   </Link>
 
                   <Link
                     href="/admin"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 font-archivo font-bold text-sm text-[#007AC1] p-3 rounded-xl bg-[#007AC1]/10"
+                    className="flex items-center gap-2 font-archivo font-bold text-sm text-[#2a6ecb] p-3 rounded-xl bg-[#2a6ecb]/10"
                   >
-                    <ShieldCheck className="w-4 h-4 text-[#007AC1]" />
+                    <ShieldCheck className="w-4 h-4 text-[#2a6ecb]" />
                     <span>Admin Control Portal</span>
                   </Link>
                 </div>
 
                 {/* 4. Contact Footer Strip */}
-                <div className="pt-4 border-t border-[#003865]/10 space-y-2 text-xs text-[#4A607A]">
-                  <a href="tel:+919343444428" className="flex items-center gap-2 font-bold text-[#003865]">
-                    <Phone className="w-4 h-4 text-[#007AC1]" />
+                <div className="pt-4 border-t border-[#0a1f3c]/10 space-y-2 text-xs text-[#64748b]">
+                  <a href="tel:+919343444428" className="flex items-center gap-2 font-bold text-[#0a1f3c]">
+                    <Phone className="w-4 h-4 text-[#2a6ecb]" />
                     <span>Hotline: +91 9343444428</span>
                   </a>
                   <a href="mailto:enquiry@pulmocare.in" className="flex items-center gap-2 font-medium">
-                    <Mail className="w-4 h-4 text-[#007AC1]" />
+                    <Mail className="w-4 h-4 text-[#2a6ecb]" />
                     <span>enquiry@pulmocare.in</span>
                   </a>
                 </div>
@@ -519,19 +523,128 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
-              className="hidden lg:block absolute top-full left-0 right-0 bg-white border-b border-[#003865]/15 shadow-2xl z-40 p-8 text-xs font-inter"
+              className="hidden lg:block absolute top-full left-0 right-0 bg-white border-b border-[#0a1f3c]/15 shadow-2xl z-40 p-8 text-xs font-inter"
             >
+              {/* 1. COMPANY MEGA DROPDOWN */}
+              {activeDropdown === "company" && (
+                <div className="max-w-[1240px] mx-auto grid grid-cols-12 gap-8">
+                  <div className="col-span-4 pr-6 border-r border-[#e9edf4]">
+                    <h3 className="font-archivo font-normal text-3xl text-[#64748b] mb-3">Company</h3>
+                    <p className="text-xs font-inter text-[#64748b] leading-relaxed mb-4">
+                      Discover Löwenstein Medical &amp; Pulmo Care history, company values, quality management, and clinical innovation.
+                    </p>
+                  </div>
+                  <div className="col-span-8 grid grid-cols-3 gap-4">
+                    <Link
+                      href="/company/about-us"
+                      onClick={() => setActiveDropdown(null)}
+                      className="p-4 rounded-[20px] bg-[#f6f4fb] border border-[#e9edf4] hover:border-[#7fb0ee] hover:bg-[#dcebfb] hover:-translate-y-0.5 transition-all group"
+                    >
+                      <Building2 className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold text-[#0a1f3c] block mb-1">About Us</span>
+                      <span className="text-[11px] text-[#64748b]">Our heritage &amp; leadership</span>
+                    </Link>
+                    <Link
+                      href="/company/our-values"
+                      onClick={() => setActiveDropdown(null)}
+                      className="p-4 rounded-[20px] bg-[#f6f4fb] border border-[#e9edf4] hover:border-[#7fb0ee] hover:bg-[#dcebfb] hover:-translate-y-0.5 transition-all group"
+                    >
+                      <ShieldCheck className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold text-[#0a1f3c] block mb-1">Our Values</span>
+                      <span className="text-[11px] text-[#64748b]">Quality, trust &amp; patient care</span>
+                    </Link>
+                    <Link
+                      href="/company/compliance"
+                      onClick={() => setActiveDropdown(null)}
+                      className="p-4 rounded-[20px] bg-[#f6f4fb] border border-[#e9edf4] hover:border-[#7fb0ee] hover:bg-[#dcebfb] hover:-translate-y-0.5 transition-all group"
+                    >
+                      <FileText className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold text-[#0a1f3c] block mb-1">Compliance</span>
+                      <span className="text-[11px] text-[#64748b]">Regulatory &amp; clinical ethics</span>
+                    </Link>
+                    <Link
+                      href="/company/quality-management"
+                      onClick={() => setActiveDropdown(null)}
+                      className="p-4 rounded-[20px] bg-[#f6f4fb] border border-[#e9edf4] hover:border-[#7fb0ee] hover:bg-[#dcebfb] hover:-translate-y-0.5 transition-all group"
+                    >
+                      <Check className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold text-[#0a1f3c] block mb-1">Quality Management</span>
+                      <span className="text-[11px] text-[#64748b]">ISO 13485 Standards</span>
+                    </Link>
+                    <Link
+                      href="/company/sustainability"
+                      onClick={() => setActiveDropdown(null)}
+                      className="p-4 rounded-[20px] bg-[#f6f4fb] border border-[#e9edf4] hover:border-[#7fb0ee] hover:bg-[#dcebfb] hover:-translate-y-0.5 transition-all group"
+                    >
+                      <Globe className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold text-[#0a1f3c] block mb-1">Sustainability</span>
+                      <span className="text-[11px] text-[#64748b]">Eco-friendly manufacturing</span>
+                    </Link>
+                    <Link
+                      href="/career/job-openings"
+                      onClick={() => setActiveDropdown(null)}
+                      className="p-4 rounded-[20px] bg-[#f6f4fb] border border-[#e9edf4] hover:border-[#7fb0ee] hover:bg-[#dcebfb] hover:-translate-y-0.5 transition-all group"
+                    >
+                      <Briefcase className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold text-[#0a1f3c] block mb-1">Careers</span>
+                      <span className="text-[11px] text-[#64748b]">Join our medical team</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              {/* 2. PROFESSIONALS MEGA DROPDOWN */}
+              {activeDropdown === "professionals" && (
+                <div className="max-w-[1240px] mx-auto grid grid-cols-12 gap-8">
+                  <div className="col-span-4 pr-6 border-r border-[#e9edf4]">
+                    <h3 className="font-archivo font-normal text-3xl text-[#64748b] mb-3">Professionals</h3>
+                    <p className="text-xs font-inter text-[#64748b] leading-relaxed mb-4">
+                      Clinical resources, technical manuals, software downloads, and training for physicians and medical specialists.
+                    </p>
+                  </div>
+                  <div className="col-span-8 grid grid-cols-3 gap-4">
+                    <Link
+                      href="/professionals"
+                      onClick={() => setActiveDropdown(null)}
+                      className="p-4 rounded-[20px] bg-[#f6f4fb] border border-[#e9edf4] hover:border-[#7fb0ee] hover:bg-[#dcebfb] hover:-translate-y-0.5 transition-all group"
+                    >
+                      <UserCheck className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold text-[#0a1f3c] block mb-1">Clinical Portal</span>
+                      <span className="text-[11px] text-[#64748b]">Physician &amp; specialist hub</span>
+                    </Link>
+                    <Link
+                      href="/downloads"
+                      onClick={() => setActiveDropdown(null)}
+                      className="p-4 rounded-[20px] bg-[#f6f4fb] border border-[#e9edf4] hover:border-[#7fb0ee] hover:bg-[#dcebfb] hover:-translate-y-0.5 transition-all group"
+                    >
+                      <FileText className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold text-[#0a1f3c] block mb-1">Downloads &amp; Manuals</span>
+                      <span className="text-[11px] text-[#64748b]">Technical PDF documentation</span>
+                    </Link>
+                    <Link
+                      href="/blog"
+                      onClick={() => setActiveDropdown(null)}
+                      className="p-4 rounded-[20px] bg-[#f6f4fb] border border-[#e9edf4] hover:border-[#7fb0ee] hover:bg-[#dcebfb] hover:-translate-y-0.5 transition-all group"
+                    >
+                      <FileText className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold text-[#0a1f3c] block mb-1">Clinical Research</span>
+                      <span className="text-[11px] text-[#64748b]">Ventilation study insights</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
               {/* 3. PRODUCTS MEGA DROPDOWN */}
               {activeDropdown === "products" && (
-                <div className="max-w-[1240px] mx-auto grid grid-cols-12 gap-8 divide-x divide-[#003865]/15">
+                <div className="max-w-[1240px] mx-auto grid grid-cols-12 gap-8 divide-x divide-[#0a1f3c]/15">
                   <div className="col-span-3 pr-6">
-                    <h3 className="font-archivo font-normal text-3xl text-[#4A607A] mb-3">Products</h3>
-                    <p className="text-xs font-inter text-[#4A607A] leading-relaxed mb-4">
+                    <h3 className="font-archivo font-normal text-3xl text-[#64748b] mb-3">Products</h3>
+                    <p className="text-xs font-inter text-[#64748b] leading-relaxed mb-4">
                       Explore German engineered ventilators, CPAP devices, diagnostics, and patient interfaces.
                     </p>
                   </div>
 
-                  <div className="col-span-5 px-6 border-r border-[#003865]/12">
+                  <div className="col-span-5 px-6 border-r border-[#e9edf4]">
                     <div className="space-y-1 max-h-[360px] overflow-y-auto pr-1">
                       {(
                         [
@@ -554,11 +667,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                               setExpandedSubGroup(productSubMenuMap[focus.key].subGroups[0]?.title || null);
                             }}
                             className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-left font-medium transition-all cursor-pointer ${
-                              isSelected ? "bg-[#003865] text-white font-semibold shadow-sm" : "hover:bg-[#003865]/08 hover:text-[#007AC1]"
+                              isSelected ? "bg-[#0a1f3c] text-[#FFFFFF] font-semibold shadow-sm" : "hover:bg-[#f6f4fb] hover:text-[#2a6ecb]"
                             }`}
                           >
                             <span>{focus.label}</span>
-                            <ChevronRight className={`w-4 h-4 ${isSelected ? "text-white" : "text-[#003865]/40"}`} />
+                            <ChevronRight className={`w-4 h-4 ${isSelected ? "text-white" : "text-[#0a1f3c]/40"}`} />
                           </button>
                         );
                       })}
@@ -566,11 +679,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                   </div>
 
                   <div className="col-span-4 pl-6 space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-[#003865]/12">
+                    <div className="flex items-center justify-between pb-2 border-b border-[#e9edf4]">
                       <Link
                         href={productSubMenuMap[activeProductFocus].overviewLink}
                         onClick={() => setActiveDropdown(null)}
-                        className="text-xs font-bold text-[#007AC1] hover:underline flex items-center gap-1 font-inter"
+                        className="text-xs font-bold text-[#2a6ecb] hover:underline flex items-center gap-1 font-inter"
                       >
                         <span>Category Overview</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -579,15 +692,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
 
                     <div className="space-y-2">
                       {productSubMenuMap[activeProductFocus].subGroups.map((subGroup) => (
-                        <div key={subGroup.title} className="border border-[#003865]/10 rounded-2xl p-3 bg-white/90">
-                          <span className="font-bold text-[#003865] block mb-2">{subGroup.title}</span>
+                        <div key={subGroup.title} className="border border-[#0a1f3c]/10 rounded-2xl p-3 bg-white/90">
+                          <span className="font-bold text-[#0a1f3c] block mb-2">{subGroup.title}</span>
                           <div className="space-y-1 pl-2">
                             {subGroup.items.map((item) => (
                               <Link
                                 key={item.name}
                                 href={item.link}
                                 onClick={() => setActiveDropdown(null)}
-                                className="block py-1 hover:text-[#007AC1] font-medium"
+                                className="block py-1 hover:text-[#2a6ecb] font-medium"
                               >
                                 • {item.name}
                               </Link>

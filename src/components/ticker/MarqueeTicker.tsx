@@ -14,7 +14,7 @@ export const MarqueeTicker: React.FC = () => {
   const fullItems = [...items, ...items, ...items];
 
   return (
-    <div className="mt-16 bg-[#003865] text-white overflow-hidden py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border-y border-[#003865]/20">
+    <div className="mt-16 bg-[#0a1f3c] text-white overflow-hidden py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.2)] border-y border-[#0a1f3c]/20">
       <div className="marquee-loop font-archivo font-bold text-sm md:text-base text-white tracking-wider uppercase">
         {fullItems.map((text, idx) => (
           <span key={idx} className="flex items-center gap-3">

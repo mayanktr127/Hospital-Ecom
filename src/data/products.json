@@ -1,7 +1,7 @@
 [
   {
     "id": "l-wenstein-prisma-20a",
-    "name": "-P-r-i-s-m-a- -2-0-A-",
+    "name": "Prisma 20A",
     "category": "Ventilation & Sleep",
     "price": "Call for Price",
     "rating": 4.9,
@@ -20,7 +20,7 @@
   },
   {
     "id": "l-wenstein-prisma-smart",
-    "name": "-P-r-i-s-m-a- -S-m-a-r-t-",
+    "name": "Prisma Smart",
     "category": "Ventilation & Sleep",
     "price": "₹",
     "rating": 4.9,
@@ -39,7 +39,7 @@
   },
   {
     "id": "l-wenstein-prisma-smart-plus",
-    "name": "-P-r-i-s-m-a- -S-m-a-r-t- -P-l-u-s-",
+    "name": "Prisma Smart Plus",
     "category": "Ventilation & Sleep",
     "price": "₹",
     "rating": 4.9,
@@ -58,7 +58,7 @@
   },
   {
     "id": "l-wenstein-prisma-cr",
-    "name": "-P-r-i-s-m-a- -C-R-",
+    "name": "Prisma CR",
     "category": "Ventilation & Sleep",
     "price": "Call for Price",
     "rating": 4.9,
@@ -77,7 +77,7 @@
   },
   {
     "id": "l-wenstein-prisma-lab",
-    "name": "-P-r-i-s-m-a- -L-A-B-",
+    "name": "Prisma LAB",
     "category": "Ventilation & Sleep",
     "price": "Call for Price",
     "rating": 4.9,
@@ -96,7 +96,7 @@
   },
   {
     "id": "l-wenstein-prisma-aqua",
-    "name": "-P-r-i-s-m-a- -A-Q-U-A-",
+    "name": "Prisma AQUA",
     "category": "Ventilation & Sleep",
     "price": "Call for Price",
     "rating": 4.9,
@@ -115,7 +115,7 @@
   },
   {
     "id": "l-wenstein-luisa-ventilator",
-    "name": "-L-u-i-s-a- -–- -V-e-n-t-i-l-a-t-o-r-",
+    "name": "Luisa -–- Ventilator",
     "category": "Ventilation & Sleep",
     "price": "₹",
     "rating": 4.9,
@@ -134,7 +134,7 @@
   },
   {
     "id": "l-wenstein-prisma-vent-40",
-    "name": "-P-r-i-s-m-a- -V-e-n-t- -4-0-",
+    "name": "Prisma Vent 40",
     "category": "Ventilation & Sleep",
     "price": "₹",
     "rating": 4.9,
@@ -153,7 +153,7 @@
   },
   {
     "id": "l-wenstein-prisma-vent-50c",
-    "name": "-P-r-i-s-m-a- -V-e-n-t- -5-0-C-",
+    "name": "Prisma Vent 50C",
     "category": "Ventilation & Sleep",
     "price": "₹",
     "rating": 4.9,
@@ -172,7 +172,7 @@
   },
   {
     "id": "inogen-rove-6",
-    "name": "-I-n-o-g-e-n- -R-o-v-e- -6-",
+    "name": "Inogen Rove 6",
     "category": "Ventilation & Sleep",
     "price": "₹",
     "rating": 4.9,
@@ -191,7 +191,7 @@
   },
   {
     "id": "nidek-neo-5",
-    "name": "-N-i-d-e-k- -N-e-o- -5-",
+    "name": "Nidek Neo 5",
     "category": "Ventilation & Sleep",
     "price": "₹",
     "rating": 4.9,
@@ -210,7 +210,7 @@
   },
   {
     "id": "l-wenstein-polygraphy-devices-samoa",
-    "name": "-P-o-l-y-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-a-m-o-a-",
+    "name": "Polygraphy Devices -–- Samoa",
     "category": "Diagnostic",
     "price": "Call for Price",
     "rating": 4.9,
@@ -229,7 +229,7 @@
   },
   {
     "id": "l-wenstein-polygraphy-devices-scala",
-    "name": "-P-o-l-y-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-c-a-l-a-",
+    "name": "Polygraphy Devices -–- Scala",
     "category": "Diagnostic",
     "price": "Call for Price",
     "rating": 4.9,
@@ -248,7 +248,7 @@
   },
   {
     "id": "l-wenstein-polysomnography-devices-sonata",
-    "name": "-P-o-l-y-s-o-m-n-o-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-o-n-a-t-a-",
+    "name": "Polysomnography Devices -–- Sonata",
     "category": "Diagnostic",
     "price": "Call for Price",
     "rating": 4.9,
@@ -267,7 +267,7 @@
   },
   {
     "id": "l-wenstein-cara-full-face",
-    "name": "-C-A-R-A- -F-u-l-l- -F-a-c-e-",
+    "name": "CARA Full Face",
     "category": "PPE & Protection",
     "price": "Call for Price",
     "rating": 4.9,
@@ -286,7 +286,7 @@
   },
   {
     "id": "l-wenstein-joyceone-full-face",
-    "name": "-J-O-Y-C-E-o-n-e- -F-u-l-l- -F-a-c-e-",
+    "name": "JOYCEone Full Face",
     "category": "PPE & Protection",
     "price": "Call for Price",
     "rating": 4.9,
@@ -305,7 +305,7 @@
   },
   {
     "id": "l-wenstein-lena",
-    "name": "-L-E-N-A-",
+    "name": "LENA",
     "category": "PPE & Protection",
     "price": "Call for Price",
     "rating": 4.9,
@@ -324,7 +324,7 @@
   },
   {
     "id": "l-wenstein-cara",
-    "name": "-C-A-R-A-",
+    "name": "CARA",
     "category": "PPE & Protection",
     "price": "Call for Price",
     "rating": 4.9,
@@ -343,7 +343,7 @@
   },
   {
     "id": "l-wenstein-joyceone",
-    "name": "-J-O-Y-C-E-o-n-e-",
+    "name": "JOYCEone",
     "category": "PPE & Protection",
     "price": "Call for Price",
     "rating": 4.9,

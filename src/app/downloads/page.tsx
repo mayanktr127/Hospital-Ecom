@@ -85,16 +85,16 @@ export default function DownloadsPage() {
       {/* Main Downloads Content Area */}
       <main className="wrap max-w-[1240px] w-full mx-auto px-4 md:px-6 flex-1 pt-6">
         {/* Page Hero Header */}
-        <div className="relative rounded-[36px] bg-[#003865] text-white p-8 md:p-14 overflow-hidden mb-12 shadow-[0_28px_60px_-24px_rgba(0,56,101,0.4)]">
-          <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-[#007AC1]/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="relative rounded-[28px] bg-[#0a1f3c] text-white p-8 md:p-14 overflow-hidden mb-12 shadow-[0_28px_60px_-24px_rgba(24,42,65,0.4)]">
+          <div className="absolute -right-20 -bottom-20 w-96 h-96 bg-[#2a6ecb]/20 rounded-full blur-3xl pointer-events-none" />
 
           <div className="relative z-10 max-w-2xl">
             <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs font-semibold font-archivo mb-4">
-              <ShieldCheck className="w-4 h-4 text-[#007AC1]" />
+              <ShieldCheck className="w-4 h-4 text-[#2a6ecb]" />
               Official Löwenstein Document Portal
             </span>
 
-            <h1 className="font-archivo font-extrabold text-[clamp(36px,5vw,64px)] leading-tight text-white mb-4">
+            <h1 className="font-archivo font-semibold text-[clamp(36px,5vw,64px)] leading-tight text-white mb-4">
               Clinical Downloads &amp; Firmware Center
             </h1>
 
@@ -108,17 +108,17 @@ export default function DownloadsPage() {
         <DownloadsSection />
 
         {/* Section 2: Direct Software & Firmware Repository Section */}
-        <section className="mt-20 mb-20 bg-white border border-[#003865]/10 rounded-[36px] p-8 md:p-12 shadow-[0_4px_12px_rgba(0,56,101,0.04)]">
+        <section className="mt-20 mb-20 bg-white border border-[#0a1f3c]/10 rounded-[28px] p-8 md:p-12 shadow-[0_4px_12px_rgba(24,42,65,0.04)]">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-[#007AC1] block mb-1">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#2a6ecb] block mb-1">
                 Digital Solutions &amp; Updates
               </span>
-              <h2 className="font-archivo font-extrabold text-3xl md:text-4xl text-[#003865]">
+              <h2 className="font-archivo font-semibold text-3xl md:text-4xl text-[#0a1f3c]">
                 Software &amp; Firmware Downloads
               </h2>
             </div>
-            <p className="max-w-md text-xs md:text-sm text-[#4A607A] leading-relaxed font-inter m-0">
+            <p className="max-w-md text-xs md:text-sm text-[#64748b] leading-relaxed font-inter m-0">
               Verified clinical software packages for therapy titration, patient data management, and workstation telemetry.
             </p>
           </div>
@@ -127,21 +127,21 @@ export default function DownloadsPage() {
             {softwareReleases.map((sw) => (
               <div
                 key={sw.name}
-                className="bg-[#F0F6FA] border border-[#003865]/10 rounded-[24px] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-[#007AC1]/40 transition-colors"
+                className="bg-[#f6f4fb] border border-[#0a1f3c]/10 rounded-[24px] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-[#2a6ecb]/40 transition-colors"
               >
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-[#003865] text-white flex items-center justify-center shrink-0 shadow-md">
-                    <Server className="w-6 h-6 text-[#007AC1]" />
+                  <div className="w-12 h-12 rounded-2xl bg-[#0a1f3c] text-white flex items-center justify-center shrink-0 shadow-md">
+                    <Server className="w-6 h-6 text-[#2a6ecb]" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-archivo font-bold text-base text-[#003865]">{sw.name}</h3>
-                      <span className="bg-white px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold text-[#007AC1] border border-[#003865]/10">
+                      <h3 className="font-archivo font-bold text-base text-[#0a1f3c]">{sw.name}</h3>
+                      <span className="bg-white px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold text-[#2a6ecb] border border-[#0a1f3c]/10">
                         {sw.version}
                       </span>
                     </div>
-                    <p className="text-xs text-[#4A607A] font-inter mb-2">{sw.notes}</p>
-                    <div className="flex items-center gap-4 text-[11px] font-mono text-[#4A607A]">
+                    <p className="text-xs text-[#64748b] font-inter mb-2">{sw.notes}</p>
+                    <div className="flex items-center gap-4 text-[11px] font-mono text-[#64748b]">
                       <span>OS: {sw.os}</span>
                       <span>•</span>
                       <span>Size: {sw.size}</span>
@@ -156,7 +156,7 @@ export default function DownloadsPage() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => addToast("Downloading Software", `Downloading ${sw.name}`)}
-                  className="px-5 py-2.5 rounded-full bg-[#003865] text-white font-inter font-semibold text-xs flex items-center gap-2 hover:bg-[#005A9C] shadow-sm shrink-0"
+                  className="px-5 py-2.5 rounded-full bg-[#0a1f3c] text-white font-inter font-semibold text-xs flex items-center gap-2 hover:bg-[#12315c] shadow-sm shrink-0"
                 >
                   <Download className="w-4 h-4" />
                   <span>Download Package</span>
@@ -167,16 +167,16 @@ export default function DownloadsPage() {
         </section>
 
         {/* Section 3: Request Custom Document / Translation Section */}
-        <section className="mb-24 bg-gradient-to-br from-[#003865] via-[#004B87] to-[#002244] rounded-[36px] p-8 md:p-14 text-white shadow-[0_28px_60px_-24px_rgba(0,56,101,0.4)]">
+        <section className="mb-24 bg-gradient-to-br from-[#0a1f3c] via-[#1a4079] to-[#0a1f3c] rounded-[28px] p-8 md:p-14 text-white shadow-[0_28px_60px_-24px_rgba(24,42,65,0.4)]">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             {/* Left Info */}
             <div className="lg:col-span-5">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 text-white text-xs font-semibold font-archivo mb-4 border border-white/20">
-                <FileCheck className="w-3.5 h-3.5 text-[#007AC1]" />
+                <FileCheck className="w-3.5 h-3.5 text-[#2a6ecb]" />
                 Compliance &amp; Special Requests
               </span>
 
-              <h2 className="font-archivo font-extrabold text-3xl md:text-5xl text-white mb-4 leading-tight">
+              <h2 className="font-archivo font-semibold text-3xl md:text-5xl text-white mb-4 leading-tight">
                 Request Custom Manuals &amp; Certificates
               </h2>
 
@@ -186,45 +186,45 @@ export default function DownloadsPage() {
 
               <div className="space-y-3 text-xs text-white/80 font-inter">
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle className="w-4 h-4 text-[#1fb37a]" />
                   <span>Official response within 24 business hours</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle className="w-4 h-4 text-[#1fb37a]" />
                   <span>ISO 13485 certified documentation dispatch</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle className="w-4 h-4 text-[#1fb37a]" />
                   <span>Multi-language certified translations (30+ languages)</span>
                 </div>
               </div>
             </div>
 
             {/* Right Interactive Form */}
-            <div className="lg:col-span-7 bg-white text-[#003865] rounded-[28px] p-6 md:p-8 shadow-2xl border border-white/20">
+            <div className="lg:col-span-7 bg-white text-[#0a1f3c] rounded-[28px] p-6 md:p-8 shadow-2xl border border-white/20">
               {formSubmitted ? (
                 <div className="text-center py-8">
-                  <div className="w-14 h-14 rounded-full bg-emerald-100 text-emerald-600 grid place-items-center mx-auto mb-4">
+                  <div className="w-14 h-14 rounded-full bg-[#e0f3ec] text-[#1fb37a] grid place-items-center mx-auto mb-4">
                     <CheckCircle className="w-8 h-8" />
                   </div>
-                  <h3 className="font-archivo font-bold text-2xl mb-2 text-[#003865]">Request Received</h3>
-                  <p className="text-xs text-[#4A607A] max-w-md mx-auto mb-6">
+                  <h3 className="font-archivo font-bold text-2xl mb-2 text-[#0a1f3c]">Request Received</h3>
+                  <p className="text-xs text-[#64748b] max-w-md mx-auto mb-6">
                     Our compliance team has dispatched your inquiry to regulatory affairs. A copy of the requested document will be delivered to <strong>{formData.email}</strong>.
                   </p>
                   <button
                     onClick={() => setFormSubmitted(false)}
-                    className="px-6 py-2.5 rounded-full bg-[#003865] text-white text-xs font-semibold hover:bg-[#005A9C]"
+                    className="btn btn-soft"
                   >
                     Submit Another Request
                   </button>
                 </div>
               ) : (
                 <form onSubmit={handleFormSubmit} className="space-y-4">
-                  <h3 className="font-archivo font-bold text-xl text-[#003865] mb-2">Document Request Form</h3>
+                  <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Document Request Form</h3>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-[#4A607A] uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-[#64748b] uppercase tracking-wider mb-1">
                         Full Name *
                       </label>
                       <input
@@ -233,12 +233,12 @@ export default function DownloadsPage() {
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="Dr. Hans Weber"
-                        className="w-full bg-[#F0F6FA] border border-[#003865]/12 rounded-xl px-3.5 py-2.5 text-xs text-[#003865] outline-none focus:border-[#007AC1]"
+                        className="w-full bg-[#f6f4fb] border border-[#e9edf4] rounded-xl px-3.5 py-2.5 text-xs text-[#0a1f3c] focus:border-[#2a6ecb]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#4A607A] uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-[#64748b] uppercase tracking-wider mb-1">
                         Work Email *
                       </label>
                       <input
@@ -247,14 +247,14 @@ export default function DownloadsPage() {
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="h.weber@charite.de"
-                        className="w-full bg-[#F0F6FA] border border-[#003865]/12 rounded-xl px-3.5 py-2.5 text-xs text-[#003865] outline-none focus:border-[#007AC1]"
+                        className="w-full bg-[#f6f4fb] border border-[#e9edf4] rounded-xl px-3.5 py-2.5 text-xs text-[#0a1f3c] focus:border-[#2a6ecb]"
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-bold text-[#4A607A] uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-[#64748b] uppercase tracking-wider mb-1">
                         Hospital / Institution
                       </label>
                       <input
@@ -262,18 +262,18 @@ export default function DownloadsPage() {
                         value={formData.hospital}
                         onChange={(e) => setFormData({ ...formData, hospital: e.target.value })}
                         placeholder="Charité University Hospital Berlin"
-                        className="w-full bg-[#F0F6FA] border border-[#003865]/12 rounded-xl px-3.5 py-2.5 text-xs text-[#003865] outline-none focus:border-[#007AC1]"
+                        className="w-full bg-[#f6f4fb] border border-[#e9edf4] rounded-xl px-3.5 py-2.5 text-xs text-[#0a1f3c] focus:border-[#2a6ecb]"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#4A607A] uppercase tracking-wider mb-1">
+                      <label className="block text-xs font-bold text-[#64748b] uppercase tracking-wider mb-1">
                         Device Model
                       </label>
                       <select
                         value={formData.deviceModel}
                         onChange={(e) => setFormData({ ...formData, deviceModel: e.target.value })}
-                        className="w-full bg-[#F0F6FA] border border-[#003865]/12 rounded-xl px-3.5 py-2.5 text-xs text-[#003865] outline-none cursor-pointer focus:border-[#007AC1]"
+                        className="w-full bg-[#f6f4fb] border border-[#e9edf4] rounded-xl px-3.5 py-2.5 text-xs text-[#0a1f3c] cursor-pointer focus:border-[#2a6ecb]"
                       >
                         <option value="LUISA Life Support Ventilator">LUISA Life Support Ventilator</option>
                         <option value="prismaVENT Series">prismaVENT Series</option>
@@ -285,7 +285,7 @@ export default function DownloadsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#4A607A] uppercase tracking-wider mb-1">
+                    <label className="block text-xs font-bold text-[#64748b] uppercase tracking-wider mb-1">
                       Notes / Specific Document Revision
                     </label>
                     <textarea
@@ -293,13 +293,13 @@ export default function DownloadsPage() {
                       value={formData.notes}
                       onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                       placeholder="Specify language or serial number (e.g. firmware revision 4.12)..."
-                      className="w-full bg-[#F0F6FA] border border-[#003865]/12 rounded-xl p-3 text-xs text-[#003865] outline-none focus:border-[#007AC1]"
+                      className="w-full bg-[#f6f4fb] border border-[#e9edf4] rounded-xl p-3 text-xs text-[#0a1f3c] focus:border-[#2a6ecb]"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full py-3 rounded-full bg-[#003865] text-white font-inter font-semibold text-xs flex items-center justify-center gap-2 hover:bg-[#005A9C] shadow-md transition-all"
+                    className="w-full py-3 rounded-full bg-[#0a1f3c] text-white font-inter font-semibold text-xs flex items-center justify-center gap-2 hover:bg-[#12315c] shadow-md transition-all"
                   >
                     <Send className="w-4 h-4" />
                     <span>Submit Document Request</span>

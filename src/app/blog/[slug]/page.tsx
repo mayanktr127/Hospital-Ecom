@@ -26,9 +26,9 @@ export default function BlogDetailPage() {
       <div className="min-h-[100dvh] flex flex-col bg-paper">
         <Navbar />
         <main className="flex-1 wrap max-w-[1240px] mx-auto px-4 py-20 text-center">
-          <h1 className="font-archivo font-bold text-3xl text-[#003865] mb-4">Article Not Found</h1>
-          <p className="text-sm text-[#4A607A] mb-6">The requested clinical blog article does not exist.</p>
-          <Link href="/blog" className="px-6 py-2.5 rounded-full bg-[#003865] text-white font-bold text-xs">
+          <h1 className="font-archivo font-medium text-3xl tracking-[-0.04em] text-[#0a1f3c] mb-4">Article Not Found</h1>
+          <p className="text-sm text-[#64748b] mb-6">The requested clinical blog article does not exist.</p>
+          <Link href="/blog" className="btn btn-primary">
             Back to Blog
           </Link>
         </main>
@@ -47,7 +47,7 @@ export default function BlogDetailPage() {
         {/* Back Link */}
         <Link
           href="/blog"
-          className="inline-flex items-center gap-2 text-xs font-archivo font-bold text-[#007AC1] hover:underline mb-8"
+          className="inline-flex items-center gap-2 text-xs font-archivo font-bold text-[#2a6ecb] hover:underline mb-8"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to All Clinical Articles</span>
@@ -55,31 +55,31 @@ export default function BlogDetailPage() {
 
         {/* Category & Title */}
         <div className="mb-8">
-          <span className="inline-block bg-[#003865] text-white text-xs font-archivo font-bold px-3.5 py-1 rounded-full uppercase tracking-wider mb-4">
+          <span className="inline-block bg-[#dcebfb] text-[#2a6ecb] text-xs font-inter font-semibold px-3.5 py-1.5 rounded-full uppercase tracking-[0.12em] mb-4">
             {post.category}
           </span>
-          <h1 className="font-archivo font-extrabold text-3xl sm:text-4xl lg:text-5xl text-[#003865] leading-snug mb-6">
+          <h1 className="font-archivo font-medium text-3xl sm:text-4xl lg:text-[52px] tracking-[-0.04em] text-[#0a1f3c] leading-[1.04] mb-6">
             {post.title}
           </h1>
 
-          <div className="flex flex-wrap items-center gap-6 text-xs text-[#4A607A] border-b border-[#003865]/10 pb-6">
-            <span className="flex items-center gap-1.5 font-semibold text-[#003865]">
-              <User className="w-4 h-4 text-[#007AC1]" />
+          <div className="flex flex-wrap items-center gap-6 text-xs text-[#64748b] border-b border-[#e9edf4] pb-6">
+            <span className="flex items-center gap-1.5 font-semibold text-[#0a1f3c]">
+              <User className="w-4 h-4 text-[#2a6ecb]" />
               {post.author}
             </span>
             <span className="flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-[#007AC1]" />
+              <Calendar className="w-4 h-4 text-[#2a6ecb]" />
               {post.date}
             </span>
             <span className="flex items-center gap-1.5">
-              <Clock className="w-4 h-4 text-[#007AC1]" />
+              <Clock className="w-4 h-4 text-[#2a6ecb]" />
               {post.readTime}
             </span>
           </div>
         </div>
 
         {/* Featured Image Box */}
-        <div className="bg-gradient-to-br from-[#EEF3F8] to-white rounded-[32px] border border-[#003865]/10 p-8 md:p-12 mb-12 flex items-center justify-center">
+        <div className="bg-gradient-to-br from-[#e9e6fb] via-[#dcebfb] to-white rounded-[28px] border border-white/80 p-8 md:p-12 mb-12 flex items-center justify-center">
           <img
             src={post.image}
             alt={post.title}
@@ -89,21 +89,21 @@ export default function BlogDetailPage() {
 
         {/* Article Body */}
         <article className="prose prose-lg max-w-none text-[#2B2B2B] leading-relaxed font-inter space-y-6 mb-16">
-          <p className="text-base sm:text-lg font-semibold text-[#003865] leading-relaxed border-l-4 border-[#007AC1] pl-4 italic">
+          <p className="text-base sm:text-lg font-semibold text-[#0a1f3c] leading-relaxed border-l-4 border-[#2a6ecb] pl-4 italic">
             {post.excerpt}
           </p>
 
           {post.content.map((paragraph, idx) => (
-            <p key={idx} className="text-sm sm:text-base text-[#4A607A] leading-relaxed">
+            <p key={idx} className="text-sm sm:text-base text-[#64748b] leading-relaxed">
               {paragraph}
             </p>
           ))}
         </article>
 
         {/* Clinical Disclaimer Box */}
-        <div className="bg-[#F0F6FA] border border-[#007AC1]/20 rounded-3xl p-6 mb-16 flex items-start gap-4">
-          <CheckCircle className="w-6 h-6 text-[#007AC1] shrink-0 mt-0.5" />
-          <p className="text-xs text-[#4A607A] leading-relaxed m-0">
+        <div className="bg-[#f6f4fb] border border-[#2a6ecb]/20 rounded-[20px] p-6 mb-16 flex items-start gap-4">
+          <CheckCircle className="w-6 h-6 text-[#2a6ecb] shrink-0 mt-0.5" />
+          <p className="text-xs text-[#64748b] leading-relaxed m-0">
             <strong>Medical Disclaimer:</strong> Clinical articles published on Pulmo Care are for informational and educational purposes only. Therapy settings, pressure titration, and medical equipment configuration must be directed by a qualified physician or licensed respiratory therapist.
           </p>
         </div>
