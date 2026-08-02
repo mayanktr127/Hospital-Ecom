@@ -290,6 +290,33 @@ const initialOrders: OrderItem[] = [
   },
 ];
 
+function mergeProductsList(initial: Product[], fetched: Product[]): Product[] {
+  const map = new Map<string, Product>();
+  initial.forEach((p) => map.set(p.id.toLowerCase(), p));
+  fetched.forEach((p) => {
+    map.set(p.id.toLowerCase(), p);
+  });
+  return Array.from(map.values());
+}
+
+function mergeCategoriesList(initial: CategoryItem[], fetched: CategoryItem[]): CategoryItem[] {
+  const map = new Map<string, CategoryItem>();
+  initial.forEach((c) => {
+    map.set(c.id.toLowerCase(), c);
+    map.set(c.name.toLowerCase(), c);
+  });
+  fetched.forEach((c) => {
+    const key = c.id.toLowerCase();
+    const existing = map.get(key) || map.get(c.name.toLowerCase());
+    if (existing) {
+      map.set(existing.id.toLowerCase(), { ...existing, ...c });
+    } else {
+      map.set(key, c);
+    }
+  });
+  return Array.from(new Set(map.values()));
+}
+
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
@@ -313,14 +340,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (savedProds) {
         const parsed = JSON.parse(savedProds);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setProducts(parsed);
+          setProducts(mergeProductsList(initialProducts, parsed));
         }
       }
       const savedCats = localStorage.getItem("pulmocare_custom_categories");
       if (savedCats) {
         const parsed = JSON.parse(savedCats);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          setCategories(parsed);
+          setCategories(mergeCategoriesList(initialCategories, parsed));
         }
       }
     } catch (err) {
@@ -332,13 +359,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.products && data.products.length > 0) {
-          setProducts(data.products);
+          setProducts((prev) => mergeProductsList(initialProducts, [...prev, ...data.products]));
         } else {
           fetch("/api/seed")
             .then((r) => r.json())
             .then((seedData) => {
               if (seedData.success) {
-                fetch("/api/products").then((r) => r.json()).then((d) => d.success && setProducts(d.products));
+                fetch("/api/products").then((r) => r.json()).then((d) => d.success && setProducts((prev) => mergeProductsList(initialProducts, [...prev, ...d.products])));
                 fetch("/api/reviews").then((r) => r.json()).then((d) => d.success && setReviews(d.reviews));
                 fetch("/api/inquiries").then((r) => r.json()).then((d) => d.success && setInquiries(d.inquiries));
                 fetch("/api/orders").then((r) => r.json()).then((d) => d.success && setOrders(d.orders));
@@ -352,7 +379,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.categories && data.categories.length > 0) {
-          setCategories(data.categories);
+          setCategories((prev) => mergeCategoriesList(initialCategories, [...prev, ...data.categories]));
         }
       })
       .catch((e) => console.log("Using local state fallback for categories", e));
