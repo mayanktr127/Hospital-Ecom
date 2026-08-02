@@ -112,7 +112,7 @@ export default function Home() {
 
           {/* Dynamic Category Grid Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {categories.map((cat) => {
+            {categories.map((cat, idx) => {
               const matchingCount = products.filter(
                 (p) =>
                   p.category === cat.name ||
@@ -122,7 +122,7 @@ export default function Home() {
 
               return (
                 <Link
-                  key={cat.id}
+                  key={cat.id ? `${cat.id}-${idx}` : `cat-key-${idx}`}
                   href={`/${cat.slug}`}
                   className="group relative flex flex-col justify-between p-6 sm:p-7 bg-gradient-to-b from-[#e9e6fb] via-[#dcebfb] to-white rounded-[28px] border border-white/80 shadow-[0_2px_8px_rgba(24,42,65,0.05)] hover:shadow-[0_16px_44px_rgba(24,42,65,0.09)] hover:-translate-y-1 transition-all duration-500 overflow-hidden"
                 >

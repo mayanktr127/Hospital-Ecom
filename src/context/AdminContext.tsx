@@ -294,7 +294,9 @@ function mergeProductsList(initial: Product[], fetched: Product[]): Product[] {
   const map = new Map<string, Product>();
   initial.forEach((p) => map.set(p.id.toLowerCase(), p));
   fetched.forEach((p) => {
-    map.set(p.id.toLowerCase(), p);
+    if (p && p.id) {
+      map.set(p.id.toLowerCase(), p);
+    }
   });
   return Array.from(map.values());
 }
@@ -303,18 +305,20 @@ function mergeCategoriesList(initial: CategoryItem[], fetched: CategoryItem[]): 
   const map = new Map<string, CategoryItem>();
   initial.forEach((c) => {
     map.set(c.id.toLowerCase(), c);
-    map.set(c.name.toLowerCase(), c);
   });
   fetched.forEach((c) => {
-    const key = c.id.toLowerCase();
-    const existing = map.get(key) || map.get(c.name.toLowerCase());
-    if (existing) {
-      map.set(existing.id.toLowerCase(), { ...existing, ...c });
+    if (!c) return;
+    const existingKey = Array.from(map.keys()).find(
+      (k) => k === c.id.toLowerCase() || map.get(k)?.name.toLowerCase() === c.name.toLowerCase()
+    );
+    if (existingKey) {
+      const existing = map.get(existingKey)!;
+      map.set(existingKey, { ...existing, ...c });
     } else {
-      map.set(key, c);
+      map.set(c.id.toLowerCase(), c);
     }
   });
-  return Array.from(new Set(map.values()));
+  return Array.from(map.values());
 }
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
