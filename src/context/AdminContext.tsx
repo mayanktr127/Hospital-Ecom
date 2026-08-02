@@ -2,8 +2,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product } from "@/types/product";
-import { BLOG_POSTS, BlogPost } from "@/data/blog_posts";
-import pulmocareProductsData from "@/data/pulmocare_products.json";
 
 export interface ReviewItem {
   id: string;
@@ -65,6 +63,19 @@ export interface CategoryItem {
   badge?: string;
 }
 
+export interface BlogPost {
+  slug: string;
+  title: string;
+  category: string;
+  author: string;
+  readTime: string;
+  image: string;
+  excerpt: string;
+  content?: string;
+  date?: string;
+  tags?: string[];
+}
+
 interface AdminUser {
   name: string;
   email: string;
@@ -76,6 +87,7 @@ interface AdminContextType {
   adminUser: AdminUser | null;
   login: (email: string, pass: string) => boolean;
   logout: () => void;
+  isLoading: boolean;
   // Products CRUD State
   products: Product[];
   addProduct: (product: Product) => Promise<void>;
@@ -100,7 +112,7 @@ interface AdminContextType {
   inquiries: InquiryItem[];
   addInquiry: (inquiry: InquiryItem) => Promise<void>;
   deleteInquiry: (id: string) => Promise<void>;
-  updateInquiryStatus: (id: string, status: string) => Promise<void>;
+  updateInquiryStatus: (id: string, status: string, name?: string) => Promise<void>;
   // Orders CRUD State
   orders: OrderItem[];
   addOrder: (order: OrderItem) => Promise<void>;
@@ -110,229 +122,21 @@ interface AdminContextType {
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
-const roundUpPrice = (pr?: number) => (pr ? Math.round(pr * 1.35) : 65000);
-
-const flattenProducts = (): Product[] => {
-  const list: Product[] = [];
-  if (pulmocareProductsData && typeof pulmocareProductsData === "object") {
-    Object.values(pulmocareProductsData as Record<string, any>).forEach((catObj: any) => {
-      if (catObj && catObj.products && Array.isArray(catObj.products)) {
-        catObj.products.forEach((p: any, idx: number) => {
-          list.push({
-            id: p.slug || `prod-${idx}-${Math.random()}`,
-            name: p.title || "Medical Device",
-            category: catObj.name || "Ventilation & Sleep",
-            price: p.price || 45990,
-            originalPrice: p.originalPrice || roundUpPrice(p.price),
-            image: p.image || "/images/pulmocare/pulmocare_prisma-smart.png",
-            rating: 5,
-            reviewsCount: 4,
-            inStock: true,
-            description: p.tagline || p.introParagraph || "High-performance medical equipment.",
-            features: p.features || [],
-            specifications: p.specifications || [],
-          });
-        });
-      }
-    });
-  }
-  return list;
-};
-
-const initialProducts: Product[] = flattenProducts();
-
-const initialCategories: CategoryItem[] = [
-  {
-    id: "cat-1",
-    name: "CPAP & APAP Devices",
-    slug: "cpap-apap-devices",
-    image: "/images/pulmocare/pulmocare_prisma-20a.png",
-    count: "3 Models",
-    badge: "Most Popular",
-    desc: "Premium auto-CPAP titration for obstructive sleep apnea.",
-  },
-  {
-    id: "cat-2",
-    name: "Bilevel-S & ST Devices",
-    slug: "bilevel-s-st-devices",
-    image: "/images/pulmocare/pulmocare_prisma-25-st.png",
-    count: "3 Models",
-    badge: "Clinical Grade",
-    desc: "High pressure support BiLevel S and ST therapy.",
-  },
-  {
-    id: "cat-3",
-    name: "ASV & Titration Devices",
-    slug: "asv-titration-devices",
-    image: "/images/pulmocare/pulmocare_prisma-lab.png",
-    count: "2 Models",
-    badge: "Advanced Tech",
-    desc: "Adaptive servo-ventilation and lab titration.",
-  },
-  {
-    id: "cat-4",
-    name: "Humidifiers",
-    slug: "humidifiers",
-    image: "/images/pulmocare/pulmocare_prisma-aqua.png",
-    count: "1 Model",
-    desc: "Heated humidification for patient comfort.",
-  },
-  {
-    id: "cat-5",
-    name: "Ventilation",
-    slug: "ventilation",
-    image: "/images/pulmocare/pulmocare_luisa-ventilator.png",
-    count: "3 Models",
-    badge: "Life Support",
-    desc: "Hospital & home care life support ventilators.",
-  },
-  {
-    id: "cat-6",
-    name: "Oxygen Therapy",
-    slug: "oxygen-therapy",
-    image: "/images/pulmocare/pulmocare_inogen-rove-6.png",
-    count: "2 Models",
-    badge: "High Purity",
-    desc: "Portable & stationary 5L LPM oxygen concentrators.",
-  },
-  {
-    id: "cat-7",
-    name: "Sleep Diagnostics",
-    slug: "sleep-diagnostics",
-    image: "/images/site/sleep_diagnostics_csm_samoa_sleep_diagnostics_device_frontal_dba1194f3b.png",
-    count: "3 Models",
-    desc: "10-33 channel polygraphy and polysomnography.",
-  },
-  {
-    id: "cat-8",
-    name: "Masks",
-    slug: "masks",
-    image: "/images/pulmocare/pulmo_l-wenstein-lena.png",
-    count: "4 Models",
-    badge: "Ergonomic Seal",
-    desc: "Nasal and full face ventilation patient masks.",
-  },
-];
-
-const initialReviews: ReviewItem[] = [
-  {
-    id: "rev-101",
-    productId: "prisma-25s",
-    productName: "Prisma 25S",
-    author: "Dr. Rajesh K.",
-    rating: 5,
-    comment: "Exceptional build quality and quiet operation. Highly recommended for OSA patient therapy.",
-    date: "July 24, 2026",
-    status: "Approved",
-  },
-  {
-    id: "rev-102",
-    productId: "prisma-25s",
-    productName: "Prisma 25S",
-    author: "Priya Sharma",
-    rating: 5,
-    comment: "Very easy to set up and smooth pressure adjustments. Fast delivery by Pulmo Care.",
-    date: "June 18, 2026",
-    status: "Approved",
-  },
-  {
-    id: "rev-103",
-    productId: "prisma-smart",
-    productName: "Prisma SMART",
-    author: "Anil Deshmukh",
-    rating: 5,
-    comment: "Ultra quiet auto-titrating CPAP. Improved sleep quality significantly.",
-    date: "August 1, 2026",
-    status: "Approved",
-  },
-];
-
-const initialInquiries: InquiryItem[] = [
-  {
-    id: "inq-101",
-    fullName: "Dr. Suresh Reddy",
-    phone: "+91 9845012345",
-    email: "suresh.reddy@apollo.com",
-    inquiryType: "Hospital Bulk Order",
-    device: "Löwenstein Luisa Life Support Ventilator",
-    city: "Bengaluru",
-    message: "Requesting quotation for 5 units of Luisa Life Support Ventilators for ICU ward extension.",
-    status: "New Lead",
-    createdAt: "August 2, 2026",
-  },
-];
-
-const initialOrders: OrderItem[] = [
-  {
-    orderId: "ORD-781920",
-    customerName: "Dr. Arvind Swamy",
-    phone: "+91 9841029384",
-    email: "arvind.swamy@manipal.edu",
-    street: "Manipal Hospital, Old Airport Rd",
-    city: "Bengaluru",
-    state: "Karnataka",
-    pincode: "560017",
-    landmark: "Near Command Hospital",
-    items: [
-      {
-        productId: "prisma-20a",
-        name: "Löwenstein Prisma 20A Auto CPAP",
-        price: 65000,
-        quantity: 2,
-        image: "/images/pulmocare/pulmocare_prisma-20a.png",
-      },
-    ],
-    totalAmount: 130000,
-    paymentMethod: "UPI / Razorpay",
-    orderStatus: "On Progress",
-    prescriptionNote: "Doctor prescription attached for OSA patient therapy.",
-    createdAt: "August 2, 2026",
-  },
-];
-
-function mergeProductsList(initial: Product[], fetched: Product[]): Product[] {
-  const map = new Map<string, Product>();
-  initial.forEach((p) => map.set(p.id.toLowerCase(), p));
-  fetched.forEach((p) => {
-    if (p && p.id) {
-      map.set(p.id.toLowerCase(), p);
-    }
-  });
-  return Array.from(map.values());
-}
-
-function mergeCategoriesList(initial: CategoryItem[], fetched: CategoryItem[]): CategoryItem[] {
-  const map = new Map<string, CategoryItem>();
-  initial.forEach((c) => {
-    map.set(c.id.toLowerCase(), c);
-  });
-  fetched.forEach((c) => {
-    if (!c) return;
-    const existingKey = Array.from(map.keys()).find(
-      (k) => k === c.id.toLowerCase() || map.get(k)?.name.toLowerCase() === c.name.toLowerCase()
-    );
-    if (existingKey) {
-      const existing = map.get(existingKey)!;
-      map.set(existingKey, { ...existing, ...c });
-    } else {
-      map.set(c.id.toLowerCase(), c);
-    }
-  });
-  return Array.from(map.values());
-}
-
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const [products, setProducts] = useState<Product[]>(initialProducts);
-  const [categories, setCategories] = useState<CategoryItem[]>(initialCategories);
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>(BLOG_POSTS);
-  const [reviews, setReviews] = useState<ReviewItem[]>(initialReviews);
-  const [inquiries, setInquiries] = useState<InquiryItem[]>(initialInquiries);
-  const [orders, setOrders] = useState<OrderItem[]>(initialOrders);
+  // All data starts empty — populated exclusively from API
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [reviews, setReviews] = useState<ReviewItem[]>([]);
+  const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
+  const [orders, setOrders] = useState<OrderItem[]>([]);
 
   useEffect(() => {
+    // Restore admin session from localStorage
     try {
       const savedAuth = localStorage.getItem("pulmocare_admin_auth");
       if (savedAuth) {
@@ -340,89 +144,70 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setIsAdminAuthenticated(true);
         setAdminUser(parsed);
       }
-      const savedProds = localStorage.getItem("pulmocare_custom_products");
-      if (savedProds) {
-        const parsed = JSON.parse(savedProds);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setProducts(mergeProductsList(initialProducts, parsed));
-        }
-      }
-      const savedCats = localStorage.getItem("pulmocare_custom_categories");
-      if (savedCats) {
-        const parsed = JSON.parse(savedCats);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setCategories(mergeCategoriesList(initialCategories, parsed));
-        }
-      }
     } catch (err) {
-      console.error("Failed to load admin state from localStorage", err);
+      console.error("Failed to restore admin auth from localStorage", err);
     }
 
-    // Fetch initial MongoDB Atlas dataset
-    fetch("/api/products")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.products && data.products.length > 0) {
-          setProducts((prev) => mergeProductsList(initialProducts, [...prev, ...data.products]));
+    // Fetch all data from backend
+    const fetchAll = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch products — if DB empty, auto-seed first
+        const prodRes = await fetch("/api/products").then((r) => r.json()).catch(() => ({ success: false }));
+        if (prodRes.success && prodRes.products && prodRes.products.length > 0) {
+          setProducts(prodRes.products);
         } else {
-          fetch("/api/seed")
-            .then((r) => r.json())
-            .then((seedData) => {
-              if (seedData.success) {
-                fetch("/api/products").then((r) => r.json()).then((d) => d.success && setProducts((prev) => mergeProductsList(initialProducts, [...prev, ...d.products])));
-                fetch("/api/reviews").then((r) => r.json()).then((d) => d.success && setReviews(d.reviews));
-                fetch("/api/inquiries").then((r) => r.json()).then((d) => d.success && setInquiries(d.inquiries));
-                fetch("/api/orders").then((r) => r.json()).then((d) => d.success && setOrders(d.orders));
-              }
-            });
+          // Trigger seed (idempotent — only seeds empty collections)
+          await fetch("/api/seed").catch(() => {});
+          const seededProds = await fetch("/api/products").then((r) => r.json()).catch(() => ({ success: false }));
+          if (seededProds.success && seededProds.products) {
+            setProducts(seededProds.products);
+          }
         }
-      })
-      .catch((e) => console.log("Using local state fallback for products", e));
 
-    fetch("/api/categories")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.categories && data.categories.length > 0) {
-          setCategories((prev) => mergeCategoriesList(initialCategories, [...prev, ...data.categories]));
+        // Fetch categories — if DB empty, auto-seed covered by /api/seed above
+        const catRes = await fetch("/api/categories").then((r) => r.json()).catch(() => ({ success: false }));
+        if (catRes.success && catRes.categories && catRes.categories.length > 0) {
+          setCategories(catRes.categories);
+        } else {
+          // Re-try after seed
+          const seededCats = await fetch("/api/categories").then((r) => r.json()).catch(() => ({ success: false }));
+          if (seededCats.success && seededCats.categories) {
+            setCategories(seededCats.categories);
+          }
         }
-      })
-      .catch((e) => console.log("Using local state fallback for categories", e));
 
-    fetch("/api/blogs")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.blogs && data.blogs.length > 0) {
-          setBlogPosts(data.blogs);
+        // Fetch blogs
+        const blogRes = await fetch("/api/blogs").then((r) => r.json()).catch(() => ({ success: false }));
+        if (blogRes.success && blogRes.blogs && blogRes.blogs.length > 0) {
+          setBlogPosts(blogRes.blogs);
         }
-      })
-      .catch((e) => console.log("Using local state fallback for blogs", e));
 
-    fetch("/api/reviews")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.reviews && data.reviews.length > 0) {
-          setReviews(data.reviews);
+        // Fetch reviews
+        const revRes = await fetch("/api/reviews").then((r) => r.json()).catch(() => ({ success: false }));
+        if (revRes.success && revRes.reviews && revRes.reviews.length > 0) {
+          setReviews(revRes.reviews);
         }
-      })
-      .catch((e) => console.log("Using local state fallback for reviews", e));
 
-    fetch("/api/inquiries")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.inquiries && data.inquiries.length > 0) {
-          setInquiries(data.inquiries);
+        // Fetch inquiries
+        const inqRes = await fetch("/api/inquiries").then((r) => r.json()).catch(() => ({ success: false }));
+        if (inqRes.success && inqRes.inquiries && inqRes.inquiries.length > 0) {
+          setInquiries(inqRes.inquiries);
         }
-      })
-      .catch((e) => console.log("Using local state fallback for inquiries", e));
 
-    fetch("/api/orders")
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success && data.orders && data.orders.length > 0) {
-          setOrders(data.orders);
+        // Fetch orders
+        const ordRes = await fetch("/api/orders").then((r) => r.json()).catch(() => ({ success: false }));
+        if (ordRes.success && ordRes.orders && ordRes.orders.length > 0) {
+          setOrders(ordRes.orders);
         }
-      })
-      .catch((e) => console.log("Using local state fallback for orders", e));
+      } catch (err) {
+        console.error("Failed to load data from backend", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAll();
   }, []);
 
   const login = (email: string, pass: string): boolean => {
@@ -444,24 +229,26 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Products CRUD Handlers
   const addProduct = async (newProduct: Product) => {
-    const updated = [newProduct, ...products];
-    setProducts(updated);
-    try { localStorage.setItem("pulmocare_custom_products", JSON.stringify(updated)); } catch (e) {}
     try {
-      await fetch("/api/products", {
+      const res = await fetch("/api/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newProduct),
       });
+      const data = await res.json();
+      if (data.success && data.product) {
+        setProducts((prev) => [data.product, ...prev]);
+      } else {
+        setProducts((prev) => [newProduct, ...prev]);
+      }
     } catch (err) {
       console.error("Error adding product to MongoDB Atlas", err);
+      setProducts((prev) => [newProduct, ...prev]);
     }
   };
 
   const updateProduct = async (updatedProduct: Product) => {
-    const updated = products.map((p) => (p.id === updatedProduct.id ? updatedProduct : p));
-    setProducts(updated);
-    try { localStorage.setItem("pulmocare_custom_products", JSON.stringify(updated)); } catch (e) {}
+    setProducts((prev) => prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p)));
     try {
       await fetch("/api/products", {
         method: "PUT",
@@ -474,13 +261,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const deleteProduct = async (id: string) => {
-    const updated = products.filter((p) => p.id !== id);
-    setProducts(updated);
-    try { localStorage.setItem("pulmocare_custom_products", JSON.stringify(updated)); } catch (e) {}
+    setProducts((prev) => prev.filter((p) => p.id !== id));
     try {
-      await fetch(`/api/products?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
+      await fetch(`/api/products?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     } catch (err) {
       console.error("Error deleting product from MongoDB Atlas", err);
     }
@@ -488,24 +271,26 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Categories CRUD Handlers
   const addCategory = async (newCategory: CategoryItem) => {
-    const updated = [...categories, newCategory];
-    setCategories(updated);
-    try { localStorage.setItem("pulmocare_custom_categories", JSON.stringify(updated)); } catch (e) {}
     try {
-      await fetch("/api/categories", {
+      const res = await fetch("/api/categories", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newCategory),
       });
+      const data = await res.json();
+      if (data.success && data.category) {
+        setCategories((prev) => [...prev, data.category]);
+      } else {
+        setCategories((prev) => [...prev, newCategory]);
+      }
     } catch (err) {
       console.error("Error adding category to MongoDB Atlas", err);
+      setCategories((prev) => [...prev, newCategory]);
     }
   };
 
   const updateCategory = async (updatedCategory: CategoryItem) => {
-    const updated = categories.map((c) => (c.id === updatedCategory.id ? updatedCategory : c));
-    setCategories(updated);
-    try { localStorage.setItem("pulmocare_custom_categories", JSON.stringify(updated)); } catch (e) {}
+    setCategories((prev) => prev.map((c) => (c.id === updatedCategory.id ? updatedCategory : c)));
     try {
       await fetch("/api/categories", {
         method: "PUT",
@@ -518,13 +303,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const deleteCategory = async (id: string) => {
-    const updated = categories.filter((c) => c.id !== id);
-    setCategories(updated);
-    try { localStorage.setItem("pulmocare_custom_categories", JSON.stringify(updated)); } catch (e) {}
+    setCategories((prev) => prev.filter((c) => c.id !== id));
     try {
-      await fetch(`/api/categories?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
+      await fetch(`/api/categories?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     } catch (err) {
       console.error("Error deleting category from MongoDB Atlas", err);
     }
@@ -532,22 +313,22 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Blog CRUD Handlers
   const addBlogPost = async (newPost: BlogPost) => {
-    const updated = [newPost, ...blogPosts];
-    setBlogPosts(updated);
     try {
-      await fetch("/api/blogs", {
+      const res = await fetch("/api/blogs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(newPost),
       });
+      const data = await res.json();
+      setBlogPosts((prev) => [data.blog || newPost, ...prev]);
     } catch (err) {
       console.error("Error publishing article to MongoDB Atlas", err);
+      setBlogPosts((prev) => [newPost, ...prev]);
     }
   };
 
   const updateBlogPost = async (updatedPost: BlogPost) => {
-    const updated = blogPosts.map((b) => (b.slug === updatedPost.slug ? updatedPost : b));
-    setBlogPosts(updated);
+    setBlogPosts((prev) => prev.map((b) => (b.slug === updatedPost.slug ? updatedPost : b)));
     try {
       await fetch("/api/blogs", {
         method: "PUT",
@@ -560,12 +341,9 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const deleteBlogPost = async (slug: string) => {
-    const updated = blogPosts.filter((b) => b.slug !== slug);
-    setBlogPosts(updated);
+    setBlogPosts((prev) => prev.filter((b) => b.slug !== slug));
     try {
-      await fetch(`/api/blogs?slug=${encodeURIComponent(slug)}`, {
-        method: "DELETE",
-      });
+      await fetch(`/api/blogs?slug=${encodeURIComponent(slug)}`, { method: "DELETE" });
     } catch (err) {
       console.error("Error deleting article from MongoDB Atlas", err);
     }
@@ -573,26 +351,24 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Reviews CRUD Handlers
   const addReview = async (review: ReviewItem) => {
-    const updated = [review, ...reviews];
-    setReviews(updated);
     try {
-      await fetch("/api/reviews", {
+      const res = await fetch("/api/reviews", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(review),
       });
+      const data = await res.json();
+      setReviews((prev) => [data.review || review, ...prev]);
     } catch (err) {
       console.error("Error adding review to MongoDB Atlas", err);
+      setReviews((prev) => [review, ...prev]);
     }
   };
 
   const deleteReview = async (id: string) => {
-    const updated = reviews.filter((r) => r.id !== id);
-    setReviews(updated);
+    setReviews((prev) => prev.filter((r) => r.id !== id));
     try {
-      await fetch(`/api/reviews?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
+      await fetch(`/api/reviews?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     } catch (err) {
       console.error("Error deleting review from MongoDB Atlas", err);
     }
@@ -617,32 +393,30 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Inquiries CRUD Handlers
   const addInquiry = async (inquiry: InquiryItem) => {
-    const updated = [inquiry, ...inquiries];
-    setInquiries(updated);
     try {
-      await fetch("/api/inquiries", {
+      const res = await fetch("/api/inquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(inquiry),
       });
+      const data = await res.json();
+      setInquiries((prev) => [data.inquiry || inquiry, ...prev]);
     } catch (err) {
       console.error("Error submitting contact inquiry to MongoDB Atlas", err);
+      setInquiries((prev) => [inquiry, ...prev]);
     }
   };
 
   const deleteInquiry = async (id: string) => {
-    const updated = inquiries.filter((inq) => inq.id !== id);
-    setInquiries(updated);
+    setInquiries((prev) => prev.filter((inq) => inq.id !== id));
     try {
-      await fetch(`/api/inquiries?id=${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
+      await fetch(`/api/inquiries?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     } catch (err) {
       console.error("Error deleting contact inquiry from MongoDB Atlas", err);
     }
   };
 
-  const updateInquiryStatus = async (id: string, newStatus: string) => {
+  const updateInquiryStatus = async (id: string, newStatus: string, _name?: string) => {
     const updated = inquiries.map((inq) => (inq.id === id ? { ...inq, status: newStatus } : inq));
     setInquiries(updated);
     try {
@@ -661,26 +435,24 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Orders CRUD Handlers
   const addOrder = async (order: OrderItem) => {
-    const updated = [order, ...orders];
-    setOrders(updated);
     try {
-      await fetch("/api/orders", {
+      const res = await fetch("/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(order),
       });
+      const data = await res.json();
+      setOrders((prev) => [data.order || order, ...prev]);
     } catch (err) {
       console.error("Error saving checkout order to MongoDB Atlas", err);
+      setOrders((prev) => [order, ...prev]);
     }
   };
 
   const deleteOrder = async (orderId: string) => {
-    const updated = orders.filter((o) => o.orderId !== orderId);
-    setOrders(updated);
+    setOrders((prev) => prev.filter((o) => o.orderId !== orderId));
     try {
-      await fetch(`/api/orders?orderId=${encodeURIComponent(orderId)}`, {
-        method: "DELETE",
-      });
+      await fetch(`/api/orders?orderId=${encodeURIComponent(orderId)}`, { method: "DELETE" });
     } catch (err) {
       console.error("Error deleting order from MongoDB Atlas", err);
     }
@@ -710,6 +482,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         adminUser,
         login,
         logout,
+        isLoading,
         products,
         addProduct,
         updateProduct,

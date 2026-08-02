@@ -20,7 +20,7 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
   defaultTitle,
   defaultDesc,
 }) => {
-  const { products, categories } = useAdmin();
+  const { products, categories, isLoading } = useAdmin();
   const { addToCart } = useCart();
   const { addToast } = useToast();
 
@@ -51,6 +51,35 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
       currentCategory.name.toLowerCase().includes(p.category.toLowerCase())
     );
   });
+
+  if (isLoading) {
+    return (
+      <div className="min-h-[100dvh] flex flex-col bg-[#F8FAFC] text-[#0A192F] font-inter">
+        <Navbar />
+        <main className="w-full mx-auto px-4 md:px-12 py-10 max-w-[1280px] flex-1">
+          <div className="mb-12 bg-white rounded-3xl p-8 md:p-12 border border-[#E2E8F0] shadow-sm animate-pulse">
+            <div className="h-4 w-40 bg-[#E2E8F0] rounded mb-4" />
+            <div className="h-10 w-80 bg-[#E2E8F0] rounded mb-4" />
+            <div className="h-4 w-full max-w-lg bg-[#E2E8F0] rounded" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <div key={i} className="bg-white rounded-2xl border border-[#E2E8F0] overflow-hidden animate-pulse">
+                <div className="bg-[#F1F5F9] h-52" />
+                <div className="p-4 space-y-3">
+                  <div className="h-3 w-24 bg-[#E2E8F0] rounded" />
+                  <div className="h-5 w-full bg-[#E2E8F0] rounded" />
+                  <div className="h-5 w-28 bg-[#E2E8F0] rounded" />
+                  <div className="h-10 w-full bg-[#E2E8F0] rounded-xl" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[100dvh] flex flex-col bg-[#F8FAFC] text-[#0A192F] font-inter">

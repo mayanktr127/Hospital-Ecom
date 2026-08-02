@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAdmin, ReviewItem, CategoryItem } from "@/context/AdminContext";
 import { useToast } from "@/context/ToastContext";
 import { Product } from "@/types/product";
-import { BlogPost } from "@/data/blog_posts";
+import { BlogPost } from "@/context/AdminContext";
 import {
   LayoutDashboard,
   Package,
@@ -394,7 +394,7 @@ export default function AdminDashboardPage() {
       setBReadTime(blog.readTime);
       setBImage(blog.image);
       setBExcerpt(blog.excerpt);
-      setBContentText(blog.content.join("\n\n"));
+      setBContentText(blog.content ?? "");
     } else {
       setEditingBlog(null);
       setBSlug(`clinical-guide-${Date.now()}`);
@@ -420,7 +420,7 @@ export default function AdminDashboardPage() {
       readTime: bReadTime || "5 min read",
       image: bImage || "/images/pulmocare/pulmocare_prisma-smart.png",
       excerpt: bExcerpt,
-      content: bContentText.split("\n\n").filter((p) => p.trim() !== ""),
+      content: bContentText,
     };
 
     if (editingBlog) {
