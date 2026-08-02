@@ -7,13 +7,13 @@ try {
 } catch (e) {}
 
 import { dbConnect } from "@/lib/mongodb";
-import Product from "@/models/Product";
+import Category from "@/models/Category";
 
 export async function GET() {
   try {
     await dbConnect();
-    const products = await Product.find({}).sort({ createdAt: -1 });
-    return NextResponse.json({ success: true, products });
+    const categories = await Category.find({}).sort({ createdAt: 1 });
+    return NextResponse.json({ success: true, categories });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
@@ -23,8 +23,13 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const newProduct = await Product.create(body);
-    return NextResponse.json({ success: true, product: newProduct }, { status: 201 });
+    const slug = body.slug || body.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const newCategory = await Category.create({
+      ...body,
+      id: body.id || `cat-${Date.now()}`,
+      slug,
+    });
+    return NextResponse.json({ success: true, category: newCategory }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
@@ -34,12 +39,12 @@ export async function PUT(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const updatedProduct = await Product.findOneAndUpdate(
+    const updatedCategory = await Category.findOneAndUpdate(
       { id: body.id },
       body,
       { new: true, runValidators: true }
     );
-    return NextResponse.json({ success: true, product: updatedProduct });
+    return NextResponse.json({ success: true, category: updatedCategory });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
@@ -52,11 +57,11 @@ export async function DELETE(req: Request) {
     const id = searchParams.get("id");
 
     if (!id) {
-      return NextResponse.json({ success: false, error: "Missing product ID" }, { status: 400 });
+      return NextResponse.json({ success: false, error: "Missing category id" }, { status: 400 });
     }
 
-    await Product.findOneAndDelete({ id });
-    return NextResponse.json({ success: true, message: `Product ${id} deleted` });
+    await Category.findOneAndDelete({ id });
+    return NextResponse.json({ success: true, message: `Category ${id} deleted` });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

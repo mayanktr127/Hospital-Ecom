@@ -2,12 +2,15 @@ import mongoose from "mongoose";
 import dns from "dns";
 
 try {
+  dns.setServers(["8.8.8.8", "1.1.1.1", "8.8.4.4"]);
   dns.setDefaultResultOrder("ipv4first");
 } catch (e) {
   // Ignore
 }
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://vaderharsh127_db_user:aRGaTdGcM0ml3NhJ@cluster0.qmqgldx.mongodb.net/pulmocare?retryWrites=true&w=majority&appName=Cluster0";
+const MONGODB_URI =
+  process.env.MONGODB_URI ||
+  "mongodb+srv://vaderharsh127_db_user:aRGaTdGcM0ml3NhJ@cluster0.qmqgldx.mongodb.net/pulmocare?retryWrites=true&w=majority&appName=Cluster0";
 
 if (!MONGODB_URI) {
   throw new Error("Please define the MONGODB_URI environment variable inside .env.local");
@@ -29,6 +32,11 @@ if (!global.mongooseCache) {
 }
 
 export async function dbConnect() {
+  try {
+    dns.setServers(["8.8.8.8", "1.1.1.1", "8.8.4.4"]);
+    dns.setDefaultResultOrder("ipv4first");
+  } catch (e) {}
+
   if (cached.conn) {
     return cached.conn;
   }

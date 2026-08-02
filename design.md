@@ -12,14 +12,11 @@ Design documentation for the **Pulmo Care** hospital and home healthcare equipme
 - **`MOTION_INTENSITY: 7`** (Physics-based infinite marquee carousel, smooth tab filters, spring micro-interactions)
 - **`VISUAL_DENSITY: 4`** (Spacious clinical hardware presentation)
 
-1. **Dedicated Checkout Page & Real-Time Admin Orders Integration (`/checkout` & `/admin`):**
-   - Built full dedicated Next.js `/checkout` page route:
-     - Customer details input (Full Name, Phone, Email, Address, Landmark, City, State, Pincode, Doctor Prescription Note / Hospital GSTIN).
-     - Payment options (Cash on Delivery, UPI / NetBanking / Razorpay, Hospital Bank Wire Transfer).
-     - Real-time Itemized Order Summary with INR (₹) subtotal calculation and free shipping indicator.
-     - Post-checkout confirmation view with Order ID tracking timeline.
-   - Connected `/checkout` to `/api/orders` REST route and Mongoose `Order.ts` model in **MongoDB Atlas Cloud Database**.
-   - Updated Admin Dashboard (`/admin`) to display live storefront customer orders in the Tracking & Orders module and Dashboard Recent Activity table with status management (`On Progress`, `Delivered`, `Cancelled`) and deletion capabilities.
+1. **Admin Categories Catalog & Instant Frontend Product Synchronization:**
+   - Created Mongoose schema [`Category.ts`](file:///c:/Users/Mayank/Downloads/Hospital%20Equipments/src/models/Category.ts) and REST route `/api/categories` connected to **MongoDB Atlas Cloud Database**.
+   - Built full **Categories Catalog Management** module in Admin Panel (`/admin`), complete with Category Name, Slug, Badge, Cover Image upload via Multer, Description, Edit, and Delete options.
+   - Updated Admin Product Creation / Edit Modal to dynamically load all available categories.
+   - Connected Homepage **"Shop by Category"** grid, category pills, and `ProductSection.tsx` marquee directly to `useAdmin().products` and `useAdmin().categories` — ensuring **ANY newly added product or category created in Admin IMMEDIATELY reflects on the live frontend!**
 
 ---
 
@@ -114,3 +111,4 @@ Design documentation for the **Pulmo Care** hospital and home healthcare equipme
 - **v33.0 (Homepage Contact & Inquiry Form + Admin Lead Tracker Suite):** Built `ContactSection.tsx`, `Inquiry.ts` model, `/api/inquiries` REST route, and full Admin `Inquiries & Support` lead management module connected to MongoDB Atlas.
 - **v34.0 (Multer Image Upload Integration & 21-Product MongoDB Atlas Seeding):** Built `/api/upload` Multer endpoint, integrated image file uploader with live thumbnail preview into Admin Product Modal, and seeded all 21 website products directly into MongoDB Atlas.
 - **v35.0 (Dedicated Checkout Page Route & Live Admin Orders Integration):** Built `/checkout` route with customer contact/shipping form, payment options, order summary, `/api/orders` API endpoint, `Order.ts` model, and live order tracking dashboard in Admin Panel (`/admin`).
+- **v36.0 (Admin Categories Catalog Management & Instant Frontend Sync Fix):** Built Mongoose schema `Category.ts`, `/api/categories` API endpoint, Categories Catalog tab in `/admin`, and rewired `ProductSection.tsx` & `src/app/page.tsx` to render products and categories directly from `useAdmin()`.

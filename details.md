@@ -4,23 +4,16 @@ Comprehensive technical and design documentation for the **Pulmo Care** hospital
 
 ---
 
-## 1. Checkout & Orders Management Technical Specs
+## 1. Categories Management & Frontend Synchronization Specs
 
-- **Checkout Page Route:** `src/app/checkout/page.tsx`
-- **Mongoose Schema:** `src/models/Order.ts`
-- **API Handler:** `src/app/api/orders/route.ts` (GET, POST, PUT, DELETE)
-- **Admin Integration:** `src/app/admin/page.tsx` (`Tracking & Orders` & Dashboard Activity table)
-- **Captured Order Fields:**
-  - `orderId`: Generated unique ID (e.g. `ORD-781920`).
-  - `customerName`: Full customer / doctor name.
-  - `phone`: Contact phone number.
-  - `email`: Email address.
-  - `street`, `city`, `state`, `pincode`, `landmark`: Full shipping address.
-  - `items`: Purchased items array with `productId`, `name`, `price`, `quantity`, `image`.
-  - `totalAmount`: Total amount in INR (₹).
-  - `paymentMethod`: "Cash on Delivery" | "UPI / Razorpay" | "Bank Wire Transfer".
-  - `orderStatus`: "On Progress" | "Delivered" | "Cancelled".
-  - `prescriptionNote`: Optional prescription / GSTIN note.
+- **Mongoose Model:** `src/models/Category.ts`
+- **API Handler:** `src/app/api/categories/route.ts` (GET, POST, PUT, DELETE)
+- **Admin Module:** `src/app/admin/page.tsx` (`activeTab === "categories"`)
+- **Category Overview Component:** `src/components/products/CategoryOverviewComponent.tsx`
+- **Dynamic Catch-All Route:** `src/app/category/[slug]/page.tsx`
+- **Frontend Real-Time Synchronization:**
+  - `src/components/products/ProductSection.tsx` reads `useAdmin().products` and `useAdmin().categories`.
+  - `src/app/page.tsx` ("Shop by Category") renders dynamic category cards and calculates product counts live from `useAdmin().products`.
 
 ---
 

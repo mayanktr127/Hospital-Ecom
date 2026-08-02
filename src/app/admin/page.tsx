@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAdmin, ReviewItem } from "@/context/AdminContext";
+import { useAdmin, ReviewItem, CategoryItem } from "@/context/AdminContext";
 import { useToast } from "@/context/ToastContext";
 import { Product } from "@/types/product";
 import { BlogPost } from "@/data/blog_posts";
@@ -70,13 +70,17 @@ export default function AdminDashboardPage() {
     inquiries,
     deleteInquiry,
     updateInquiryStatus,
+    categories,
+    addCategory,
+    updateCategory,
+    deleteCategory,
     orders,
     deleteOrder,
     updateOrderStatus,
   } = useAdmin();
   const { addToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "products" | "blogs" | "reviews" | "tracking" | "messages">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "products" | "categories" | "blogs" | "reviews" | "tracking" | "messages">("dashboard");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Search & Filter States
@@ -93,6 +97,98 @@ export default function AdminDashboardPage() {
   // Blog Modal State
   const [blogModalOpen, setBlogModalOpen] = useState(false);
   const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
+
+  // Category Modal State
+  const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const [editingCategory, setEditingCategory] = useState<CategoryItem | null>(null);
+
+  // Category Form Fields
+  const [cId, setCId] = useState("");
+  const [cName, setCName] = useState("");
+  const [cSlug, setCSlug] = useState("");
+  const [cBadge, setCBadge] = useState("");
+  const [cImage, setCImage] = useState("");
+  const [cDesc, setCDesc] = useState("");
+  const [isUploadingCatImage, setIsUploadingCatImage] = useState(false);
+
+  const handleOpenCategoryModal = (cat?: CategoryItem) => {
+    if (cat) {
+      setEditingCategory(cat);
+      setCId(cat.id);
+      setCName(cat.name);
+      setCSlug(cat.slug);
+      setCBadge(cat.badge || "");
+      setCImage(cat.image);
+      setCDesc(cat.desc);
+    } else {
+      setEditingCategory(null);
+      setCId(`cat-${Date.now()}`);
+      setCName("");
+      setCSlug("");
+      setCBadge("");
+      setCImage("");
+      setCDesc("");
+    }
+    setCategoryModalOpen(true);
+  };
+
+  const handleCatImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingCatImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        setCImage(data.url);
+        addToast("Multer Upload Success", "Category image stored in /uploads directory.");
+      } else {
+        addToast("Upload Failed", data.error || "Could not upload image.", "error");
+      }
+    } catch (err) {
+      console.error("Multer upload error", err);
+      addToast("Upload Error", "Failed to upload image file.", "error");
+    } finally {
+      setIsUploadingCatImage(false);
+    }
+  };
+
+  const handleSaveCategory = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cName) {
+      addToast("Required Field", "Please provide a Category Name.", "warning");
+      return;
+    }
+
+    const categorySlug = cSlug || cName.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+
+    const catObj: CategoryItem = {
+      id: cId || `cat-${Date.now()}`,
+      name: cName,
+      slug: categorySlug,
+      badge: cBadge || undefined,
+      image: cImage || "/images/pulmocare/pulmocare_prisma-smart.png",
+      desc: cDesc || "Clinical healthcare equipment and devices.",
+    };
+
+    if (editingCategory) {
+      await updateCategory(catObj);
+      addToast("Category Updated", `Category "${cName}" updated in MongoDB Atlas.`);
+    } else {
+      await addCategory(catObj);
+      addToast("Category Created", `Category "${cName}" created & live on frontend!`);
+    }
+
+    setCategoryModalOpen(false);
+  };
 
   // Review Modal State
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
@@ -385,6 +481,16 @@ export default function AdminDashboardPage() {
                   <span className="bg-[#F1F5F9] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono">{products.length}</span>
                 </button>
                 <button
+                  onClick={() => { setActiveTab("categories"); setMobileSidebarOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "categories" ? "bg-[#EBF5FF] text-[#0066FF]" : "text-[#64748B]"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Layers className="w-4 h-4" />
+                    <span>Categories Catalog</span>
+                  </div>
+                  <span className="bg-[#F1F5F9] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono">{categories.length}</span>
+                </button>
+                <button
                   onClick={() => { setActiveTab("blogs"); setMobileSidebarOpen(false); }}
                   className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "blogs" ? "bg-[#EBF5FF] text-[#0066FF]" : "text-[#64748B]"}`}
                 >
@@ -500,6 +606,21 @@ export default function AdminDashboardPage() {
                 <span>Products Catalog</span>
               </div>
               <span className="bg-[#F1F5F9] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono">{products.length}</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("categories")}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs transition-all cursor-pointer ${
+                activeTab === "categories"
+                  ? "bg-[#EBF5FF] text-[#0066FF] shadow-xs"
+                  : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0066FF]"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Layers className="w-4 h-4" />
+                <span>Categories Catalog</span>
+              </div>
+              <span className="bg-[#F1F5F9] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono">{categories.length}</span>
             </button>
 
             <button
@@ -967,6 +1088,90 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
+          {/* TAB: CATEGORIES MANAGEMENT (CRUD) */}
+          {activeTab === "categories" && (
+            <div className="bg-white rounded-3xl border border-[#E2E8F0] p-6 md:p-8 shadow-xs space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#F1F5F9]">
+                <div>
+                  <h2 className="font-archivo font-extrabold text-2xl text-[#0F172A]">Categories Catalog Management</h2>
+                  <p className="text-xs text-[#64748B]">Create new medical equipment categories that immediately appear on the storefront homepage and navigation menus.</p>
+                </div>
+
+                <button
+                  onClick={() => handleOpenCategoryModal()}
+                  className="px-5 py-2.5 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Category</span>
+                </button>
+              </div>
+
+              {/* Categories Grid Cards */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {categories.map((cat) => {
+                  const matchingProds = products.filter(
+                    (p) =>
+                      p.category === cat.name ||
+                      p.category.toLowerCase().includes(cat.name.toLowerCase()) ||
+                      cat.name.toLowerCase().includes(p.category.toLowerCase())
+                  ).length;
+
+                  return (
+                    <div
+                      key={cat.id}
+                      className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-3xl p-5 flex flex-col justify-between space-y-4 hover:shadow-md transition-all"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between mb-3">
+                          <span className="bg-white px-3 py-1 rounded-full text-[11px] font-bold text-[#0066FF] border border-[#E2E8F0]">
+                            {matchingProds} Products
+                          </span>
+                          {cat.badge && (
+                            <span className="bg-[#0066FF] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase">
+                              {cat.badge}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="w-full h-32 bg-white rounded-2xl p-2 border border-[#E2E8F0] flex items-center justify-center mb-3">
+                          <img src={cat.image} alt={cat.name} className="max-h-28 max-w-full object-contain" />
+                        </div>
+
+                        <h4 className="font-archivo font-bold text-base text-[#0F172A] leading-tight mb-1">
+                          {cat.name}
+                        </h4>
+                        <span className="text-[11px] font-mono text-[#0066FF] block mb-2">/{cat.slug}</span>
+                        <p className="text-xs text-[#64748B] line-clamp-2 leading-relaxed">{cat.desc}</p>
+                      </div>
+
+                      <div className="pt-3 border-t border-[#E2E8F0] flex items-center justify-end gap-2">
+                        <button
+                          onClick={() => handleOpenCategoryModal(cat)}
+                          className="p-2 rounded-xl bg-blue-50 text-[#0066FF] hover:bg-[#0066FF] hover:text-white transition-colors cursor-pointer"
+                          title="Edit Category"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (confirm(`Delete category "${cat.name}"?`)) {
+                              await deleteCategory(cat.id);
+                              addToast("Category Deleted", `Removed category "${cat.name}" from MongoDB Atlas.`);
+                            }
+                          }}
+                          className="p-2 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+                          title="Delete Category"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* TAB 3: BLOG POSTS MANAGEMENT (CRUD) */}
           {activeTab === "blogs" && (
             <div className="bg-white rounded-3xl border border-[#E2E8F0] p-6 md:p-8 shadow-xs space-y-6">
@@ -1300,10 +1505,11 @@ export default function AdminDashboardPage() {
                     onChange={(e) => setPCategory(e.target.value)}
                     className="w-full p-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A]"
                   >
-                    <option value="Ventilation & Sleep">Ventilation &amp; Sleep</option>
-                    <option value="Diagnostic">Diagnostic</option>
-                    <option value="Surgical">Surgical</option>
-                    <option value="PPE & Protection">PPE &amp; Protection</option>
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -1565,6 +1771,130 @@ export default function AdminDashboardPage() {
                   className="px-6 py-2.5 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold text-xs uppercase"
                 >
                   Publish Review
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE / EDIT CATEGORY MODAL */}
+      {categoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-[#E2E8F0]">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F1F5F9] mb-6">
+              <h3 className="font-archivo font-extrabold text-2xl text-[#0F172A]">
+                {editingCategory ? "Edit Category" : "Add New Category"}
+              </h3>
+              <button onClick={() => setCategoryModalOpen(false)} className="p-2 rounded-full hover:bg-[#F1F5F9] text-[#64748B]">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveCategory} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-archivo font-bold text-[#0F172A] uppercase mb-1">
+                  Category Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={cName}
+                  onChange={(e) => {
+                    setCName(e.target.value);
+                    if (!editingCategory) {
+                      setCSlug(e.target.value.toLowerCase().replace(/[^a-z0-9]+/g, "-"));
+                    }
+                  }}
+                  placeholder="e.g. Suction & Nebulization"
+                  className="w-full p-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-sm text-[#0F172A]"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-archivo font-bold text-[#0F172A] uppercase mb-1">URL Slug</label>
+                  <input
+                    type="text"
+                    required
+                    value={cSlug}
+                    onChange={(e) => setCSlug(e.target.value)}
+                    placeholder="e.g. suction-nebulization"
+                    className="w-full p-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-archivo font-bold text-[#0F172A] uppercase mb-1">Badge (Optional)</label>
+                  <input
+                    type="text"
+                    value={cBadge}
+                    onChange={(e) => setCBadge(e.target.value)}
+                    placeholder="e.g. New Launch / Bestseller"
+                    className="w-full p-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A]"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="block font-archivo font-bold text-[#0F172A] uppercase mb-1">
+                  Category Cover Image (Upload via Multer or Paste URL)
+                </label>
+                
+                <div className="flex items-center gap-3">
+                  <label className="px-4 py-2 rounded-xl bg-[#EBF5FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white font-archivo font-bold text-xs cursor-pointer transition-colors flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    <span>{isUploadingCatImage ? "Uploading via Multer..." : "Upload Image File"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleCatImageFileUpload}
+                      className="hidden"
+                      disabled={isUploadingCatImage}
+                    />
+                  </label>
+                  <span className="text-[10px] text-[#94A3B8] uppercase font-bold">OR</span>
+                </div>
+
+                <input
+                  type="text"
+                  value={cImage}
+                  onChange={(e) => setCImage(e.target.value)}
+                  placeholder="Paste image URL or /uploads/cat_... path"
+                  className="w-full p-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A]"
+                />
+
+                {cImage && (
+                  <div className="mt-2 flex items-center gap-3 p-2 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0]">
+                    <img src={cImage} alt="Preview" className="w-10 h-10 object-contain rounded-lg bg-white p-1 border" />
+                    <span className="text-[10px] text-[#64748B] font-mono line-clamp-1">{cImage}</span>
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block font-archivo font-bold text-[#0F172A] uppercase mb-1">Description</label>
+                <textarea
+                  rows={3}
+                  value={cDesc}
+                  onChange={(e) => setCDesc(e.target.value)}
+                  placeholder="Brief clinical description of this equipment category..."
+                  className="w-full p-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A]"
+                />
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3 border-t border-[#F1F5F9]">
+                <button
+                  type="button"
+                  onClick={() => setCategoryModalOpen(false)}
+                  className="px-5 py-2.5 rounded-full border border-[#E2E8F0] text-[#64748B] font-archivo font-bold hover:bg-[#F8FAFC]"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold uppercase tracking-wider"
+                >
+                  {editingCategory ? "Update Category" : "Save Category"}
                 </button>
               </div>
             </form>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { PRODUCTS } from "@/data/products";
+import { useAdmin } from "@/context/AdminContext";
 import { Product, ProductCategory } from "@/types/product";
 import { ProductCard } from "./ProductCard";
 import { SlidersHorizontal, ChevronLeft, ChevronRight, Pause, Play, Sparkles } from "lucide-react";
@@ -18,23 +18,20 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
   onSelectCategory,
   onQuickView,
 }) => {
+  const { products, categories } = useAdmin();
   const [sortBy, setSortBy] = useState<"featured" | "price-asc" | "price-desc" | "rating">("featured");
   const [isPaused, setIsPaused] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const categoriesList: ProductCategory[] = [
-    "All",
-    "Ventilation & Sleep",
-    "Diagnostic",
-    "Surgical",
-    "PPE & Protection",
-    "Disinfection",
-    "Personal Care",
-  ];
+  const categoriesList = ["All", ...categories.map((c) => c.name)];
 
-  const filteredProducts = PRODUCTS.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     if (selectedCategory === "All") return true;
-    return product.category === selectedCategory;
+    return (
+      product.category === selectedCategory ||
+      product.category.toLowerCase().includes((selectedCategory as string).toLowerCase()) ||
+      (selectedCategory as string).toLowerCase().includes(product.category.toLowerCase())
+    );
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
@@ -89,7 +86,7 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
             return (
               <button
                 key={category}
-                onClick={() => onSelectCategory(category)}
+                onClick={() => onSelectCategory(category as ProductCategory)}
                 className={`px-5 py-2.5 rounded-full text-xs font-archivo font-bold whitespace-nowrap transition-all cursor-pointer ${
                   isActive
                     ? "bg-[#003865] text-white shadow-[0_4px_14px_rgba(0,56,101,0.3)] scale-105"
