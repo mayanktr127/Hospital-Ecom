@@ -6,14 +6,14 @@
     "products": [
       {
         "id": "prisma-20a",
-        "title": "-P-r-i-s-m-a- -2-0-A-",
+        "title": "Löwenstein Prisma 20A Auto CPAP",
         "slug": "prisma-20a",
         "categoryName": "CPAP & APAP Devices",
         "categorySlug": "cpap-apap-devices",
         "url": "https://pulmocare.in/product/prisma-20a/",
         "image": "/images/pulmocare/pulmocare_prisma-20a.png",
-        "tagline": "Clinical excellence in cpap & apap devices therapy.",
-        "introParagraph": "Official Prisma 20A medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Premium German auto-CPAP machine with FOT technology for obstructive and central sleep apnea differentiation.",
+        "introParagraph": "The Löwenstein Prisma 20A is a state-of-the-art auto-titrating CPAP machine manufactured in Germany. Featuring Forced Oscillation Technology (FOT), it accurately distinguishes between obstructive and central sleep apnea events, providing tailor-made pressure adjustments. Operating at an ultra-quiet 26 dB sound level, it includes softSTART, autoSTART-STOP, and deep telemetry data recording.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -47,18 +47,55 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 65000.0,
+        "originalPrice": 85000.0,
+        "specifications": [
+          {
+            "key": "Pressure Range",
+            "value": "4.0 to 20.0 hPa (0.5 hPa increments)"
+          },
+          {
+            "key": "Noise Level",
+            "value": "approx. 26 dB(A) at 10 hPa"
+          },
+          {
+            "key": "Dimensions (W x H x D)",
+            "value": "170 x 135 x 180 mm"
+          },
+          {
+            "key": "Weight",
+            "value": "1.4 kg (3.1 lbs)"
+          },
+          {
+            "key": "Power Supply",
+            "value": "100-240 V AC, 50-60 Hz (40 VA)"
+          },
+          {
+            "key": "Data Storage",
+            "value": "SD Card slot & internal memory (365 days)"
+          }
+        ],
+        "features": [
+          "Forced Oscillation Technology (FOT) reliably distinguishes central and obstructive sleep apnea",
+          "Ultra-quiet operation at 26 dB(A) for undisturbed sleep",
+          "softPAP pressure relief in 3 adjustable comfort levels",
+          "autoSTART-STOP automatic activation upon mask breathing",
+          "High-resolution 4.3-inch color touch display",
+          "PrismaTS software compatibility for telehealth reporting",
+          "Integrated heated tube support & optional Prisma AQUA humidifier"
         ]
       },
       {
         "id": "prisma-smart",
-        "title": "-P-r-i-s-m-a- -S-m-a-r-t-",
+        "title": "Löwenstein Prisma SMART Auto CPAP",
         "slug": "prisma-smart",
         "categoryName": "CPAP & APAP Devices",
         "categorySlug": "cpap-apap-devices",
         "url": "https://pulmocare.in/product/prisma-smart/",
         "image": "/images/pulmocare/pulmocare_prisma-smart.png",
-        "tagline": "Clinical excellence in cpap & apap devices therapy.",
-        "introParagraph": "Official Prisma Smart medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Intelligent, reliable German auto-CPAP machine with softPAP pressure relief.",
+        "introParagraph": "Löwenstein Prisma SMART offers intelligent auto-CPAP therapy with classic APAP dynamics and softPAP pressure relief. Engineered in Germany for high patient compliance, it guarantees silent night operation with intuitive navigation and compact ergonomics.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -92,18 +129,50 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 45990.0,
+        "originalPrice": 65000.0,
+        "specifications": [
+          {
+            "key": "Pressure Range",
+            "value": "4.0 to 20.0 hPa"
+          },
+          {
+            "key": "Noise Level",
+            "value": "26 dB(A) at 10 hPa"
+          },
+          {
+            "key": "Weight",
+            "value": "1.34 kg"
+          },
+          {
+            "key": "Dimensions",
+            "value": "170 x 135 x 180 mm"
+          },
+          {
+            "key": "Electrical Output",
+            "value": "100-240 V AC, max 40 VA"
+          }
+        ],
+        "features": [
+          "Classic APAP and Standard CPAP modes",
+          "softPAP exhalation pressure relief",
+          "Silent motor technology operating at 26 dB(A)",
+          "Clear LCD display with intuitive patient menu",
+          "SD Card compliance recording for sleep clinicians",
+          "Compatible with all standard 22mm & 15mm CPAP tubing"
         ]
       },
       {
         "id": "prisma-smart-plus",
-        "title": "-P-r-i-s-m-a- -S-m-a-r-t- -P-l-u-s-",
+        "title": "Löwenstein Prisma SMART Plus Auto CPAP",
         "slug": "prisma-smart-plus",
         "categoryName": "CPAP & APAP Devices",
         "categorySlug": "cpap-apap-devices",
         "url": "https://pulmocare.in/product/prisma-smart-plus/",
         "image": "/images/pulmocare/pulmocare_prisma-smart-plus.png",
-        "tagline": "Clinical excellence in cpap & apap devices therapy.",
-        "introParagraph": "Official Prisma Smart Plus medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Advanced auto-CPAP with integrated Bluetooth connectivity and mobile app telemetry.",
+        "introParagraph": "Prisma SMART Plus combines Löwenstein's precise auto-CPAP algorithm with integrated Bluetooth connectivity. Patients and clinicians can access sleep compliance data on smartphones via the Prisma APP, backed by German manufacturing precision.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -137,6 +206,33 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 52500.0,
+        "originalPrice": 72000.0,
+        "specifications": [
+          {
+            "key": "Pressure Range",
+            "value": "4.0 to 20.0 hPa"
+          },
+          {
+            "key": "Wireless",
+            "value": "Integrated Bluetooth Low Energy"
+          },
+          {
+            "key": "Noise Level",
+            "value": "26 dB(A)"
+          },
+          {
+            "key": "Weight",
+            "value": "1.34 kg"
+          }
+        ],
+        "features": [
+          "Integrated Bluetooth connectivity for mobile app telemetry",
+          "FOT central sleep apnea detection algorithm",
+          "softPAP exhalation pressure reduction",
+          "Compact white-fronted design with high-contrast screen",
+          "Full SD card sleep data transfer capability"
         ]
       }
     ]
@@ -148,14 +244,14 @@
     "products": [
       {
         "id": "prisma-25-st",
-        "title": "-P-r-i-s-m-a- -2-5- -S-T-",
+        "title": "Löwenstein Prisma 25ST BiLevel",
         "slug": "prisma-25-st",
         "categoryName": "Bilevel-S & ST Devices",
         "categorySlug": "bilevel-s-st-devices",
         "url": "https://pulmocare.in/product/prisma-25-st/",
         "image": "/images/pulmocare/pulmocare_prisma-25-st.png",
-        "tagline": "Clinical excellence in bilevel-s & st devices therapy.",
-        "introParagraph": "Official Prisma 25 ST medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Advanced ST BiLevel ventilator machine with autoTRILEVEL and target volume settings.",
+        "introParagraph": "Prisma 25ST is a premier S/ST BiLevel machine designed for patients suffering from obstructive, mixed, or complex sleep apnea, combined with hypoventilation disorders. Features target volume control (autoTRILEVEL) and automatic backup frequency.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -189,18 +285,46 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 70300.0,
+        "originalPrice": 95000.0,
+        "specifications": [
+          {
+            "key": "IPAP Pressure Range",
+            "value": "4.0 to 25.0 hPa"
+          },
+          {
+            "key": "EPAP Pressure Range",
+            "value": "4.0 to 20.0 hPa"
+          },
+          {
+            "key": "Backup Rate",
+            "value": "0 to 35 breaths/min (bpm)"
+          },
+          {
+            "key": "Weight",
+            "value": "1.4 kg"
+          }
+        ],
+        "features": [
+          "S, ST, T, CPAP, and APAP ventilation modes",
+          "autoTRILEVEL pressure optimization for IPAP, EPAP, and PEEP",
+          "Automatic backup breathing frequency (autoS/T)",
+          "High pressure capability up to 25 hPa",
+          "FOT detection of Cheyne-Stokes and central apnea",
+          "Ultra-quiet operating sound level at 26 dB"
         ]
       },
       {
         "id": "prisma-25s",
-        "title": "-P-r-i-s-m-a- -2-5-S-",
+        "title": "Löwenstein Prisma 25S BiLevel",
         "slug": "prisma-25s",
         "categoryName": "Bilevel-S & ST Devices",
         "categorySlug": "bilevel-s-st-devices",
         "url": "https://pulmocare.in/product/prisma-25s/",
         "image": "/images/pulmocare/pulmocare_prisma-25s.png",
-        "tagline": "Clinical excellence in bilevel-s & st devices therapy.",
-        "introParagraph": "Official Prisma 25S medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "High-pressure BiLevel S machine for severe OSA and COPD therapy.",
+        "introParagraph": "Prisma 25S offers spontaneous BiLevel therapy with pressure differential support up to 25 hPa. Engineered specifically for patients requiring higher inspiratory support, COPD management, and severe obstructive sleep apnea.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -234,18 +358,45 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 70000.0,
+        "originalPrice": 92000.0,
+        "specifications": [
+          {
+            "key": "IPAP Range",
+            "value": "4.0 to 25.0 hPa"
+          },
+          {
+            "key": "EPAP Range",
+            "value": "4.0 to 20.0 hPa"
+          },
+          {
+            "key": "Sound Level",
+            "value": "26.5 dB(A)"
+          },
+          {
+            "key": "Weight",
+            "value": "1.4 kg"
+          }
+        ],
+        "features": [
+          "BiLevel S spontaneous mode with auto-titrating EPAP",
+          "Wide pressure differential up to 25 hPa",
+          "FOT event recognition algorithm",
+          "Integrated humidifier options with Prisma AQUA",
+          "26.5 dB whisper-quiet motor sound"
         ]
       },
       {
         "id": "prisma-30-st",
-        "title": "-P-r-i-s-m-a- -3-0- -S-T-",
+        "title": "Löwenstein Prisma 30ST BiLevel",
         "slug": "prisma-30-st",
         "categoryName": "Bilevel-S & ST Devices",
         "categorySlug": "bilevel-s-st-devices",
         "url": "https://pulmocare.in/product/prisma-30-st/",
         "image": "/images/pulmocare/pulmocare_prisma-30-st.png",
-        "tagline": "Clinical excellence in bilevel-s & st devices therapy.",
-        "introParagraph": "Official Prisma 30 ST medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "High-pressure 30 hPa ST BiLevel device for hypoventilation and respiratory insufficiency.",
+        "introParagraph": "Prisma 30ST provides high-pressure BiLevel S/ST therapy up to 30 hPa. Designed for complex respiratory insufficiency, ALS, neuromuscular weakness, and overlap syndromes.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -279,6 +430,33 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 79690.0,
+        "originalPrice": 110000.0,
+        "specifications": [
+          {
+            "key": "IPAP Range",
+            "value": "4.0 to 30.0 hPa"
+          },
+          {
+            "key": "EPAP Range",
+            "value": "4.0 to 25.0 hPa"
+          },
+          {
+            "key": "Backup Rate",
+            "value": "0 to 35 bpm"
+          },
+          {
+            "key": "Weight",
+            "value": "1.4 kg"
+          }
+        ],
+        "features": [
+          "High inspiratory pressure up to 30 hPa",
+          "Target volume control for constant minute ventilation",
+          "Scope for invasive and non-invasive ventilation",
+          "FOT central event detection",
+          "High resolution clinical waveform graphs"
         ]
       }
     ]
@@ -290,14 +468,14 @@
     "products": [
       {
         "id": "prisma-cr",
-        "title": "-P-r-i-s-m-a- -C-R-",
+        "title": "Löwenstein Prisma CR ASV",
         "slug": "prisma-cr",
         "categoryName": "ASV & Titration Devices",
         "categorySlug": "asv-titration-devices",
         "url": "https://pulmocare.in/product/prisma-cr/",
         "image": "/images/pulmocare/pulmocare_prisma-cr.png",
-        "tagline": "Clinical excellence in asv & titration devices therapy.",
-        "introParagraph": "Official Prisma CR medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Adaptive Servo-Ventilation (ASV) device for Cheyne-Stokes respiration and central apnea.",
+        "introParagraph": "Prisma CR delivers breath-by-breath adaptive servo-ventilation (ASV) to stabilize ventilation in patients with Cheyne-Stokes respiration, periodic breathing, or complex central sleep apnea.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -331,18 +509,45 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 165000.0,
+        "originalPrice": 210000.0,
+        "features": [
+          "Adaptive Servo-Ventilation (ASV) breath-by-breath algorithm",
+          "Target minute ventilation auto-regulation",
+          "FOT central and obstructive apnea differentiation",
+          "Ultra-quiet German engineering at 26.5 dB",
+          "Comprehensive telemetry & clinical reporting"
+        ],
+        "specifications": [
+          {
+            "key": "IPAP Range",
+            "value": "4.0 to 30.0 hPa"
+          },
+          {
+            "key": "EPAP Range",
+            "value": "4.0 to 20.0 hPa"
+          },
+          {
+            "key": "ASV Rate",
+            "value": "Dynamic Auto-Regulation"
+          },
+          {
+            "key": "Weight",
+            "value": "1.4 kg"
+          }
         ]
       },
       {
         "id": "prisma-lab",
-        "title": "-P-r-i-s-m-a- -L-A-B-",
+        "title": "Löwenstein Prisma LAB Titration",
         "slug": "prisma-lab",
         "categoryName": "ASV & Titration Devices",
         "categorySlug": "asv-titration-devices",
         "url": "https://pulmocare.in/product/prisma-lab/",
         "image": "/images/pulmocare/pulmocare_prisma-lab.png",
-        "tagline": "Clinical excellence in asv & titration devices therapy.",
-        "introParagraph": "Official Prisma LAB medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Universal sleep laboratory titration system across all CPAP, APAP, BiLevel, and ASV modes.",
+        "introParagraph": "Prisma LAB is the ultimate remote titration system for sleep diagnostic centers. Allows sleep technicians to remotely switch modes (CPAP, APAP, BiLevel S, ST, ASV) and adjust pressure parameters during polysomnography.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -376,6 +581,28 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 180000.0,
+        "originalPrice": 240000.0,
+        "specifications": [
+          {
+            "key": "Operating Modes",
+            "value": "CPAP, APAP, S, ST, autoST, ASV, Target Volume"
+          },
+          {
+            "key": "Max Pressure",
+            "value": "30.0 hPa"
+          },
+          {
+            "key": "Interface",
+            "value": "PrismaTS / PSG Lab Titration Cable"
+          }
+        ],
+        "features": [
+          "Universal titration across CPAP, APAP, BiLevel S, ST, autoST, and ASV",
+          "Remote control interface for sleep lab PSG software",
+          "Real-time pressure, flow, and leak telemetry",
+          "Robust German design for 24/7 hospital sleep lab operation"
         ]
       }
     ]
@@ -387,14 +614,14 @@
     "products": [
       {
         "id": "prisma-aqua",
-        "title": "-P-r-i-s-m-a- -A-Q-U-A-",
+        "title": "Löwenstein Prisma AQUA Humidifier",
         "slug": "prisma-aqua",
         "categoryName": "Humidifiers",
         "categorySlug": "humidifiers",
         "url": "https://pulmocare.in/product/prisma-aqua/",
         "image": "/images/pulmocare/pulmocare_prisma-aqua.png",
-        "tagline": "Clinical excellence in humidifiers therapy.",
-        "introParagraph": "Official Prisma AQUA medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Heated humidifier for prismaLINE CPAP & BiLevel devices.",
+        "introParagraph": "Prisma AQUA heated humidifier clicks seamlessly into any prismaLINE device. Eliminates nasal dryness, congestion, and cold airway irritation during sleep therapy.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -428,6 +655,28 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 12180.0,
+        "originalPrice": 16500.0,
+        "specifications": [
+          {
+            "key": "Water Capacity",
+            "value": "400 ml"
+          },
+          {
+            "key": "Heating Output",
+            "value": "5 levels (100-240V)"
+          },
+          {
+            "key": "Weight",
+            "value": "0.4 kg"
+          }
+        ],
+        "features": [
+          "400 ml transparent water chamber",
+          "5 adjustable heating levels with auto-shutoff safety",
+          "Easy top-fill opening and dishwasher-safe tub",
+          "Smart warm-up pre-heating option"
         ]
       }
     ]
@@ -439,14 +688,14 @@
     "products": [
       {
         "id": "luisa-ventilator",
-        "title": "-L-u-i-s-a- -–- -V-e-n-t-i-l-a-t-o-r-",
+        "title": "Löwenstein Luisa Life Support Ventilator",
         "slug": "luisa-ventilator",
         "categoryName": "Ventilation",
         "categorySlug": "ventilation",
         "url": "https://pulmocare.in/product/luisa-ventilator/",
         "image": "/images/pulmocare/pulmocare_luisa-ventilator.png",
-        "tagline": "Clinical excellence in ventilation therapy.",
-        "introParagraph": "Official Luisa – Ventilator medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Portable life support ventilator for hospital and homecare invasive and non-invasive ventilation.",
+        "introParagraph": "Luisa is a premium portable life support ventilator designed for adults and pediatric patients down to 30 mL tidal volume. Equipped with a 10-inch touchscreen and up to 18 hours of dual battery operation.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -480,18 +729,50 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 485000.0,
+        "originalPrice": 620000.0,
+        "features": [
+          "Life support ventilation for invasive and non-invasive applications",
+          "Pediatric and adult ventilation (30 mL to 2000 mL tidal volume)",
+          "Up to 18 hours operation via dual internal batteries",
+          "10-inch high-resolution touchscreen display",
+          "High Flow Oxygen (HFO) therapy mode integrated",
+          "Lightweight 3.8 kg portable frame"
+        ],
+        "specifications": [
+          {
+            "key": "Tidal Volume",
+            "value": "30 to 2000 mL"
+          },
+          {
+            "key": "Pressure Range",
+            "value": "4 to 50 hPa"
+          },
+          {
+            "key": "Battery Life",
+            "value": "Up to 18 Hours (dual internal batteries)"
+          },
+          {
+            "key": "Screen",
+            "value": "10.0-inch color touchscreen"
+          },
+          {
+            "key": "Weight",
+            "value": "3.8 kg"
+          }
         ]
       },
       {
         "id": "prisma-vent-40",
-        "title": "-P-r-i-s-m-a- -V-e-n-t- -4-0-",
+        "title": "Löwenstein Prisma VENT 40 Ventilator",
         "slug": "prisma-vent-40",
         "categoryName": "Ventilation",
         "categorySlug": "ventilation",
         "url": "https://pulmocare.in/product/prisma-vent-40/",
         "image": "/images/pulmocare/pulmocare_prisma-vent-40.png",
-        "tagline": "Clinical excellence in ventilation therapy.",
-        "introParagraph": "Official Prisma Vent 40 medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Non-invasive and invasive ventilator up to 40 hPa with airTrap Control.",
+        "introParagraph": "Prisma VENT 40 offers invasive and non-invasive ventilation with pressure up to 40 hPa, target volume (airTrap Control), and a 12-hour internal battery runtime for respiratory insufficiency.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -525,18 +806,45 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 245000.0,
+        "originalPrice": 310000.0,
+        "features": [
+          "Pressure support up to 40 hPa",
+          "airTrap Control prevents dynamic hyperinflation",
+          "Target volume control for consistent minute ventilation",
+          "12-hour internal battery runtime",
+          "Large clinical color display"
+        ],
+        "specifications": [
+          {
+            "key": "Pressure Range",
+            "value": "4 to 40 hPa"
+          },
+          {
+            "key": "Tidal Volume",
+            "value": "100 to 2000 mL"
+          },
+          {
+            "key": "Battery Life",
+            "value": "12 Hours internal battery"
+          },
+          {
+            "key": "Weight",
+            "value": "2.4 kg"
+          }
         ]
       },
       {
         "id": "prisma-vent-50c",
-        "title": "-P-r-i-s-m-a- -V-e-n-t- -5-0-C-",
+        "title": "Löwenstein Prisma VENT 50C Ventilator",
         "slug": "prisma-vent-50c",
         "categoryName": "Ventilation",
         "categorySlug": "ventilation",
         "url": "https://pulmocare.in/product/prisma-vent-50c/",
         "image": "/images/pulmocare/pulmocare_prisma-vent-50c.png",
-        "tagline": "Clinical excellence in ventilation therapy.",
-        "introParagraph": "Official Prisma Vent 50C medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "High-pressure 50 hPa ventilator with High Flow Oxygen (HFO) therapy.",
+        "introParagraph": "Prisma VENT 50C combines high-pressure ventilation up to 50 hPa with integrated High Flow Oxygen (HFO) therapy up to 60 L/min, providing complete respiratory support for complex clinical cases.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -570,6 +878,33 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 315000.0,
+        "originalPrice": 410000.0,
+        "features": [
+          "High inspiratory pressure up to 50 hPa",
+          "Integrated High Flow Oxygen (HFO) up to 60 L/min",
+          "Mouthpiece ventilation (MPV) mode",
+          "12-hour internal battery pack",
+          "Invasive and non-invasive single/dual line circuits"
+        ],
+        "specifications": [
+          {
+            "key": "Max Pressure",
+            "value": "50 hPa"
+          },
+          {
+            "key": "High Flow Rate",
+            "value": "5 to 60 L/min"
+          },
+          {
+            "key": "Battery Runtime",
+            "value": "12 Hours"
+          },
+          {
+            "key": "Weight",
+            "value": "2.5 kg"
+          }
         ]
       }
     ]
@@ -581,14 +916,14 @@
     "products": [
       {
         "id": "inogen-rove-6",
-        "title": "-I-n-o-g-e-n- -R-o-v-e- -6-",
+        "title": "Inogen Rove 6 Portable Oxygen Concentrator",
         "slug": "inogen-rove-6",
         "categoryName": "Oxygen Therapy",
         "categorySlug": "oxygen-therapy",
         "url": "https://pulmocare.in/product/inogen-rove-6/",
         "image": "/images/pulmocare/pulmocare_inogen-rove-6.png",
-        "tagline": "Clinical excellence in oxygen therapy therapy.",
-        "introParagraph": "Official Inogen Rove 6 medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Ultra-lightweight portable oxygen concentrator with 6 pulse flow settings.",
+        "introParagraph": "Inogen Rove 6 is the latest FAA-approved portable oxygen concentrator. Delivering up to 6 pulse flow settings in an ultra-compact 2.2 kg package, it offers active oxygen therapy on the go with up to 13 hours battery runtime.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -622,18 +957,49 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 195000.0,
+        "originalPrice": 245000.0,
+        "specifications": [
+          {
+            "key": "Oxygen Flow",
+            "value": "Pulse Dose Settings 1 to 6"
+          },
+          {
+            "key": "Oxygen Purity",
+            "value": "90% -3% / +6% at all settings"
+          },
+          {
+            "key": "Battery Duration",
+            "value": "Up to 13 Hours (16-cell battery)"
+          },
+          {
+            "key": "Weight",
+            "value": "2.2 kg (4.8 lbs)"
+          },
+          {
+            "key": "Noise Level",
+            "value": "37 dBA"
+          }
+        ],
+        "features": [
+          "6 pulse dose oxygen flow settings",
+          "Up to 13 hours battery runtime (with 16-cell battery)",
+          "Ultra-quiet 37 dBA operating noise level",
+          "FAA approved for commercial airline travel",
+          "Lightweight 2.2 kg compact design"
         ]
       },
       {
         "id": "nidek-neo-5",
-        "title": "-N-i-d-e-k- -N-e-o- -5-",
+        "title": "Nidek NEO 5 LPM Oxygen Concentrator",
         "slug": "nidek-neo-5",
         "categoryName": "Oxygen Therapy",
         "categorySlug": "oxygen-therapy",
         "url": "https://pulmocare.in/product/simply-go-mini-copy/",
         "image": "/images/pulmocare/pulmocare_nidek-neo-5.png",
-        "tagline": "Clinical excellence in oxygen therapy therapy.",
-        "introParagraph": "Official Nidek Neo 5 medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Robust 5-liter continuous flow stationary oxygen concentrator.",
+        "introParagraph": "Nidek NEO 5 is a heavy-duty 5 LPM stationary home oxygen concentrator engineered to deliver medical-grade oxygen above 93% purity continuously for 24/7 oxygen therapy.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -667,6 +1033,37 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 42000.0,
+        "originalPrice": 58000.0,
+        "specifications": [
+          {
+            "key": "Flow Rate",
+            "value": "0.5 to 5.0 Liters/min"
+          },
+          {
+            "key": "Oxygen Purity",
+            "value": "93% ± 3%"
+          },
+          {
+            "key": "Outlet Pressure",
+            "value": "7 PSI"
+          },
+          {
+            "key": "Power Consumption",
+            "value": "300 Watts"
+          },
+          {
+            "key": "Weight",
+            "value": "14.5 kg"
+          }
+        ],
+        "features": [
+          "Continuous oxygen flow from 0.5 to 5.0 L/min",
+          "High oxygen concentration > 93% ± 3%",
+          "Low power consumption (300 Watts)",
+          "Built-in oxygen purity sensor & alarm safety system",
+          "Durable roller casters for effortless room relocation"
         ]
       }
     ]
@@ -678,14 +1075,14 @@
     "products": [
       {
         "id": "polygraphy-devices-samoa",
-        "title": "-P-o-l-y-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-a-m-o-a-",
+        "title": "Löwenstein Samoa Polygraphy Device",
         "slug": "polygraphy-devices-samoa",
         "categoryName": "Sleep Diagnostics",
         "categorySlug": "sleep-diagnostics",
         "url": "https://pulmocare.in/product/polygraphy-devices-samoa/",
-        "image": "/images/pulmocare/pulmocare_polygraphy-devices-samoa.png",
-        "tagline": "Clinical excellence in sleep diagnostics therapy.",
-        "introParagraph": "Official Polygraphy Devices – Samoa medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "image": "/images/site/sleep_diagnostics_csm_samoa_sleep_diagnostics_device_frontal_dba1194f3b.png",
+        "tagline": "Ultra-compact 10-channel home sleep apnea testing (HSAT) polygraphy system.",
+        "introParagraph": "Samoa is an ultra-compact sleep polygraphy recorder with 10 channels designed for effortless home sleep testing. Features built-in thorax/abdomen effort sensors, pulse oximetry, and automatic diagnostic reporting software.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -719,18 +1116,45 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 185000.0,
+        "originalPrice": 235000.0,
+        "features": [
+          "10 recording channels for home sleep apnea testing (HSAT)",
+          "Integrated thorax and abdomen effort recording",
+          "OLED color display for sensor impedance check",
+          "Automatic scoring via PrismaTS diagnostic software",
+          "Compact 160g body-worn recorder"
+        ],
+        "specifications": [
+          {
+            "key": "Channels",
+            "value": "10 recording channels"
+          },
+          {
+            "key": "Sensors",
+            "value": "Flow, Snore, SpO2, Pulse, Thorax, Abdomen, Position, Actigraphy"
+          },
+          {
+            "key": "Weight",
+            "value": "160 grams"
+          },
+          {
+            "key": "Battery",
+            "value": "1x AA Battery (up to 2 nights)"
+          }
         ]
       },
       {
         "id": "polygraphy-devices-scala",
-        "title": "-P-o-l-y-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-c-a-l-a-",
+        "title": "Löwenstein Scala Polygraphy Device",
         "slug": "polygraphy-devices-scala",
         "categoryName": "Sleep Diagnostics",
         "categorySlug": "sleep-diagnostics",
         "url": "https://pulmocare.in/product/polygraphy-devices-scala/",
-        "image": "/images/pulmocare/pulmocare_polygraphy-devices-scala.png",
-        "tagline": "Clinical excellence in sleep diagnostics therapy.",
-        "introParagraph": "Official Polygraphy Devices – Scala medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "image": "/images/site/sleep_diag_scala_csm_The_polygraphy_devices_Samoa_and_Scala_76fa602c10.png",
+        "tagline": "Expandable 16 to 28 channel polygraphy and polysomnography system.",
+        "introParagraph": "Scala is a flexible diagnostic system expandable from polygraphy to full polysomnography (PSG) with up to 28 channels. Supports wireless Bluetooth data transmission to sleep lab monitoring stations.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -764,18 +1188,40 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 240000.0,
+        "originalPrice": 310000.0,
+        "features": [
+          "16 to 28 recording channels expandable to EEG/EOG/EMG",
+          "Wireless Bluetooth data transmission",
+          "High-precision continuous SpO2 and pulse waveform",
+          "AASM compliant diagnostic report generation"
+        ],
+        "specifications": [
+          {
+            "key": "Channel Capacity",
+            "value": "16 - 28 Channels"
+          },
+          {
+            "key": "Wireless",
+            "value": "Bluetooth Class 1"
+          },
+          {
+            "key": "Weight",
+            "value": "220 grams"
+          }
         ]
       },
       {
         "id": "polysomnography-devices-sonata",
-        "title": "-P-o-l-y-s-o-m-n-o-g-r-a-p-h-y- -D-e-v-i-c-e-s- -–- -S-o-n-a-t-a-",
+        "title": "Löwenstein Sonata Polysomnography Device",
         "slug": "polysomnography-devices-sonata",
         "categoryName": "Sleep Diagnostics",
         "categorySlug": "sleep-diagnostics",
         "url": "https://pulmocare.in/product/polysomnography-devices-sonata/",
         "image": "/images/pulmocare/pulmocare_polysomnography-devices-sonata.png",
-        "tagline": "Clinical excellence in sleep diagnostics therapy.",
-        "introParagraph": "Official Polysomnography Devices – Sonata medical device from Pulmo Care. High-performance engineering for clinical hospital and homecare applications.",
+        "tagline": "Premier 33-channel hospital sleep lab PSG diagnostic system with HD video.",
+        "introParagraph": "Sonata is Löwenstein's flagship 33-channel sleep lab polysomnography system. Complete with HD IP video synchronization, infrared night vision, and comprehensive neurological sleep analysis.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -809,6 +1255,28 @@
             "size": "3.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 450000.0,
+        "originalPrice": 58000.0,
+        "features": [
+          "33 high-resolution diagnostic channels",
+          "Full PSG EEG, EOG, EMG, ECG, and leg movement recording",
+          "Synchronized HD IP video camera with infrared night vision",
+          "Automatic sleep staging & arousal scoring"
+        ],
+        "specifications": [
+          {
+            "key": "Total Channels",
+            "value": "33 Channels"
+          },
+          {
+            "key": "Video Sync",
+            "value": "HD 1080p IP Camera + IR Illuminator"
+          },
+          {
+            "key": "Compliance",
+            "value": "Full AASM Standards"
+          }
         ]
       }
     ]
@@ -820,14 +1288,14 @@
     "products": [
       {
         "id": "cara-full-face",
-        "title": "-C-A-R-A- -F-u-l-l- -F-a-c-e-",
+        "title": "Löwenstein CARA Full Face Mask",
         "slug": "cara-full-face",
         "categoryName": "Masks",
         "categorySlug": "masks",
         "url": "https://pulmocare.in/product/cara-full-face/",
-        "image": "/images/pulmocare/pulmocare_cara-full-face.jpg",
-        "tagline": "Lightweight full face mask with soft cushion and quiet exhalation system.",
-        "introParagraph": "The CARA Full Face mask offers high therapy comfort, lightweight fit, and ultra-quiet exhalation for full face respiratory therapy.",
+        "image": "/images/site/masks_cara_full_face_csm_cara_mask_patient_interface_fullface_right_3bfbc3e771.png",
+        "tagline": "Lightweight full face mask with soft cushion and whisper-quiet exhalation.",
+        "introParagraph": "CARA Full Face mask features an exceptionally quiet air dispersion system (only 13 dB), lightweight silicone cushion, OEKO-TEX certified headgear, and 3D ball-and-socket joint for optimal seal and movement freedom.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Type": "Full Face Mask",
@@ -846,18 +1314,41 @@
             "size": "1.8 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 5800.0,
+        "originalPrice": 8200.0,
+        "specifications": [
+          {
+            "key": "Noise Level",
+            "value": "13 dB(A)"
+          },
+          {
+            "key": "Weight",
+            "value": "89 grams"
+          },
+          {
+            "key": "Sizes Available",
+            "value": "Small, Medium, Large"
+          }
+        ],
+        "features": [
+          "Whisper-quiet exhalation system at 13 dB(A)",
+          "Lightweight design (only 89g)",
+          "Soft, ergonomic silicone cushion for leak-free seal",
+          "3D ball-and-socket 360° swivel joint",
+          "OEKO-TEX Standard 100 skin-friendly headgear"
         ]
       },
       {
         "id": "joyceone-full-face",
-        "title": "-J-O-Y-C-E-o-n-e- -F-u-l-l- -F-a-c-e-",
+        "title": "Löwenstein JOYCEone Full Face Mask",
         "slug": "joyceone-full-face",
         "categoryName": "Masks",
         "categorySlug": "masks",
         "url": "https://pulmocare.in/product/joyceone-full-face/",
-        "image": "/images/pulmocare/pulmocare_joyceone-full-face.jpg",
-        "tagline": "One size fits all full face mask with SilkTec coating.",
-        "introParagraph": "JOYCEone Full Face features an auto-adjusting forehead cushion and SilkTec coating for effortless fitting.",
+        "image": "/images/site/masks_joyceone_full_face_csm_joyceone_mask_patient_interface_fullface_vented_right_9753e5619b.png",
+        "tagline": "Universal one-size fits all full face mask with SilkTec coating.",
+        "introParagraph": "JOYCEone Full Face mask uses SilkTec smooth coating and automatic cushion fitting technology to provide a customized seal for all facial shapes with a single universal size.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Type": "Full Face Mask",
@@ -876,18 +1367,40 @@
             "size": "2.1 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 6500.0,
+        "originalPrice": 9000.0,
+        "features": [
+          "Universal one-size cushion fits virtually all patient faces",
+          "SilkTec smooth silicone coating for skin comfort",
+          "Color-coded headgear straps & intuitive quick-release clips",
+          "360-degree ball-and-socket elbow"
+        ],
+        "specifications": [
+          {
+            "key": "Size",
+            "value": "Universal One Size"
+          },
+          {
+            "key": "Coating",
+            "value": "SilkTec Smooth Surface"
+          },
+          {
+            "key": "Weight",
+            "value": "98 grams"
+          }
         ]
       },
       {
         "id": "lena",
-        "title": "-L-E-N-A- -F-u-l-l- -F-a-c-e-",
+        "title": "Löwenstein LENA Full Face Mask",
         "slug": "lena",
         "categoryName": "Masks",
         "categorySlug": "masks",
         "url": "https://pulmocare.in/product/lena/",
-        "image": "/images/pulmocare/pulmocare_lena.jpg",
-        "tagline": "Clinical hospital and home ventilation full face mask.",
-        "introParagraph": "LENA was specially developed for clinical high-pressure ventilation and nocturnal homecare therapy.",
+        "image": "/images/pulmocare/pulmo_l-wenstein-lena.png",
+        "tagline": "High-pressure hospital and home ventilation full face mask.",
+        "introParagraph": "LENA is a full face mask designed for continuous high-pressure non-invasive ventilation up to 40 hPa. Equipped with a double-lip silicone seal and quick-release safety pull cord.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Type": "Full Face Ventilation Mask",
@@ -906,18 +1419,40 @@
             "size": "2.5 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 7200.0,
+        "originalPrice": 9800.0,
+        "features": [
+          "Certified for high-pressure ventilation up to 40 hPa",
+          "Double-lip silicone seal prevents high-pressure leaks",
+          "Integrated emergency entrainment valve",
+          "Vented and Non-Vented clinical options"
+        ],
+        "specifications": [
+          {
+            "key": "Pressure Range",
+            "value": "Up to 40 hPa"
+          },
+          {
+            "key": "Seal Design",
+            "value": "Double-Lip Silicone"
+          },
+          {
+            "key": "Sizes Available",
+            "value": "Small, Medium, Large"
+          }
         ]
       },
       {
         "id": "cara-nasal",
-        "title": "-C-A-R-A- -N-a-s-a-l-",
+        "title": "Löwenstein CARA Nasal Mask",
         "slug": "cara-nasal",
         "categoryName": "Masks",
         "categorySlug": "masks",
         "url": "https://pulmocare.in/product/cara-nasal/",
-        "image": "/images/pulmocare/pulmocare_cara.jpg",
-        "tagline": "Award-winning lightweight nasal mask.",
-        "introParagraph": "CARA Nasal combines lightness, soft cushion materials, and quiet exhalation for sleep apnea therapy.",
+        "image": "/images/site/masks_cara_csm_cara_mask_patient_interface_nasal_right_eb6a30efad.png",
+        "tagline": "Award-winning ultra-lightweight nasal CPAP mask.",
+        "introParagraph": "CARA Nasal is an award-winning lightweight nasal mask offering whisper-quiet air dispersion (13 dB) and soft touch cushion for comfortable CPAP sleep therapy.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Type": "Nasal Mask",
@@ -936,6 +1471,28 @@
             "size": "1.5 MB",
             "url": "/downloads"
           }
+        ],
+        "price": 5620.0,
+        "originalPrice": 7800.0,
+        "specifications": [
+          {
+            "key": "Weight",
+            "value": "59 grams"
+          },
+          {
+            "key": "Noise Level",
+            "value": "13 dB(A)"
+          },
+          {
+            "key": "Sizes Available",
+            "value": "XS, S-M, M-L"
+          }
+        ],
+        "features": [
+          "Ultra-lightweight design weighing only 59g",
+          "Whisper-quiet air dispersion system (13 dB)",
+          "Soft, supple cushion with perfect facial adaptation",
+          "OEKO-TEX Standard 100 skin-friendly headgear"
         ]
       }
     ]

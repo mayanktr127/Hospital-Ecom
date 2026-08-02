@@ -8,6 +8,7 @@ import { ShowcaseSlider } from "@/components/showcase/ShowcaseSlider";
 import { SearchModal } from "@/components/search/SearchModal";
 import { ProductModal } from "@/components/products/ProductModal";
 import { ProductSection } from "@/components/products/ProductSection";
+import { ContactSection } from "@/components/contact/ContactSection";
 import { ToastContainer } from "@/components/ui/Toast";
 import { ProductCategory, Product } from "@/types/product";
 import { Activity, ShieldCheck, ArrowRight, FileText, Flame, ShoppingCart, Headphones, Clock, BookOpen, Sparkles } from "lucide-react";
@@ -318,6 +319,9 @@ export default function Home() {
             onQuickView={(product: Product) => setSelectedProduct(product)}
           />
         </section>
+
+        {/* Homepage Medical Contact & Inquiry Form */}
+        <ContactSection />
       </main>
 
       {/* Global Footer */}

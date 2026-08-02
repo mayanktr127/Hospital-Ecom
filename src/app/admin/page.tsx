@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAdmin } from "@/context/AdminContext";
+import { useAdmin, ReviewItem } from "@/context/AdminContext";
 import { useToast } from "@/context/ToastContext";
 import { Product } from "@/types/product";
 import { BlogPost } from "@/data/blog_posts";
@@ -28,6 +28,7 @@ import {
   Clock,
   Bell,
   Info,
+  Upload,
   TrendingUp,
   TrendingDown,
   Truck,
@@ -44,6 +45,8 @@ import {
   Settings,
   HelpCircle,
   Users,
+  Star,
+  ThumbsUp,
 } from "lucide-react";
 
 export default function AdminDashboardPage() {
@@ -60,16 +63,28 @@ export default function AdminDashboardPage() {
     addBlogPost,
     updateBlogPost,
     deleteBlogPost,
+    reviews,
+    addReview,
+    deleteReview,
+    approveReview,
+    inquiries,
+    deleteInquiry,
+    updateInquiryStatus,
+    orders,
+    deleteOrder,
+    updateOrderStatus,
   } = useAdmin();
   const { addToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "products" | "blogs" | "tracking" | "messages">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "products" | "blogs" | "reviews" | "tracking" | "messages">("dashboard");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Search & Filter States
   const [globalSearch, setGlobalSearch] = useState("");
   const [productSearch, setProductSearch] = useState("");
   const [blogSearch, setBlogSearch] = useState("");
+  const [reviewSearch, setReviewSearch] = useState("");
+  const [inquirySearch, setInquirySearch] = useState("");
 
   // Product Modal State
   const [productModalOpen, setProductModalOpen] = useState(false);
@@ -79,6 +94,14 @@ export default function AdminDashboardPage() {
   const [blogModalOpen, setBlogModalOpen] = useState(false);
   const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null);
 
+  // Review Modal State
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [rProductId, setRProductId] = useState("prisma-25s");
+  const [rProductName, setRProductName] = useState("Prisma 25S");
+  const [rAuthor, setRAuthor] = useState("");
+  const [rRating, setRRating] = useState(5);
+  const [rComment, setRComment] = useState("");
+
   // Product Form Fields
   const [pId, setPId] = useState("");
   const [pName, setPName] = useState("");
@@ -87,6 +110,36 @@ export default function AdminDashboardPage() {
   const [pOriginalPrice, setPOriginalPrice] = useState("");
   const [pImage, setPImage] = useState("");
   const [pDescription, setPDescription] = useState("");
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+
+  const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        setPImage(data.url);
+        addToast("Multer Upload Success", "Image uploaded and stored in /uploads directory.");
+      } else {
+        addToast("Upload Failed", data.error || "Could not upload image.", "error");
+      }
+    } catch (err) {
+      console.error("Multer upload error", err);
+      addToast("Upload Error", "Failed to upload image file.", "error");
+    } finally {
+      setIsUploadingImage(false);
+    }
+  };
 
   // Blog Form Fields
   const [bSlug, setBSlug] = useState("");
@@ -220,6 +273,44 @@ export default function AdminDashboardPage() {
     }
   };
 
+  // Handlers for Review Form
+  const handleSaveReview = (e: React.FormEvent) => {
+    e.preventDefault();
+    const reviewObj: ReviewItem = {
+      id: `rev-${Date.now()}`,
+      productId: rProductId,
+      productName: rProductName,
+      author: rAuthor || "Verified Patient",
+      rating: rRating,
+      comment: rComment,
+      date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+      status: "Approved",
+    };
+
+    addReview(reviewObj);
+    addToast("Review Added", `Published review by ${rAuthor} for ${rProductName}.`);
+    setReviewModalOpen(false);
+  };
+
+  const handleDeleteReview = (id: string, author: string) => {
+    if (confirm(`Are you sure you want to delete review by ${author}?`)) {
+      deleteReview(id);
+      addToast("Review Deleted", `Removed review by ${author} from database.`);
+    }
+  };
+
+  const handleDeleteInquiry = async (id: string, name: string) => {
+    if (confirm(`Are you sure you want to delete contact inquiry from ${name}?`)) {
+      await deleteInquiry(id);
+      addToast("Inquiry Deleted", `Removed inquiry from ${name} from database.`);
+    }
+  };
+
+  const handleUpdateInquiryStatus = async (id: string, status: string, name: string) => {
+    await updateInquiryStatus(id, status);
+    addToast("Status Updated", `Inquiry from ${name} updated to ${status}.`);
+  };
+
   const filteredProducts = products.filter(
     (p) =>
       p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
@@ -232,7 +323,24 @@ export default function AdminDashboardPage() {
       b.category.toLowerCase().includes(blogSearch.toLowerCase())
   );
 
-  // Sample Shipments Activity Data (Matching reference screenshot)
+  const filteredReviews = reviews.filter(
+    (r) =>
+      r.productName.toLowerCase().includes(reviewSearch.toLowerCase()) ||
+      r.author.toLowerCase().includes(reviewSearch.toLowerCase()) ||
+      r.comment.toLowerCase().includes(reviewSearch.toLowerCase())
+  );
+
+  const filteredInquiries = inquiries.filter(
+    (inq) =>
+      inq.fullName.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      inq.phone.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      inq.email.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      inq.city.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      inq.device.toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      inq.inquiryType.toLowerCase().includes(inquirySearch.toLowerCase())
+  );
+
+  // Sample Shipments Activity Data
   const activityData = [
     { id: "CA-12321-ID", date: "12/11/2024", origin: "Bengaluru, IN", destination: "Jakarta, ID", status: "On Progress", color: "bg-amber-100 text-amber-700" },
     { id: "NY-12321-SF", date: "14/11/2024", origin: "Delhi, IN", destination: "San Francisco, US", status: "On Progress", color: "bg-[#EBF5FF] text-[#0066FF] font-semibold" },
@@ -286,16 +394,69 @@ export default function AdminDashboardPage() {
                   </div>
                   <span className="bg-[#F1F5F9] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono">{blogPosts.length}</span>
                 </button>
+                <button
+                  onClick={() => { setActiveTab("reviews"); setMobileSidebarOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "reviews" ? "bg-[#EBF5FF] text-[#0066FF]" : "text-[#64748B]"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                    <span>Customer Reviews</span>
+                  </div>
+                  <span className="bg-[#F1F5F9] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono">{reviews.length}</span>
+                </button>
+                <button
+                  onClick={() => { setActiveTab("tracking"); setMobileSidebarOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "tracking" ? "bg-[#EBF5FF] text-[#0066FF]" : "text-[#64748B]"}`}
+                >
+                  <Truck className="w-4 h-4" />
+                  <span>Tracking &amp; Orders</span>
+                </button>
+                <button
+                  onClick={() => { setActiveTab("messages"); setMobileSidebarOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "messages" ? "bg-[#EBF5FF] text-[#0066FF]" : "text-[#64748B]"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <MessageSquare className="w-4 h-4" />
+                    <span>Inquiries &amp; Support</span>
+                  </div>
+                  <span className="w-5 h-5 rounded-full bg-[#0066FF] text-white text-[10px] flex items-center justify-center font-bold">4</span>
+                </button>
               </div>
+
+              <div className="space-y-1">
+                <span className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider block px-3 mb-2">Others</span>
+                <button className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl font-medium text-xs text-[#64748B] hover:bg-[#F8FAFC]">
+                  <Layers className="w-4 h-4" />
+                  <span>Hospital Units</span>
+                </button>
+                <button className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl font-medium text-xs text-[#64748B] hover:bg-[#F8FAFC]">
+                  <Users className="w-4 h-4" />
+                  <span>Team Members</span>
+                </button>
+                <button className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl font-medium text-xs text-[#64748B] hover:bg-[#F8FAFC]">
+                  <Settings className="w-4 h-4" />
+                  <span>System Setup</span>
+                </button>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-[#0052CC] to-[#0066FF] rounded-2xl p-4 text-white shadow-lg space-y-3 relative overflow-hidden mt-6">
+              <div className="space-y-1 relative z-10">
+                <span className="text-[10px] uppercase font-bold text-cyan-200">Pro Suite</span>
+                <h4 className="font-archivo font-extrabold text-lg leading-tight">50% Off Upgrade</h4>
+                <p className="text-[11px] text-white/80">Unlock advanced medical analytics &amp; telehealth telemetry.</p>
+              </div>
+              <button className="w-full py-2 bg-white text-[#0052CC] font-archivo font-bold text-xs rounded-xl shadow-xs cursor-pointer">
+                Try Pro Free
+              </button>
             </div>
           </aside>
         </div>
       )}
 
-      {/* 1. LEFT SIDEBAR (Matching Reference Design) */}
+      {/* 1. LEFT SIDEBAR (Desktop) */}
       <aside className="w-64 bg-white border-r border-[#E2E8F0] p-6 flex flex-col justify-between shrink-0 hidden md:flex sticky top-0 h-screen overflow-y-auto">
         <div className="space-y-6">
-          {/* Top Brand Logo */}
           <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
             <Link href="/" className="flex items-center gap-2">
               <img
@@ -309,7 +470,6 @@ export default function AdminDashboardPage() {
             </button>
           </div>
 
-          {/* MAIN MENU */}
           <div className="space-y-1">
             <span className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider block px-3 mb-2">
               Main Menu
@@ -357,6 +517,22 @@ export default function AdminDashboardPage() {
               <span className="bg-[#F1F5F9] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono">{blogPosts.length}</span>
             </button>
 
+            {/* CUSTOMER REVIEWS TAB */}
+            <button
+              onClick={() => setActiveTab("reviews")}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs transition-all cursor-pointer ${
+                activeTab === "reviews"
+                  ? "bg-[#EBF5FF] text-[#0066FF] shadow-xs"
+                  : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0066FF]"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Star className="w-4 h-4 text-amber-500 fill-amber-500" />
+                <span>Customer Reviews</span>
+              </div>
+              <span className="bg-[#F1F5F9] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono">{reviews.length}</span>
+            </button>
+
             <button
               onClick={() => setActiveTab("tracking")}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs transition-all cursor-pointer ${
@@ -385,37 +561,35 @@ export default function AdminDashboardPage() {
             </button>
           </div>
 
-          {/* OTHERS SECTION */}
           <div className="space-y-1">
             <span className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider block px-3 mb-2">
               Others
             </span>
 
-            <button className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl font-medium text-xs text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0066FF] transition-all">
+            <button className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl font-medium text-xs text-[#64748B] hover:bg-[#F8FAFC]">
               <Layers className="w-4 h-4" />
               <span>Hospital Units</span>
             </button>
 
-            <button className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl font-medium text-xs text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0066FF] transition-all">
+            <button className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl font-medium text-xs text-[#64748B] hover:bg-[#F8FAFC]">
               <Users className="w-4 h-4" />
               <span>Team Members</span>
             </button>
 
-            <button className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl font-medium text-xs text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0066FF] transition-all">
+            <button className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl font-medium text-xs text-[#64748B] hover:bg-[#F8FAFC]">
               <Settings className="w-4 h-4" />
               <span>System Setup</span>
             </button>
           </div>
         </div>
 
-        {/* BOTTOM 3D PRO PROMO CARD (Matching Reference Image) */}
         <div className="bg-gradient-to-br from-[#0052CC] to-[#0066FF] rounded-2xl p-4 text-white shadow-lg space-y-3 relative overflow-hidden mt-6">
           <div className="space-y-1 relative z-10">
             <span className="text-[10px] uppercase font-bold text-cyan-200">Pro Suite</span>
             <h4 className="font-archivo font-extrabold text-lg leading-tight">50% Off Upgrade</h4>
             <p className="text-[11px] text-white/80">Unlock advanced medical analytics &amp; telehealth telemetry.</p>
           </div>
-          <button className="w-full py-2 bg-white text-[#0052CC] hover:bg-cyan-50 font-archivo font-bold text-xs rounded-xl shadow-xs transition-colors cursor-pointer relative z-10">
+          <button className="w-full py-2 bg-white text-[#0052CC] font-archivo font-bold text-xs rounded-xl shadow-xs cursor-pointer">
             Try Pro Free
           </button>
         </div>
@@ -423,10 +597,8 @@ export default function AdminDashboardPage() {
 
       {/* 2. MAIN CONTENT WRAPPER */}
       <div className="flex-1 flex flex-col min-w-0">
-        {/* TOP UTILITY HEADER BAR (Matching Reference Image) */}
         <header className="bg-white border-b border-[#E2E8F0] px-4 md:px-6 py-4 flex items-center justify-between gap-4 sticky top-0 z-30">
           <div className="flex items-center gap-3 w-full max-w-sm">
-            {/* Mobile Sidebar Hamburger Toggle */}
             <button
               onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
               className="md:hidden p-2 rounded-xl border border-[#E2E8F0] bg-white text-[#1E293B]"
@@ -434,7 +606,6 @@ export default function AdminDashboardPage() {
               <Menu className="w-5 h-5" />
             </button>
 
-            {/* Search Deliveries Bar */}
             <div className="relative w-full">
               <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input
@@ -442,23 +613,17 @@ export default function AdminDashboardPage() {
                 placeholder="Search deliveries, devices..."
                 value={globalSearch}
                 onChange={(e) => setGlobalSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#1E293B] focus:outline-none focus:border-[#0066FF] focus:bg-white transition-all font-inter"
+                className="w-full pl-10 pr-4 py-2 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#1E293B] focus:outline-none focus:border-[#0066FF] transition-all font-inter"
               />
             </div>
           </div>
 
-          {/* Right Header Actions */}
           <div className="flex items-center gap-4">
             <button className="p-2 rounded-full border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-[#64748B] relative">
               <Bell className="w-4 h-4" />
               <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500" />
             </button>
 
-            <button className="p-2 rounded-full border border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] text-[#64748B]">
-              <Info className="w-4 h-4" />
-            </button>
-
-            {/* Admin Profile Pill */}
             <div className="flex items-center gap-3 pl-3 border-l border-[#E2E8F0]">
               <div className="w-8 h-8 rounded-full bg-[#0066FF] text-white flex items-center justify-center font-bold text-xs">
                 P
@@ -481,12 +646,10 @@ export default function AdminDashboardPage() {
           </div>
         </header>
 
-        {/* 3. MAIN DASHBOARD CONTENT */}
         <main className="p-6 md:p-8 space-y-8 flex-1">
           {/* TAB 1: OVERVIEW DASHBOARD */}
           {activeTab === "dashboard" && (
             <div className="space-y-8">
-              {/* Header Title Bar */}
               <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                   <h1 className="font-archivo font-extrabold text-2xl md:text-3xl text-[#0F172A] tracking-tight">
@@ -496,12 +659,6 @@ export default function AdminDashboardPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                  <div className="px-4 py-2 rounded-full bg-white border border-[#E2E8F0] text-xs font-semibold text-[#475569] flex items-center gap-2 shadow-xs">
-                    <Calendar className="w-3.5 h-3.5 text-[#0066FF]" />
-                    <span>11 December 2024</span>
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  </div>
-
                   <button
                     onClick={() => handleOpenProductModal()}
                     className="px-5 py-2 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold text-xs uppercase tracking-wider shadow-md transition-all flex items-center gap-2 cursor-pointer"
@@ -512,11 +669,8 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* 3-COLUMN MAIN GRID (Matching Reference Layout) */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                {/* COLUMN 1 (Left 4-Cols): Stat Metric Cards Stack */}
                 <div className="lg:col-span-3 space-y-5">
-                  {/* Metric 1 */}
                   <div className="bg-white rounded-3xl p-5 border border-[#E2E8F0] shadow-xs space-y-3">
                     <div className="flex items-center justify-between text-xs text-[#64748B]">
                       <span className="flex items-center gap-1.5 font-medium">
@@ -534,7 +688,6 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  {/* Metric 2 */}
                   <div className="bg-white rounded-3xl p-5 border border-[#E2E8F0] shadow-xs space-y-3">
                     <div className="flex items-center justify-between text-xs text-[#64748B]">
                       <span className="flex items-center gap-1.5 font-medium">
@@ -552,7 +705,6 @@ export default function AdminDashboardPage() {
                     </div>
                   </div>
 
-                  {/* Metric 3 */}
                   <div className="bg-white rounded-3xl p-5 border border-[#E2E8F0] shadow-xs space-y-3">
                     <div className="flex items-center justify-between text-xs text-[#64748B]">
                       <span className="flex items-center gap-1.5 font-medium">
@@ -571,73 +723,49 @@ export default function AdminDashboardPage() {
                   </div>
                 </div>
 
-                {/* COLUMN 2 (Middle 5-Cols): Delivery Analytics Chart */}
                 <div className="lg:col-span-5 bg-white rounded-3xl p-6 border border-[#E2E8F0] shadow-xs space-y-6">
                   <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-4">
                     <h3 className="font-archivo font-bold text-lg text-[#0F172A]">Delivery Analytics</h3>
-                    <div className="flex items-center gap-4 text-xs">
-                      <span className="flex items-center gap-1.5 font-semibold text-[#0066FF]">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#0066FF]" /> Package Delivered
-                      </span>
-                      <span className="flex items-center gap-1.5 font-semibold text-[#94A3B8]">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#CBD5E1]" /> Reported
-                      </span>
-                    </div>
                   </div>
 
-                  {/* Interactive Bar Chart Visualization (Matching Reference Screenshot) */}
                   <div className="h-64 flex items-end justify-between gap-3 pt-6 px-4 relative border-b border-[#F1F5F9]">
-                    {/* Tooltip Popover on Active Bar (Sept) */}
                     <div className="absolute top-2 left-[54%] -translate-x-1/2 bg-[#0F172A] text-white p-2.5 rounded-xl text-[11px] shadow-xl z-10 space-y-1 font-mono">
                       <div className="text-[10px] text-[#94A3B8]">September 2024</div>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-[#0066FF]" /> 10,123
                       </div>
-                      <div className="flex items-center justify-between gap-3 text-emerald-400 text-[10px]">
-                        <span>56</span>
-                        <span>+5.2%</span>
-                      </div>
                     </div>
 
-                    {/* Bar 1: Jul */}
                     <div className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full bg-[#F1F5F9] hover:bg-[#E2E8F0] rounded-xl h-36 transition-all" />
+                      <div className="w-full bg-[#F1F5F9] rounded-xl h-36" />
                       <span className="text-xs text-[#94A3B8] font-medium">Jul</span>
                     </div>
 
-                    {/* Bar 2: Aug */}
                     <div className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full bg-[#F1F5F9] hover:bg-[#E2E8F0] rounded-xl h-44 transition-all" />
+                      <div className="w-full bg-[#F1F5F9] rounded-xl h-44" />
                       <span className="text-xs text-[#94A3B8] font-medium">Aug</span>
                     </div>
 
-                    {/* Bar 3: Sept (ACTIVE BLUE BAR) */}
                     <div className="flex-1 flex flex-col items-center gap-2">
                       <div className="w-full bg-[#0066FF] rounded-xl h-52 shadow-md relative overflow-hidden" />
                       <span className="text-xs font-bold text-[#0066FF]">Sept</span>
                     </div>
 
-                    {/* Bar 4: Oct */}
                     <div className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full bg-[#F1F5F9] hover:bg-[#E2E8F0] rounded-xl h-28 transition-all" />
+                      <div className="w-full bg-[#F1F5F9] rounded-xl h-28" />
                       <span className="text-xs text-[#94A3B8] font-medium">Oct</span>
                     </div>
 
-                    {/* Bar 5: November */}
                     <div className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full bg-[#F1F5F9] hover:bg-[#E2E8F0] rounded-xl h-40 transition-all" />
+                      <div className="w-full bg-[#F1F5F9] rounded-xl h-40" />
                       <span className="text-xs text-[#94A3B8] font-medium">November</span>
                     </div>
                   </div>
                 </div>
 
-                {/* COLUMN 3 (Right 4-Cols): Live Tracker Map & Message Stack */}
                 <div className="lg:col-span-4 space-y-6">
-                  {/* Tracker Widget */}
                   <div className="bg-white rounded-3xl p-5 border border-[#E2E8F0] shadow-xs space-y-4">
-                    {/* Simulated Map Preview Container */}
                     <div className="w-full h-36 bg-slate-100 rounded-2xl relative overflow-hidden flex items-center justify-center border border-[#E2E8F0]">
-                      <div className="absolute inset-0 bg-[radial-gradient(#CBD5E1_1px,transparent_1px)] [background-size:16px_16px] opacity-60" />
                       <div className="relative z-10 flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md text-xs font-bold text-[#0F172A]">
                         <MapPin className="w-4 h-4 text-red-500" />
                         <span>Live Shipment Route</span>
@@ -651,85 +779,99 @@ export default function AdminDashboardPage() {
                         <span className="bg-amber-100 text-amber-700 text-[10px] font-bold px-2.5 py-0.5 rounded-full">On Progress</span>
                       </div>
                     </div>
-
-                    {/* Timeline */}
-                    <div className="space-y-3 pt-2 text-xs font-inter border-t border-[#F1F5F9]">
-                      <div className="flex items-start gap-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#0066FF] shrink-0 mt-1" />
-                        <div>
-                          <span className="font-bold text-[#0F172A] block">Package heading San Francisco</span>
-                          <span className="text-[10px] text-[#94A3B8]">12/12/2024 — 02:00 AM</span>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#CBD5E1] shrink-0 mt-1" />
-                        <div>
-                          <span className="font-medium text-[#64748B] block">Checking warehouse</span>
-                          <span className="text-[10px] text-[#94A3B8]">11/12/2024 — 10:32 PM</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Quick Message Stack */}
-                  <div className="bg-white rounded-3xl p-5 border border-[#E2E8F0] shadow-xs space-y-4">
-                    <div className="flex items-center justify-between border-b border-[#F1F5F9] pb-3">
-                      <span className="font-archivo font-bold text-sm text-[#0F172A]">Quick Message</span>
-                      <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-emerald-500" /> 24 Online
-                      </span>
-                    </div>
-
-                    <div className="space-y-3 text-xs">
-                      <div className="flex items-center justify-between p-2 rounded-xl hover:bg-[#F8FAFC]">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-[#0066FF] text-white font-bold flex items-center justify-center">E</div>
-                          <div>
-                            <span className="font-bold text-[#0F172A] block">Ethan</span>
-                            <span className="text-[10px] text-[#94A3B8]">Online • 12/12/24</span>
-                          </div>
-                        </div>
-                        <span className="bg-cyan-100 text-[#0066FF] text-[10px] font-bold px-2 py-0.5 rounded-full">2 new message</span>
-                      </div>
-                    </div>
                   </div>
                 </div>
               </div>
 
-              {/* BOTTOM LARGE CARD: ACTIVITY DATA TABLE (Matching Reference Image) */}
               <div className="bg-white rounded-3xl p-6 border border-[#E2E8F0] shadow-xs space-y-5">
-                <div className="flex items-center justify-between pb-3 border-b border-[#F1F5F9]">
-                  <h3 className="font-archivo font-bold text-lg text-[#0F172A]">Activity Data</h3>
-                  <div className="flex items-center gap-3 text-xs">
-                    <div className="px-3.5 py-1.5 rounded-xl border border-[#E2E8F0] font-semibold text-[#475569] flex items-center gap-1.5">
-                      <span>This week</span>
-                      <ChevronDown className="w-3.5 h-3.5" />
-                    </div>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-archivo font-bold text-lg text-[#0F172A]">Live Website Orders &amp; Tracking Data</h3>
+                    <p className="text-xs text-[#64748B]">Real-time customer checkout orders submitted via the storefront, stored in MongoDB Atlas.</p>
                   </div>
+                  <span className="bg-[#EBF5FF] text-[#0066FF] font-archivo font-extrabold text-xs px-3.5 py-1.5 rounded-full border border-[#0066FF]/20">
+                    {orders.length} Orders Logged
+                  </span>
                 </div>
 
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs font-inter border-collapse">
                     <thead>
                       <tr className="bg-[#F8FAFC] text-[#64748B] font-archivo font-bold uppercase tracking-wider border-b border-[#E2E8F0]">
-                        <th className="py-3 px-4">Delivery ID</th>
-                        <th className="py-3 px-4">Date</th>
-                        <th className="py-3 px-4">Departure</th>
-                        <th className="py-3 px-4">Destination</th>
-                        <th className="py-3 px-4 text-right">Status</th>
+                        <th className="py-3 px-4">Order ID &amp; Customer</th>
+                        <th className="py-3 px-4">Contact Info</th>
+                        <th className="py-3 px-4">Destination &amp; Address</th>
+                        <th className="py-3 px-4">Purchased Items</th>
+                        <th className="py-3 px-4">Total (₹) &amp; Payment</th>
+                        <th className="py-3 px-4 text-right">Status &amp; Actions</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#F1F5F9]">
-                      {activityData.map((row) => (
-                        <tr key={row.id} className="hover:bg-[#F8FAFC] transition-colors">
-                          <td className="py-3.5 px-4 font-bold text-[#0066FF]">{row.id}</td>
-                          <td className="py-3.5 px-4 text-[#64748B]">{row.date}</td>
-                          <td className="py-3.5 px-4 text-[#475569]">{row.origin}</td>
-                          <td className="py-3.5 px-4 text-[#475569]">{row.destination}</td>
+                      {orders.map((ord) => (
+                        <tr key={ord.orderId} className="hover:bg-[#F8FAFC] transition-colors">
+                          <td className="py-3.5 px-4 font-mono font-bold text-[#0066FF]">
+                            <span>{ord.orderId}</span>
+                            <span className="font-sans font-bold text-[#0F172A] block text-xs mt-0.5">{ord.customerName}</span>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <a href={`tel:${ord.phone}`} className="text-[#0066FF] font-mono text-[11px] hover:underline block font-bold">
+                              {ord.phone}
+                            </a>
+                            <span className="text-[10px] text-[#94A3B8] block">{ord.email}</span>
+                          </td>
+                          <td className="py-3.5 px-4 text-[#475569] max-w-xs">
+                            <span className="font-bold text-[#0F172A] block">{ord.city}, {ord.state}</span>
+                            <span className="text-[10px] text-[#64748B] line-clamp-1">{ord.street} ({ord.pincode})</span>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <div className="space-y-1">
+                              {ord.items.map((it, idx) => (
+                                <div key={idx} className="flex items-center gap-2">
+                                  <img src={it.image} alt={it.name} className="w-6 h-6 object-contain rounded bg-white p-0.5 border" />
+                                  <span className="font-semibold text-[#0F172A] text-[11px] line-clamp-1">{it.name} × {it.quantity}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4">
+                            <span className="font-archivo font-extrabold text-[#0F172A] block">₹{ord.totalAmount.toLocaleString("en-IN")}.00</span>
+                            <span className="text-[10px] text-[#0066FF] font-bold block">{ord.paymentMethod}</span>
+                          </td>
                           <td className="py-3.5 px-4 text-right">
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-bold ${row.color}`}>
-                              {row.status}
-                            </span>
+                            <div className="flex items-center justify-end gap-1.5">
+                              <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase ${
+                                ord.orderStatus === "Delivered"
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : ord.orderStatus === "Cancelled"
+                                  ? "bg-rose-100 text-rose-800"
+                                  : "bg-amber-100 text-amber-800"
+                              }`}>
+                                {ord.orderStatus}
+                              </span>
+                              {ord.orderStatus !== "Delivered" && (
+                                <button
+                                  onClick={async () => {
+                                    await updateOrderStatus(ord.orderId, "Delivered");
+                                    addToast("Order Status Updated", `Order ${ord.orderId} marked as Delivered.`);
+                                  }}
+                                  className="px-2 py-1 rounded-lg bg-emerald-100 text-emerald-700 font-bold text-[10px] hover:bg-emerald-600 hover:text-white transition-colors cursor-pointer"
+                                >
+                                  Mark Delivered
+                                </button>
+                              )}
+                              <button
+                                onClick={async () => {
+                                  if (confirm(`Delete order ${ord.orderId}?`)) {
+                                    await deleteOrder(ord.orderId);
+                                    addToast("Order Deleted", `Removed order ${ord.orderId} from MongoDB Atlas.`);
+                                  }
+                                }}
+                                className="p-1.5 rounded-lg bg-red-100 text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+                                title="Delete Order"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -758,7 +900,6 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
 
-              {/* Search Bar */}
               <div className="relative">
                 <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
@@ -770,7 +911,6 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              {/* Products Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs font-inter border-collapse">
                   <thead>
@@ -845,7 +985,6 @@ export default function AdminDashboardPage() {
                 </button>
               </div>
 
-              {/* Search Bar */}
               <div className="relative">
                 <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
@@ -857,7 +996,6 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              {/* Blog Table */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs font-inter border-collapse">
                   <thead>
@@ -908,10 +1046,227 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           )}
+
+          {/* TAB 4: CUSTOMER REVIEWS MANAGEMENT (CRUD) */}
+          {activeTab === "reviews" && (
+            <div className="bg-white rounded-3xl border border-[#E2E8F0] p-6 md:p-8 shadow-xs space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#F1F5F9]">
+                <div>
+                  <h2 className="font-archivo font-extrabold text-2xl text-[#0F172A]">Customer Reviews Moderation</h2>
+                  <p className="text-xs text-[#64748B]">Read, approve, or delete patient and clinical reviews reflecting on product pages.</p>
+                </div>
+
+                <button
+                  onClick={() => setReviewModalOpen(true)}
+                  className="px-5 py-2.5 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold text-xs uppercase tracking-wider transition-all flex items-center gap-2 cursor-pointer shadow-md"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Add Review</span>
+                </button>
+              </div>
+
+              {/* Review Stat Summary Strip */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-[#F8FAFC] rounded-2xl p-4 border border-[#E2E8F0]">
+                  <span className="text-[10px] font-bold text-[#64748B] uppercase block">Total Reviews</span>
+                  <span className="font-archivo font-extrabold text-2xl text-[#0F172A]">{reviews.length}</span>
+                </div>
+                <div className="bg-[#F8FAFC] rounded-2xl p-4 border border-[#E2E8F0]">
+                  <span className="text-[10px] font-bold text-[#64748B] uppercase block">Average Satisfaction</span>
+                  <span className="font-archivo font-extrabold text-2xl text-amber-500 flex items-center gap-1">
+                    5.0 <Star className="w-5 h-5 fill-amber-500 inline" />
+                  </span>
+                </div>
+                <div className="bg-[#F8FAFC] rounded-2xl p-4 border border-[#E2E8F0]">
+                  <span className="text-[10px] font-bold text-[#64748B] uppercase block">Status</span>
+                  <span className="font-archivo font-extrabold text-2xl text-emerald-600">100% Approved</span>
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <div className="relative">
+                <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  placeholder="Search reviews by reviewer name, product, or comment..."
+                  value={reviewSearch}
+                  onChange={(e) => setReviewSearch(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#1E293B] focus:outline-none focus:border-[#0066FF]"
+                />
+              </div>
+
+              {/* Reviews Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs font-inter border-collapse">
+                  <thead>
+                    <tr className="bg-[#F8FAFC] text-[#64748B] font-archivo font-bold uppercase tracking-wider border-b border-[#E2E8F0]">
+                      <th className="py-3 px-4">Product</th>
+                      <th className="py-3 px-4">Reviewer</th>
+                      <th className="py-3 px-4">Rating</th>
+                      <th className="py-3 px-4">Comment</th>
+                      <th className="py-3 px-4">Date</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F1F5F9]">
+                    {filteredReviews.map((r) => (
+                      <tr key={r.id} className="hover:bg-[#F8FAFC] transition-colors">
+                        <td className="py-3 px-4 font-bold text-[#0066FF]">{r.productName}</td>
+                        <td className="py-3 px-4 font-medium text-[#0F172A]">{r.author}</td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-0.5 text-amber-500">
+                            {Array.from({ length: r.rating }).map((_, i) => (
+                              <Star key={i} className="w-3.5 h-3.5 fill-amber-500" />
+                            ))}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4 text-[#475569] max-w-xs truncate">"{r.comment}"</td>
+                        <td className="py-3 px-4 text-[#64748B]">{r.date}</td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            {r.status === "Pending" && (
+                              <button
+                                onClick={() => approveReview(r.id)}
+                                className="p-1.5 rounded-lg bg-emerald-100 text-emerald-700 hover:bg-emerald-600 hover:text-white transition-colors cursor-pointer"
+                                title="Approve Review"
+                              >
+                                <CheckCircle className="w-4 h-4" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteReview(r.id, r.author)}
+                              className="p-1.5 rounded-lg bg-red-100 text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+                              title="Delete Review"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 6: INQUIRIES & CONTACT SUBMISSIONS */}
+          {activeTab === "messages" && (
+            <div className="bg-white rounded-3xl border border-[#E2E8F0] p-6 md:p-8 shadow-xs space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#F1F5F9]">
+                <div>
+                  <h2 className="font-archivo font-extrabold text-2xl text-[#0F172A]">Contact Inquiries &amp; Customer Submissions</h2>
+                  <p className="text-xs text-[#64748B]">Real-time leads filed through the website contact form, stored in MongoDB Atlas.</p>
+                </div>
+
+                <div className="w-full sm:w-72 relative">
+                  <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={inquirySearch}
+                    onChange={(e) => setInquirySearch(e.target.value)}
+                    placeholder="Search by name, phone, city..."
+                    className="w-full pl-10 pr-4 py-2 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A] focus:outline-none focus:border-[#0066FF]"
+                  />
+                </div>
+              </div>
+
+              {/* Inquiry Stats */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-[#F8FAFC] rounded-2xl p-4 border border-[#E2E8F0]">
+                  <span className="text-[10px] font-bold text-[#64748B] uppercase block">Total Submissions</span>
+                  <span className="font-archivo font-extrabold text-2xl text-[#0F172A]">{inquiries.length}</span>
+                </div>
+                <div className="bg-[#EBF5FF] rounded-2xl p-4 border border-[#0066FF]/20">
+                  <span className="text-[10px] font-bold text-[#0066FF] uppercase block">New Uncontacted Leads</span>
+                  <span className="font-archivo font-extrabold text-2xl text-[#0066FF]">
+                    {inquiries.filter((i) => i.status === "New Lead").length}
+                  </span>
+                </div>
+                <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-200">
+                  <span className="text-[10px] font-bold text-emerald-700 uppercase block">Resolved Inquiries</span>
+                  <span className="font-archivo font-extrabold text-2xl text-emerald-700">
+                    {inquiries.filter((i) => i.status === "Resolved").length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Table */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-[#F8FAFC] text-[#64748B] font-archivo font-bold uppercase tracking-wider">
+                    <tr>
+                      <th className="py-3 px-4">Contact Details</th>
+                      <th className="py-3 px-4">Inquiry &amp; Device</th>
+                      <th className="py-3 px-4">Location</th>
+                      <th className="py-3 px-4">Message / Requirements</th>
+                      <th className="py-3 px-4">Status</th>
+                      <th className="py-3 px-4 text-right">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-[#F1F5F9]">
+                    {filteredInquiries.map((inq) => (
+                      <tr key={inq.id} className="hover:bg-[#F8FAFC] transition-colors">
+                        <td className="py-3 px-4">
+                          <span className="font-bold text-[#0F172A] block">{inq.fullName}</span>
+                          <a href={`tel:${inq.phone}`} className="text-[#0066FF] hover:underline font-mono text-[11px] block">
+                            {inq.phone}
+                          </a>
+                          <span className="text-[10px] text-[#94A3B8] block">{inq.email}</span>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className="bg-[#0066FF]/10 text-[#0066FF] font-bold px-2 py-0.5 rounded-full text-[10px] block w-max mb-1">
+                            {inq.inquiryType}
+                          </span>
+                          <span className="font-semibold text-[#0F172A] text-[11px] block line-clamp-1">{inq.device}</span>
+                        </td>
+                        <td className="py-3 px-4 font-medium text-[#475569]">{inq.city}</td>
+                        <td className="py-3 px-4 text-[#334155] max-w-xs leading-relaxed">
+                          <p className="line-clamp-2">{inq.message}</p>
+                        </td>
+                        <td className="py-3 px-4">
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wide inline-block ${
+                              inq.status === "New Lead"
+                                ? "bg-[#0066FF] text-white"
+                                : inq.status === "Contacted"
+                                ? "bg-amber-100 text-amber-800"
+                                : "bg-emerald-100 text-emerald-800"
+                            }`}
+                          >
+                            {inq.status}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
+                            {inq.status !== "Resolved" && (
+                              <button
+                                onClick={() => handleUpdateInquiryStatus(inq.id, inq.status === "New Lead" ? "Contacted" : "Resolved", inq.fullName)}
+                                className="px-2.5 py-1 rounded-lg bg-[#EBF5FF] text-[#0066FF] font-bold text-[10px] hover:bg-[#0066FF] hover:text-white transition-colors cursor-pointer"
+                              >
+                                {inq.status === "New Lead" ? "Mark Contacted" : "Mark Resolved"}
+                              </button>
+                            )}
+                            <button
+                              onClick={() => handleDeleteInquiry(inq.id, inq.fullName)}
+                              className="p-1.5 rounded-lg bg-red-100 text-red-600 hover:bg-red-600 hover:text-white transition-colors cursor-pointer"
+                              title="Delete Inquiry"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
         </main>
       </div>
 
-      {/* CREATE / EDIT PRODUCT MODAL */}
+      {/* CREATE PRODUCT MODAL */}
       {productModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl border border-[#E2E8F0] max-h-[90vh] overflow-y-auto">
@@ -964,14 +1319,43 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              <div>
-                <label className="block font-archivo font-bold text-[#0F172A] uppercase mb-1">Image URL</label>
+              <div className="space-y-2">
+                <label className="block font-archivo font-bold text-[#0F172A] uppercase mb-1">
+                  Product Image (Upload via Multer or Paste URL)
+                </label>
+                
+                <div className="flex items-center gap-3">
+                  <label className="px-4 py-2 rounded-xl bg-[#EBF5FF] text-[#0066FF] hover:bg-[#0066FF] hover:text-white font-archivo font-bold text-xs cursor-pointer transition-colors flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    <span>{isUploadingImage ? "Uploading via Multer..." : "Upload Image File"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageFileUpload}
+                      className="hidden"
+                      disabled={isUploadingImage}
+                    />
+                  </label>
+                  <span className="text-[10px] text-[#94A3B8] uppercase font-bold">OR</span>
+                </div>
+
                 <input
                   type="text"
                   value={pImage}
                   onChange={(e) => setPImage(e.target.value)}
+                  placeholder="Paste URL or uploaded file path (/uploads/prod_...)"
                   className="w-full p-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A]"
                 />
+
+                {pImage && (
+                  <div className="mt-2 flex items-center gap-3 p-2 bg-[#F8FAFC] rounded-xl border border-[#E2E8F0]">
+                    <img src={pImage} alt="Preview" className="w-12 h-12 object-contain rounded-lg bg-white p-1 border" />
+                    <div>
+                      <span className="text-[10px] font-bold text-emerald-600 block">Image Selected</span>
+                      <span className="text-[10px] text-[#64748B] font-mono line-clamp-1">{pImage}</span>
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -1004,7 +1388,7 @@ export default function AdminDashboardPage() {
         </div>
       )}
 
-      {/* CREATE / EDIT BLOG ARTICLE MODAL */}
+      {/* CREATE BLOG ARTICLE MODAL */}
       {blogModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border border-[#E2E8F0] max-h-[90vh] overflow-y-auto">
@@ -1093,6 +1477,94 @@ export default function AdminDashboardPage() {
                   className="px-6 py-2.5 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold text-xs uppercase"
                 >
                   Publish Article
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CREATE REVIEW MODAL */}
+      {reviewModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-6 md:p-8 shadow-2xl border border-[#E2E8F0] max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between pb-4 border-b border-[#F1F5F9] mb-6">
+              <h3 className="font-archivo font-extrabold text-2xl text-[#0F172A]">Add Customer Review</h3>
+              <button onClick={() => setReviewModalOpen(false)} className="p-2 rounded-full hover:bg-[#F1F5F9] text-[#64748B]">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveReview} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-archivo font-bold text-[#0F172A] uppercase mb-1">Target Product</label>
+                <select
+                  value={rProductId}
+                  onChange={(e) => {
+                    setRProductId(e.target.value);
+                    const found = products.find((p) => p.id === e.target.value);
+                    if (found) setRProductName(found.name);
+                  }}
+                  className="w-full p-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A]"
+                >
+                  {products.map((p) => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-archivo font-bold text-[#0F172A] uppercase mb-1">Reviewer Name</label>
+                  <input
+                    type="text"
+                    required
+                    value={rAuthor}
+                    onChange={(e) => setRAuthor(e.target.value)}
+                    placeholder="e.g. Dr. Rajesh K."
+                    className="w-full p-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-archivo font-bold text-[#0F172A] uppercase mb-1">Rating (Stars)</label>
+                  <select
+                    value={rRating}
+                    onChange={(e) => setRRating(parseInt(e.target.value))}
+                    className="w-full p-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A]"
+                  >
+                    <option value={5}>5 Stars (⭐ ⭐ ⭐ ⭐ ⭐)</option>
+                    <option value={4}>4 Stars (⭐ ⭐ ⭐ ⭐)</option>
+                    <option value={3}>3 Stars (⭐ ⭐ ⭐)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-archivo font-bold text-[#0F172A] uppercase mb-1">Review Comment</label>
+                <textarea
+                  rows={3}
+                  required
+                  value={rComment}
+                  onChange={(e) => setRComment(e.target.value)}
+                  placeholder="e.g. Exceptional build quality and quiet operation."
+                  className="w-full p-3 rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#0F172A]"
+                />
+              </div>
+
+              <div className="pt-4 flex justify-end gap-3 border-t border-[#F1F5F9]">
+                <button
+                  type="button"
+                  onClick={() => setReviewModalOpen(false)}
+                  className="px-5 py-2.5 rounded-full border border-[#E2E8F0] font-bold text-xs"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2.5 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold text-xs uppercase"
+                >
+                  Publish Review
                 </button>
               </div>
             </form>

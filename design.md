@@ -12,10 +12,14 @@ Design documentation for the **Pulmo Care** hospital and home healthcare equipme
 - **`MOTION_INTENSITY: 7`** (Physics-based infinite marquee carousel, smooth tab filters, spring micro-interactions)
 - **`VISUAL_DENSITY: 4`** (Spacious clinical hardware presentation)
 
-1. **MongoDB Atlas Live Database Integration:**
-   - Connected project to MongoDB Atlas Cluster (`cluster0.qmqgldx.mongodb.net/pulmocare`).
-   - Built Mongoose models (`Product.ts`, `BlogPost.ts`, `Inquiry.ts`) and API CRUD endpoints (`/api/products`, `/api/blogs`, `/api/seed`).
-   - Integrated live database synchronization with Admin Control Suite (`AdminContext.tsx`).
+1. **Dedicated Checkout Page & Real-Time Admin Orders Integration (`/checkout` & `/admin`):**
+   - Built full dedicated Next.js `/checkout` page route:
+     - Customer details input (Full Name, Phone, Email, Address, Landmark, City, State, Pincode, Doctor Prescription Note / Hospital GSTIN).
+     - Payment options (Cash on Delivery, UPI / NetBanking / Razorpay, Hospital Bank Wire Transfer).
+     - Real-time Itemized Order Summary with INR (₹) subtotal calculation and free shipping indicator.
+     - Post-checkout confirmation view with Order ID tracking timeline.
+   - Connected `/checkout` to `/api/orders` REST route and Mongoose `Order.ts` model in **MongoDB Atlas Cloud Database**.
+   - Updated Admin Dashboard (`/admin`) to display live storefront customer orders in the Tracking & Orders module and Dashboard Recent Activity table with status management (`On Progress`, `Delivered`, `Cancelled`) and deletion capabilities.
 
 ---
 
@@ -102,3 +106,11 @@ Design documentation for the **Pulmo Care** hospital and home healthcare equipme
 - **v25.0 (Mobile UX Fixes for Top Bar, Hamburger Drawer, & Hero Carousel):** Cleaned messy top utility bar on mobile screens, built full mobile hamburger drawer listing all options, and scaled Hero Carousel so text and product images are 100% visible together.
 - **v26.0 (Cart & Wishlist Global Drawer Fix & Badge Alignment):** Integrated `<CartDrawer />` and `<WishlistDrawer />` into `RootLayout`, ensuring full interactive slide-over drawer functionality and pixel-perfect badge positioning.
 - **v27.0 (MongoDB Atlas Cloud Database Connection):** Connected project to MongoDB Atlas cluster (`vaderharsh127_db_user`), created Mongoose schemas (`Product`, `BlogPost`), API endpoints, seeder handler (`/api/seed`), and live MongoDB sync in `AdminContext.tsx`.
+- **v28.0 (Admin Mobile Drawer Complete Section Parity):** Updated Admin mobile drawer in `src/app/admin/page.tsx` to display all menu links (`Tracking & Orders`, `Inquiries & Support`), `OTHERS` section (`Hospital Units`, `Team Members`, `System Setup`), and `PRO SUITE` upgrade card matching Screenshot 2 reference.
+- **v29.0 (Admin Customer Reviews Management Module & Live Product Page Sync):** Added Mongoose schema `Review.ts`, `/api/reviews` API routes, `Customer Reviews` moderation tab in `src/app/admin/page.tsx` with read/approve/delete/create capabilities, and synced live review updates directly to `ProductDetailPage.tsx`.
+- **v30.0 (Respbuy.com Data Scraping & Product Pricing/Specification Enrichment):** Scraped exact matching device pages from `respbuy.com`, updated pricing in INR across all 23 devices, and enriched technical specifications and bulleted features in `pulmocare_products.json`, `AdminContext.tsx`, and `/api/seed`.
+- **v31.0 (Unique Product Description, Price & Specification Integration):** Updated `ProductDetailPage.tsx` to dynamically render distinct titles, prices, descriptions, features, and specifications for every individual product page across the storefront.
+- **v32.0 (Exact Product Photo Matching & Image Override Fix):** Verified 100% local presence of all product image assets and updated `ProductDetailPage.tsx` to render the matching product image for every device and mask.
+- **v33.0 (Homepage Contact & Inquiry Form + Admin Lead Tracker Suite):** Built `ContactSection.tsx`, `Inquiry.ts` model, `/api/inquiries` REST route, and full Admin `Inquiries & Support` lead management module connected to MongoDB Atlas.
+- **v34.0 (Multer Image Upload Integration & 21-Product MongoDB Atlas Seeding):** Built `/api/upload` Multer endpoint, integrated image file uploader with live thumbnail preview into Admin Product Modal, and seeded all 21 website products directly into MongoDB Atlas.
+- **v35.0 (Dedicated Checkout Page Route & Live Admin Orders Integration):** Built `/checkout` route with customer contact/shipping form, payment options, order summary, `/api/orders` API endpoint, `Order.ts` model, and live order tracking dashboard in Admin Panel (`/admin`).

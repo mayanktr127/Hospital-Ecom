@@ -6,6 +6,7 @@ import { useToast } from "@/context/ToastContext";
 import { motion, AnimatePresence } from "motion/react";
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, Truck } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export const CartDrawer: React.FC = () => {
   const { cart, isOpen, closeCart, removeFromCart, updateQuantity, subtotal, totalItems, freeShippingThreshold } = useCart();
@@ -146,30 +147,28 @@ export const CartDrawer: React.FC = () => {
                   <div className="space-y-1.5 text-xs text-[#4A607A]">
                     <div className="flex justify-between">
                       <span>Subtotal</span>
-                      <span className="font-archivo font-semibold text-[#0A192F]">${subtotal.toFixed(2)}</span>
+                      <span className="font-archivo font-semibold text-[#0A192F]">₹{subtotal.toLocaleString("en-IN")}.00</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Estimated Tax (8%)</span>
-                      <span className="font-archivo font-semibold text-[#0A192F]">${(subtotal * 0.08).toFixed(2)}</span>
+                      <span>Clinical Express Delivery</span>
+                      <span className="font-archivo font-bold text-emerald-600 uppercase">FREE</span>
                     </div>
                     <div className="flex justify-between text-sm font-bold pt-2 border-t border-[#003865]/06 text-[#0A192F]">
-                      <span>Total</span>
-                      <span className="font-archivo text-base text-[#003865]">
-                        ${(subtotal * 1.08).toFixed(2)}
+                      <span>Total Amount</span>
+                      <span className="font-archivo text-base text-[#0066FF]">
+                        ₹{subtotal.toLocaleString("en-IN")}.00
                       </span>
                     </div>
                   </div>
 
-                  <button
-                    onClick={() => {
-                      addToast("Löwenstein Order Submitted!", "Your clinical procurement order has been logged.");
-                      closeCart();
-                    }}
-                    className="w-full py-4 rounded-full bg-[#003865] text-white font-inter font-semibold text-sm flex items-center justify-center gap-2 hover:bg-[#005A9C] shadow-[0_12px_26px_-14px_#003865] active:scale-[0.98] transition-all"
+                  <Link
+                    href="/checkout"
+                    onClick={closeCart}
+                    className="w-full py-4 rounded-full bg-[#0066FF] text-white font-archivo font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#0052CC] shadow-[0_12px_26px_-14px_#0066FF] active:scale-[0.98] transition-all cursor-pointer"
                   >
-                    <span>Proceed to Hospital Procurement</span>
+                    <span>Proceed to Checkout</span>
                     <ArrowRight className="w-4 h-4" />
-                  </button>
+                  </Link>
 
                   <div className="flex items-center justify-center gap-1.5 text-[11px] text-[#4A607A] font-medium pt-1">
                     <ShieldCheck className="w-4 h-4 text-[#007AC1]" />

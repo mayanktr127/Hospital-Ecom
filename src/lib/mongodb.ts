@@ -1,4 +1,11 @@
 import mongoose from "mongoose";
+import dns from "dns";
+
+try {
+  dns.setDefaultResultOrder("ipv4first");
+} catch (e) {
+  // Ignore
+}
 
 const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://vaderharsh127_db_user:aRGaTdGcM0ml3NhJ@cluster0.qmqgldx.mongodb.net/pulmocare?retryWrites=true&w=majority&appName=Cluster0";
 
@@ -29,6 +36,8 @@ export async function dbConnect() {
   if (!cached.promise) {
     const opts = {
       bufferCommands: false,
+      connectTimeoutMS: 10000,
+      serverSelectionTimeoutMS: 10000,
     };
 
     cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongooseInstance) => {

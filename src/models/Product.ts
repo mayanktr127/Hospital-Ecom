@@ -26,6 +26,7 @@ const ProductSchema: Schema = new Schema(
     reviewsCount: { type: Number, default: 4 },
     inStock: { type: Boolean, default: true },
     description: { type: String, required: true },
+    features: [{ type: String }],
     specifications: [
       {
         key: { type: String },

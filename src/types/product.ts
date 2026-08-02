@@ -8,7 +8,8 @@ export type ProductCategory =
   | "Personal Care";
 
 export interface ProductSpecification {
-  label: string;
+  key?: string;
+  label?: string;
   value: string;
 }
 
@@ -25,6 +26,7 @@ export interface Product {
   isFeatured?: boolean;
   isOffer?: boolean;
   description: string;
+  features?: string[];
   specifications: ProductSpecification[];
   badge?: string;
 }

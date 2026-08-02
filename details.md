@@ -4,18 +4,23 @@ Comprehensive technical and design documentation for the **Pulmo Care** hospital
 
 ---
 
-## 1. MongoDB Atlas Cluster Technical Specs
+## 1. Checkout & Orders Management Technical Specs
 
-- **Connection URI:** `MONGODB_URI` stored in `.env.local`
-- **Atlas Cluster Host:** `cluster0.qmqgldx.mongodb.net/pulmocare`
-- **Database Utilities:** `src/lib/mongodb.ts` (cached singleton connection for Next.js API routes)
-- **Mongoose Models:**
-  - `Product` (`src/models/Product.ts`)
-  - `BlogPost` (`src/models/BlogPost.ts`)
-- **API Endpoints:**
-  - `GET/POST/PUT/DELETE /api/products`
-  - `GET/POST/PUT/DELETE /api/blogs`
-  - `GET /api/seed` (Seeds Pulmo Care dataset into MongoDB Atlas)
+- **Checkout Page Route:** `src/app/checkout/page.tsx`
+- **Mongoose Schema:** `src/models/Order.ts`
+- **API Handler:** `src/app/api/orders/route.ts` (GET, POST, PUT, DELETE)
+- **Admin Integration:** `src/app/admin/page.tsx` (`Tracking & Orders` & Dashboard Activity table)
+- **Captured Order Fields:**
+  - `orderId`: Generated unique ID (e.g. `ORD-781920`).
+  - `customerName`: Full customer / doctor name.
+  - `phone`: Contact phone number.
+  - `email`: Email address.
+  - `street`, `city`, `state`, `pincode`, `landmark`: Full shipping address.
+  - `items`: Purchased items array with `productId`, `name`, `price`, `quantity`, `image`.
+  - `totalAmount`: Total amount in INR (₹).
+  - `paymentMethod`: "Cash on Delivery" | "UPI / Razorpay" | "Bank Wire Transfer".
+  - `orderStatus`: "On Progress" | "Delivered" | "Cancelled".
+  - `prescriptionNote`: Optional prescription / GSTIN note.
 
 ---
 

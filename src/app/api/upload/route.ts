@@ -1,48 +1,42 @@
 import { NextResponse } from "next/server";
-import fs from "fs";
 import path from "path";
+import fs from "fs";
 
-export async function POST(request: Request) {
+export async function POST(req: Request) {
   try {
-    const formData = await request.formData();
+    const formData = await req.formData();
     const file = formData.get("file") as File | null;
 
     if (!file) {
-      return NextResponse.json(
-        { error: "No file provided in form data" },
-        { status: 400 }
-      );
-    }
-
-    const downloadsDir = path.join(process.cwd(), "public", "downloads");
-    if (!fs.existsSync(downloadsDir)) {
-      fs.mkdirSync(downloadsDir, { recursive: true });
+      return NextResponse.json({ success: false, error: "No file uploaded" }, { status: 400 });
     }
 
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    const cleanName = file.name.replace(/[^a-zA-Z0-9_.-]/g, "_");
-    const filename = `${Date.now()}_${cleanName}`;
-    const filePath = path.join(downloadsDir, filename);
+    // Create uploads directory in public if it doesn't exist
+    const uploadsDir = path.join(process.cwd(), "public", "uploads");
+    if (!fs.existsSync(uploadsDir)) {
+      fs.mkdirSync(uploadsDir, { recursive: true });
+    }
 
+    // Clean filename and generate unique name
+    const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
+    const uniqueFilename = `prod_${Date.now()}_${sanitizedFilename}`;
+    const filePath = path.join(uploadsDir, uniqueFilename);
+
+    // Save file to disk
     fs.writeFileSync(filePath, buffer);
 
-    console.log(`Uploaded file saved to: ${filePath}`);
+    const publicUrl = `/uploads/${uniqueFilename}`;
 
     return NextResponse.json({
-      message: "File uploaded successfully to local server.",
-      filename: filename,
-      originalName: file.name,
-      size: `${(file.size / (1024 * 1024)).toFixed(2)} MB`,
-      downloadUrl: `/api/downloads/${filename}`,
-      uploadedAt: new Date().toISOString(),
+      success: true,
+      message: "Image uploaded successfully via Multer handler!",
+      url: publicUrl,
+      fileName: uniqueFilename,
     });
-  } catch (error) {
-    console.error("Next API Upload Error:", error);
-    return NextResponse.json(
-      { error: "Internal Server Error uploading file" },
-      { status: 500 }
-    );
+  } catch (error: any) {
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

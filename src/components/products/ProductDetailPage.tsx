@@ -7,6 +7,7 @@ import { Footer } from "@/components/footer/Footer";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import { useWishlist } from "@/context/WishlistContext";
+import { useAdmin } from "@/context/AdminContext";
 import { Product } from "@/types/product";
 import {
   ChevronDown,
@@ -66,45 +67,63 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
   const imagesList = scrapedData?.images || [];
 
+  const { products, reviews } = useAdmin();
+
+  // Find exact matching product from catalog
+  const foundProd = products.find(
+    (p) => p.id === itemSlug || p.id.includes(itemSlug) || itemSlug.includes(p.id)
+  );
+
   // Product cutout image for Description & Image section
   const heroCutoutImage =
-    imagesList.find((img: any) => img.src.includes("right_65") || img.src.includes("fullface_right") || img.src.includes("smart") || img.src.includes("prisma"))?.src ||
+    foundProd?.image ||
     sData?.image ||
+    imagesList.find((img: any) => img.src.includes("right_65") || img.src.includes("fullface_right") || img.src.includes("smart") || img.src.includes("prisma"))?.src ||
     "/images/pulmocare/pulmocare_prisma-smart.png";
 
   // Title & Subtitle
-  const displayTitle = sData?.title || title || itemSlug.toUpperCase();
+  const displayTitle = foundProd?.name || sData?.title || title || itemSlug.toUpperCase();
   const brandName = "Löwenstein Medical";
   const skuNumber = sData?.sku || `LS-RCD-${itemSlug.toUpperCase().replace(/-/g, "")}-1000`;
-  const priceValue = "₹45,990.00";
-  const originalPriceValue = "₹65,000.00";
-  const emiMonthlyValue = "₹1,617/month";
-  const discountSavings = "₹459";
+  
+  const rawPrice = foundProd?.price || 45990;
+  const rawOrigPrice = foundProd?.originalPrice || Math.round(rawPrice * 1.35);
+
+  const priceValue = `₹${rawPrice.toLocaleString("en-IN")}.00`;
+  const originalPriceValue = `₹${rawOrigPrice.toLocaleString("en-IN")}.00`;
+  const emiMonthlyValue = `₹${Math.round(rawPrice / 36).toLocaleString("en-IN")}/month`;
+  const discountSavings = `₹${Math.round(rawPrice * 0.01).toLocaleString("en-IN")}`;
 
   // Intro Paragraph
   const introParagraphText =
+    foundProd?.description ||
     sData?.introText ||
-    `${displayTitle} continues the tradition of high-quality respiratory and ventilation devices from Löwenstein Medical, combining precision German engineering with intuitive patient comfort.`;
+    `${displayTitle} continues the tradition of high-quality respiratory and ventilation devices, combining precision medical engineering with intuitive patient comfort.`;
 
-  // Feature bullets (Matching Screenshot 3)
-  const productFeaturesList = sData?.features || [
-    "Unheard-of silence and quiet operation for uninterrupted nocturnal sleep",
-    "Standard operating concept with clearly structured, target group-oriented menus (for patients and clinical experts)",
-    "Large LCD monitor – highly visible display of clinical therapy information",
-    "prismaLINE range of accessories and modular system integration",
-    "Two different APAP/BiLevel dynamics – the tailored right therapy for every patient",
-    "Familiar features such as recognition of Cheyne-Stokes respiration and Forced Oscillation Technology (FOT) across the entire prismaLINE",
-  ];
+  // Feature bullets
+  const productFeaturesList =
+    foundProd?.features && foundProd.features.length > 0
+      ? foundProd.features
+      : sData?.features || [
+          "Unheard-of silence and quiet operation for uninterrupted nocturnal sleep",
+          "Standard operating concept with clearly structured, target group-oriented menus",
+          "Large LCD monitor – highly visible display of clinical therapy information",
+          "prismaLINE range of accessories and modular system integration",
+          "Familiar features such as recognition of Cheyne-Stokes respiration across the entire line",
+        ];
 
-  // Specifications (Matching Screenshot 4)
-  const specificationsList = [
-    { label: "Temperature range", value: "Operation: +5 °C to +40 °C | Storage: – 25 °C to +70 °C" },
-    { label: "Air pressure range", value: "700 – 1060 hPa (corresponds to an altitude of 3000m above sea level)" },
-    { label: "Electrical output", value: "max. 40 VA" },
-    { label: "System interface", value: "24 V DC max. 5 VA" },
-    { label: "Mean sound pressure level", value: "about 26 dB(A) at 10 hPa" },
-    { label: "Recommended max O₂ flow", value: "15 liters/minute" },
-  ];
+  // Specifications
+  const specificationsList =
+    foundProd?.specifications && foundProd.specifications.length > 0
+      ? foundProd.specifications.map((s: any) => ({ label: s.key, value: s.value }))
+      : [
+          { label: "Temperature range", value: "Operation: +5 °C to +40 °C | Storage: – 25 °C to +70 °C" },
+          { label: "Air pressure range", value: "700 – 1060 hPa (corresponds to an altitude of 3000m above sea level)" },
+          { label: "Electrical output", value: "max. 40 VA" },
+          { label: "System interface", value: "24 V DC max. 5 VA" },
+          { label: "Mean sound pressure level", value: "about 26 dB(A) at 10 hPa" },
+          { label: "Recommended max O₂ flow", value: "15 liters/minute" },
+        ];
 
   // Box Content (Matching Screenshot 4)
   const boxContentsList = [
@@ -134,6 +153,14 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       comment: "Very easy to set up and smooth pressure adjustments. Fast delivery by Pulmo Care.",
     },
   ];
+
+  const matchedReviews = reviews.filter(
+    (r) =>
+      r.productId === itemSlug ||
+      r.productName.toLowerCase().includes(displayTitle.toLowerCase()) ||
+      displayTitle.toLowerCase().includes(r.productName.toLowerCase())
+  );
+  const reviewsToDisplay = matchedReviews.length > 0 ? matchedReviews : reviewsList;
 
   const currentProductObj: Product = {
     id: itemSlug,
@@ -451,11 +478,11 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           {/* Customer Reviews */}
           <div className="pt-8 border-t border-[#003865]/10">
             <h3 className="font-archivo font-extrabold text-2xl text-[#007AC1] mb-8">
-              2 reviews for {displayTitle}
+              {reviewsToDisplay.length} {reviewsToDisplay.length === 1 ? "review" : "reviews"} for {displayTitle}
             </h3>
 
             <div className="space-y-6">
-              {reviewsList.map((rev, idx) => (
+              {reviewsToDisplay.map((rev, idx) => (
                 <div key={idx} className="p-6 bg-[#F8FAFC] rounded-2xl border border-[#003865]/08 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-archivo font-bold text-sm text-[#003865]">{rev.author}</span>
