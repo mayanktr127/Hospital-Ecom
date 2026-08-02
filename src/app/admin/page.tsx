@@ -1616,8 +1616,8 @@ export default function AdminDashboardPage() {
                         <option value="PPE & Protection">PPE &amp; Protection</option>
                         <option value="Disinfection">Disinfection</option>
                         <option value="Personal Care">Personal Care</option>
-                      </>
                     )}
+                  </select>
                 </div>
 
                 <div>
