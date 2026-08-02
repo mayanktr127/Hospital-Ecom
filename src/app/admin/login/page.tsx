@@ -16,11 +16,11 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  if (isAdminAuthenticated) {
-    if (typeof window !== "undefined") {
+  React.useEffect(() => {
+    if (isAdminAuthenticated) {
       router.push("/admin");
     }
-  }
+  }, [isAdminAuthenticated, router]);
 
   const handleFillDemo = () => {
     setEmail("admin@pulmocare.in");

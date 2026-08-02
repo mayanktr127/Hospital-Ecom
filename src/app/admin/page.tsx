@@ -110,6 +110,17 @@ export default function AdminDashboardPage() {
   const [pOriginalPrice, setPOriginalPrice] = useState("");
   const [pImage, setPImage] = useState("");
   const [pDescription, setPDescription] = useState("");
+  const [pBadge, setPBadge] = useState("");
+  const [pBrand, setPBrand] = useState("Löwenstein Medical");
+  const [pSku, setPSku] = useState("");
+  const [pInStock, setPInStock] = useState(true);
+  const [pIsFeatured, setPIsFeatured] = useState(false);
+  const [pIsOffer, setPIsOffer] = useState(false);
+  const [pFeaturesText, setPFeaturesText] = useState("");
+  const [pSpecsText, setPSpecsText] = useState("");
+  const [pBoxContentsText, setPBoxContentsText] = useState("");
+  const [pWarranty, setPWarranty] = useState("2 Years Warranty");
+  const [pBrochureUrl, setPBrochureUrl] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -167,36 +178,96 @@ export default function AdminDashboardPage() {
       setPName(prod.name);
       setPCategory(prod.category);
       setPPrice(prod.price.toString());
-      setPOriginalPrice((prod.originalPrice || prod.price * 1.3).toString());
+      setPOriginalPrice((prod.originalPrice || Math.round(prod.price * 1.35)).toString());
       setPImage(prod.image);
-      setPDescription(prod.description);
+      setPDescription(prod.description || "");
+      setPBadge(prod.badge || "");
+      setPBrand(prod.brand || "Löwenstein Medical");
+      setPSku(prod.sku || `SKU-${prod.id.toUpperCase()}`);
+      setPInStock(prod.inStock !== false);
+      setPIsFeatured(Boolean(prod.isFeatured));
+      setPIsOffer(Boolean(prod.isOffer));
+      setPFeaturesText((prod.features || []).join("\n"));
+      setPSpecsText(
+        (prod.specifications || [])
+          .map((s) => `${s.label || s.key || "Spec"}: ${s.value}`)
+          .join("\n")
+      );
+      setPBoxContentsText((prod.boxContents || []).join("\n"));
+      setPWarranty(prod.warranty || "2 Years German Warranty");
+      setPBrochureUrl(prod.brochureUrl || "");
     } else {
       setEditingProduct(null);
-      setPId(`prod-${Date.now()}`);
+      const newId = `prod-${Date.now()}`;
+      setPId(newId);
       setPName("");
       setPCategory("Ventilation & Sleep");
       setPPrice("45990");
       setPOriginalPrice("65000");
       setPImage("/images/pulmocare/pulmocare_prisma-smart.png");
-      setPDescription("High-performance respiratory medical equipment.");
+      setPDescription("Clinical-grade respiratory device engineered in Germany.");
+      setPBadge("CLINICAL GRADE");
+      setPBrand("Löwenstein Medical");
+      setPSku(`SKU-${Date.now().toString().slice(-6)}`);
+      setPInStock(true);
+      setPIsFeatured(true);
+      setPIsOffer(false);
+      setPFeaturesText("High-performance clinical ventilation\nGerman precision engineering\nUltra-quiet operation (<26 dB)\nIntegrated humidification option");
+      setPSpecsText("Operating Noise: 26 dB(A)\nPressure Range: 4 - 20 hPa\nWeight: 1.4 kg\nDimensions: 170 x 135 x 180 mm\nPower Supply: 100 - 240V AC");
+      setPBoxContentsText("Main Device Unit\nPower Cord & Adapter\nAir Filter\nUser Manual (EN/DE)\nCarrying Bag");
+      setPWarranty("2 Years German Manufacturer Warranty");
+      setPBrochureUrl("/doc-files/sample_doc.pdf");
     }
     setProductModalOpen(true);
   };
 
   const handleSaveProduct = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const parsedFeatures = pFeaturesText
+      .split("\n")
+      .map((f) => f.trim())
+      .filter(Boolean);
+
+    const parsedSpecs = pSpecsText
+      .split("\n")
+      .map((line) => {
+        const parts = line.split(":");
+        const label = parts[0]?.trim();
+        const value = parts.slice(1).join(":").trim();
+        if (label && value) {
+          return { label, value };
+        }
+        return null;
+      })
+      .filter(Boolean) as { label: string; value: string }[];
+
+    const parsedBoxContents = pBoxContentsText
+      .split("\n")
+      .map((b) => b.trim())
+      .filter(Boolean);
+
     const prodObj: Product = {
       id: pId || `prod-${Date.now()}`,
       name: pName,
       category: pCategory as any,
       price: parseFloat(pPrice) || 0,
-      originalPrice: parseFloat(pOriginalPrice) || 0,
+      originalPrice: parseFloat(pOriginalPrice) || Math.round((parseFloat(pPrice) || 0) * 1.35),
       image: pImage || "/images/pulmocare/pulmocare_prisma-smart.png",
-      rating: 5,
-      reviewsCount: 2,
-      inStock: true,
+      rating: editingProduct?.rating || 5,
+      reviewsCount: editingProduct?.reviewsCount || 4,
+      inStock: pInStock,
+      isFeatured: pIsFeatured,
+      isOffer: pIsOffer,
       description: pDescription,
-      specifications: [],
+      badge: pBadge,
+      brand: pBrand,
+      sku: pSku,
+      features: parsedFeatures,
+      specifications: parsedSpecs,
+      boxContents: parsedBoxContents,
+      warranty: pWarranty,
+      brochureUrl: pBrochureUrl,
     };
 
     if (editingProduct) {
@@ -1266,66 +1337,165 @@ export default function AdminDashboardPage() {
         </main>
       </div>
 
-      {/* CREATE PRODUCT MODAL */}
+      {/* CREATE / EDIT PRODUCT MODAL */}
       {productModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="bg-white rounded-[20px] max-w-xl w-full p-6 md:p-8 shadow-[0_30px_70px_rgba(24,42,65,0.14)] border border-[#e9edf4] max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-[28px] max-w-2xl w-full p-6 md:p-8 shadow-[0_30px_70px_rgba(24,42,65,0.14)] border border-[#e9edf4] max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-4 border-b border-[#f6f4fb] mb-6">
-              <h3 className="font-archivo font-semibold text-2xl text-[#182a41]">
-                {editingProduct ? "Edit Product" : "Add New Product"}
-              </h3>
+              <div>
+                <h3 className="font-archivo font-semibold text-2xl text-[#182a41]">
+                  {editingProduct ? "Edit Product Details" : "Add New Product"}
+                </h3>
+                <p className="text-xs text-[#64748B]">All fields entered here automatically synchronize with the storefront catalog and modal preview.</p>
+              </div>
               <button onClick={() => setProductModalOpen(false)} className="p-2 rounded-full hover:bg-[#f6f4fb] text-[#64748B]">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <form onSubmit={handleSaveProduct} className="space-y-4 text-xs">
-              <div>
-                <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Product Title</label>
-                <input
-                  type="text"
-                  required
-                  value={pName}
-                  onChange={(e) => setPName(e.target.value)}
-                  placeholder="e.g. Prisma SMART Auto CPAP"
-                  className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm text-[#182a41]"
-                />
+            <form onSubmit={handleSaveProduct} className="space-y-5 text-xs">
+              {/* Basic Details: Title & SKU */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Product Title *</label>
+                  <input
+                    type="text"
+                    required
+                    value={pName}
+                    onChange={(e) => setPName(e.target.value)}
+                    placeholder="e.g. Prisma SMART Auto CPAP"
+                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm text-[#182a41] font-medium focus:border-[#2a6ecb]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">SKU / Model Code</label>
+                  <input
+                    type="text"
+                    value={pSku}
+                    onChange={(e) => setPSku(e.target.value)}
+                    placeholder="e.g. LM-PSMART-2026"
+                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] font-mono focus:border-[#2a6ecb]"
+                  />
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* Classification: Category, Brand, Badge */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div>
-                  <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Category</label>
+                  <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Category *</label>
                   <select
                     value={pCategory}
                     onChange={(e) => setPCategory(e.target.value)}
-                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41]"
+                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] font-semibold focus:border-[#2a6ecb]"
                   >
                     <option value="Ventilation & Sleep">Ventilation &amp; Sleep</option>
+                    <option value="CPAP & APAP Devices">CPAP &amp; APAP Devices</option>
+                    <option value="Bilevel-S & ST Devices">Bilevel-S &amp; ST Devices</option>
+                    <option value="ASV & Titration Devices">ASV &amp; Titration Devices</option>
+                    <option value="Humidifiers">Humidifiers</option>
+                    <option value="Ventilation">Ventilation</option>
+                    <option value="Oxygen Therapy">Oxygen Therapy</option>
+                    <option value="Sleep Diagnostics">Sleep Diagnostics</option>
+                    <option value="Masks">Masks</option>
                     <option value="Diagnostic">Diagnostic</option>
                     <option value="Surgical">Surgical</option>
                     <option value="PPE & Protection">PPE &amp; Protection</option>
+                    <option value="Disinfection">Disinfection</option>
+                    <option value="Personal Care">Personal Care</option>
                   </select>
                 </div>
 
                 <div>
-                  <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Price (₹)</label>
+                  <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Brand / Manufacturer</label>
+                  <input
+                    type="text"
+                    value={pBrand}
+                    onChange={(e) => setPBrand(e.target.value)}
+                    placeholder="e.g. Löwenstein Medical"
+                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Badge Tag</label>
+                  <input
+                    type="text"
+                    value={pBadge}
+                    onChange={(e) => setPBadge(e.target.value)}
+                    placeholder="e.g. INTENSIVE CARE / HOT OFFER"
+                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
+                  />
+                </div>
+              </div>
+
+              {/* Pricing: Selling Price & Original Price */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#f7f6fb] p-4 rounded-2xl border border-[#e9edf4]">
+                <div>
+                  <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Selling Price (₹) *</label>
                   <input
                     type="number"
                     required
                     value={pPrice}
                     onChange={(e) => setPPrice(e.target.value)}
-                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41]"
+                    placeholder="e.g. 45990"
+                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-bold text-[#0a1f3c] focus:border-[#2a6ecb]"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-archivo font-bold text-[#64748b] uppercase mb-1">Original Price / MSRP (₹)</label>
+                  <input
+                    type="number"
+                    value={pOriginalPrice}
+                    onChange={(e) => setPOriginalPrice(e.target.value)}
+                    placeholder="e.g. 65000"
+                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-semibold text-[#64748b] focus:border-[#2a6ecb]"
                   />
                 </div>
               </div>
 
+              {/* Inventory & Display Toggles */}
+              <div className="flex flex-wrap items-center gap-6 p-4 bg-[#f6f4fb] rounded-2xl border border-[#e9edf4]">
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={pInStock}
+                    onChange={(e) => setPInStock(e.target.checked)}
+                    className="w-4 h-4 rounded text-[#2a6ecb] focus:ring-[#2a6ecb]"
+                  />
+                  <span className="font-archivo font-bold text-xs text-[#182a41]">In Stock</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={pIsFeatured}
+                    onChange={(e) => setPIsFeatured(e.target.checked)}
+                    className="w-4 h-4 rounded text-[#2a6ecb] focus:ring-[#2a6ecb]"
+                  />
+                  <span className="font-archivo font-bold text-xs text-[#182a41]">Featured on Homepage</span>
+                </label>
+
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={pIsOffer}
+                    onChange={(e) => setPIsOffer(e.target.checked)}
+                    className="w-4 h-4 rounded text-[#2a6ecb] focus:ring-[#2a6ecb]"
+                  />
+                  <span className="font-archivo font-bold text-xs text-[#182a41]">Special Offer Badge</span>
+                </label>
+              </div>
+
+              {/* Product Image Selection & Upload */}
               <div className="space-y-2">
                 <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
                   Product Image (Upload via Multer or Paste URL)
                 </label>
                 
                 <div className="flex items-center gap-3">
-                  <label className="px-4 py-2 rounded-xl bg-[#dcebfb] text-[#2a6ecb] hover:bg-[#2a6ecb] hover:text-white font-archivo font-bold text-xs cursor-pointer transition-colors flex items-center gap-2">
+                  <label className="px-4 py-2.5 rounded-xl bg-[#dcebfb] text-[#2a6ecb] hover:bg-[#2a6ecb] hover:text-white font-archivo font-bold text-xs cursor-pointer transition-colors flex items-center gap-2">
                     <Upload className="w-4 h-4" />
                     <span>{isUploadingImage ? "Uploading via Multer..." : "Upload Image File"}</span>
                     <input
@@ -1337,50 +1507,120 @@ export default function AdminDashboardPage() {
                     />
                   </label>
                   <span className="text-[10px] text-[#64748b] uppercase font-bold">OR</span>
+                  <input
+                    type="text"
+                    value={pImage}
+                    onChange={(e) => setPImage(e.target.value)}
+                    placeholder="Paste image path (e.g. /images/pulmocare/pulmocare_prisma-smart.png)"
+                    className="flex-1 p-2.5 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
+                  />
                 </div>
 
-                <input
-                  type="text"
-                  value={pImage}
-                  onChange={(e) => setPImage(e.target.value)}
-                  placeholder="Paste URL or uploaded file path (/uploads/prod_...)"
-                  className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41]"
-                />
-
                 {pImage && (
-                  <div className="mt-2 flex items-center gap-3 p-2 bg-[#f7f6fb] rounded-xl border border-[#e9edf4]">
-                    <img src={pImage} alt="Preview" className="w-12 h-12 object-contain rounded-lg bg-white p-1 border" />
+                  <div className="mt-2 flex items-center gap-3 p-3 bg-[#f7f6fb] rounded-2xl border border-[#e9edf4]">
+                    <img src={pImage} alt="Preview" className="w-14 h-14 object-contain rounded-xl bg-white p-1 border border-[#e9edf4] shrink-0" />
                     <div>
-                      <span className="text-[10px] font-bold text-[#1fb37a] block">Image Selected</span>
-                      <span className="text-[10px] text-[#64748B] font-mono line-clamp-1">{pImage}</span>
+                      <span className="text-xs font-bold text-[#1fb37a] block">Image Asset Selected</span>
+                      <span className="text-[11px] text-[#64748B] font-mono line-clamp-1">{pImage}</span>
                     </div>
                   </div>
                 )}
               </div>
 
+              {/* Description */}
               <div>
-                <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Description</label>
+                <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Product Description</label>
                 <textarea
                   rows={3}
                   value={pDescription}
                   onChange={(e) => setPDescription(e.target.value)}
-                  className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41]"
+                  placeholder="Enter detailed clinical equipment description..."
+                  className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
                 />
               </div>
 
+              {/* Features List */}
+              <div>
+                <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
+                  Key Highlights &amp; Features (1 feature per line)
+                </label>
+                <textarea
+                  rows={3}
+                  value={pFeaturesText}
+                  onChange={(e) => setPFeaturesText(e.target.value)}
+                  placeholder="Auto-adjusting CPAP & APAP technology&#10;Deep-blue backlight graphics display&#10;Integrated warm-air humidification"
+                  className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] font-mono focus:border-[#2a6ecb]"
+                />
+              </div>
+
+              {/* Specifications: Label: Value */}
+              <div>
+                <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
+                  German Technical Specifications (Format: <code className="text-[#2a6ecb]">Label: Value</code> per line)
+                </label>
+                <textarea
+                  rows={4}
+                  value={pSpecsText}
+                  onChange={(e) => setPSpecsText(e.target.value)}
+                  placeholder="Operating Noise: 26 dB(A)&#10;Pressure Range: 4 to 20 hPa&#10;Weight: 1.4 kg&#10;Warranty: 2 Years"
+                  className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] font-mono focus:border-[#2a6ecb]"
+                />
+              </div>
+
+              {/* Box Contents & Warranty */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
+                    What's in the Box (1 item per line)
+                  </label>
+                  <textarea
+                    rows={3}
+                    value={pBoxContentsText}
+                    onChange={(e) => setPBoxContentsText(e.target.value)}
+                    placeholder="Prisma SMART Device&#10;AQUA Humidifier Chamber&#10;Breathing Tube"
+                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] font-mono focus:border-[#2a6ecb]"
+                  />
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Warranty Terms</label>
+                    <input
+                      type="text"
+                      value={pWarranty}
+                      onChange={(e) => setPWarranty(e.target.value)}
+                      placeholder="e.g. 2 Years German Warranty"
+                      className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Brochure / Spec PDF Link</label>
+                    <input
+                      type="text"
+                      value={pBrochureUrl}
+                      onChange={(e) => setPBrochureUrl(e.target.value)}
+                      placeholder="e.g. /doc-files/sample_doc.pdf"
+                      className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Modal Actions */}
               <div className="pt-4 flex justify-end gap-3 border-t border-[#f6f4fb]">
                 <button
                   type="button"
                   onClick={() => setProductModalOpen(false)}
-                  className="px-5 py-2.5 rounded-full border border-[#e9edf4] font-bold text-xs"
+                  className="px-6 py-3 rounded-full border border-[#e9edf4] font-archivo font-bold text-xs hover:bg-[#f7f6fb] transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-full bg-[#2a6ecb] hover:bg-[#2a6ecb] text-white font-archivo font-bold text-xs uppercase"
+                  className="px-8 py-3 rounded-full bg-[#2a6ecb] hover:bg-[#4b8ee6] text-white font-archivo font-bold text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer"
                 >
-                  Save Product
+                  {editingProduct ? "Save Changes" : "Create Product"}
                 </button>
               </div>
             </form>
