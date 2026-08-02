@@ -52,6 +52,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const { addToCart, toggleCart } = useCart();
   const { addToast } = useToast();
   const { toggleFavorite, isFavorite } = useWishlist();
+  const { products, reviews } = useAdmin();
 
   const [quantity, setQuantity] = useState<number>(1);
   const [activeVideoModal, setActiveVideoModal] = useState<string | null>(null);
@@ -66,8 +67,6 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const scrapedData = (siteContent as any)[fullKey] || (siteContent as any)[catKey] || null;
 
   const imagesList = scrapedData?.images || [];
-
-  const { products, reviews } = useAdmin();
 
   // Find exact matching product from catalog
   const foundProd = products.find(
