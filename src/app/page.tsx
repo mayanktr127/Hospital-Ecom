@@ -10,10 +10,12 @@ import { ProductModal } from "@/components/products/ProductModal";
 import { ProductSection } from "@/components/products/ProductSection";
 import { ContactSection } from "@/components/contact/ContactSection";
 import { ToastContainer } from "@/components/ui/Toast";
+import { useAdmin } from "@/context/AdminContext";
 import { ProductCategory, Product } from "@/types/product";
 import { Activity, ShieldCheck, ArrowRight, FileText, Flame, ShoppingCart, Headphones, Clock, BookOpen, Sparkles } from "lucide-react";
 
 export default function Home() {
+  const { categories, products } = useAdmin();
   const [selectedCategory, setSelectedCategory] = useState<ProductCategory>("All");
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
@@ -108,49 +110,63 @@ export default function Home() {
             </p>
           </div>
 
-          {/* 8 Premium Category Grid Cards */}
+          {/* Dynamic Category Grid Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {thematicFocuses.map((cat) => (
-              <Link
-                key={cat.name}
-                href={`/${cat.slug}`}
-                className="group relative flex flex-col justify-between p-6 sm:p-7 bg-gradient-to-b from-[#e9e6fb] via-[#dcebfb] to-white rounded-[28px] border border-white/80 shadow-[0_2px_8px_rgba(24,42,65,0.05)] hover:shadow-[0_16px_44px_rgba(24,42,65,0.09)] hover:-translate-y-1 transition-all duration-500 overflow-hidden"
-              >
-                {/* Top Badge Pill */}
-                <div className="flex items-center justify-between mb-4 relative z-10">
-                  <span className="bg-white/90 backdrop-blur-md text-[#2a6ecb] text-[11px] font-archivo font-semibold px-3 py-1 rounded-full border border-white shadow-[0_2px_8px_rgba(24,42,65,0.05)]">
-                    {cat.count}
-                  </span>
-                </div>
+            {categories.map((cat, idx) => {
+              const matchingCount = products.filter(
+                (p) =>
+                  p.category === cat.name ||
+                  p.category.toLowerCase().includes(cat.name.toLowerCase()) ||
+                  cat.name.toLowerCase().includes(p.category.toLowerCase())
+              ).length;
 
-                {/* Floating Product Stage with Radial Ground Shadow */}
-                <div className="w-full h-44 mb-6 flex items-center justify-center p-3 relative thumb-ground-shadow">
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    className="max-h-36 max-w-full object-contain mix-blend-multiply drop-shadow-[0_14px_12px_rgba(24,42,65,0.2)] group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src = "/images/products/mask.png";
-                    }}
-                  />
-                </div>
-
-                {/* Category Title, Subtext & Action CTA */}
-                <div className="relative z-10">
-                  <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] group-hover:text-[#2a6ecb] transition-colors leading-tight mb-2">
-                    {cat.name}
-                  </h3>
-                  <p className="text-xs text-[#64748b] leading-relaxed font-inter line-clamp-2 mb-4">
-                    {cat.desc}
-                  </p>
-
-                  <div className="inline-flex items-center gap-1.5 text-xs font-archivo font-bold text-[#2a6ecb] group-hover:translate-x-1.5 transition-transform pt-3 border-t border-[#e9edf4] w-full">
-                    <span>Explore Category</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+              return (
+                <Link
+                  key={cat.id ? `${cat.id}-${idx}` : `cat-key-${idx}`}
+                  href={`/${cat.slug}`}
+                  className="group relative flex flex-col justify-between p-6 sm:p-7 bg-gradient-to-b from-[#e9e6fb] via-[#dcebfb] to-white rounded-[28px] border border-white/80 shadow-[0_2px_8px_rgba(24,42,65,0.05)] hover:shadow-[0_16px_44px_rgba(24,42,65,0.09)] hover:-translate-y-1 transition-all duration-500 overflow-hidden"
+                >
+                  {/* Top Badge Pill */}
+                  <div className="flex items-center justify-between mb-4 relative z-10">
+                    <span className="bg-white/90 backdrop-blur-md text-[#2a6ecb] text-[11px] font-archivo font-semibold px-3 py-1 rounded-full border border-white shadow-[0_2px_8px_rgba(24,42,65,0.05)]">
+                      {cat.count || `${matchingCount} ${matchingCount === 1 ? "Model" : "Models"}`}
+                    </span>
+                    {cat.badge && (
+                      <span className="bg-[#0066FF] text-white text-[10px] font-archivo font-extrabold uppercase px-2.5 py-0.5 rounded-full">
+                        {cat.badge}
+                      </span>
+                    )}
                   </div>
-                </div>
-              </Link>
-            ))}
+
+                  {/* Floating Product Stage with Radial Ground Shadow */}
+                  <div className="w-full h-44 mb-6 flex items-center justify-center p-3 relative thumb-ground-shadow">
+                    <img
+                      src={cat.image || "/images/pulmocare/pulmocare_prisma-smart.png"}
+                      alt={cat.name}
+                      className="max-h-36 max-w-full object-contain mix-blend-multiply drop-shadow-[0_14px_12px_rgba(0,56,101,0.2)] group-hover:scale-110 group-hover:-translate-y-2 transition-transform duration-500"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = "/images/pulmocare/pulmocare_prisma-smart.png";
+                      }}
+                    />
+                  </div>
+
+                  {/* Category Title, Subtext & Action CTA */}
+                  <div className="relative z-10">
+                    <h3 className="font-archivo font-bold text-xl text-[#003865] group-hover:text-[#007AC1] transition-colors leading-tight mb-2">
+                      {cat.name}
+                    </h3>
+                    <p className="text-xs text-[#4A607A] leading-relaxed font-inter line-clamp-2 mb-4">
+                      {cat.desc}
+                    </p>
+
+                    <div className="inline-flex items-center gap-1.5 text-xs font-archivo font-bold text-[#007AC1] group-hover:translate-x-1.5 transition-transform pt-3 border-t border-[#003865]/08 w-full">
+                      <span>Explore Category</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
 

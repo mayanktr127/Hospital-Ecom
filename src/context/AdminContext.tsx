@@ -55,6 +55,16 @@ export interface OrderItem {
   createdAt?: string;
 }
 
+export interface CategoryItem {
+  id: string;
+  name: string;
+  slug: string;
+  desc: string;
+  image: string;
+  count?: string;
+  badge?: string;
+}
+
 interface AdminUser {
   name: string;
   email: string;
@@ -71,6 +81,11 @@ interface AdminContextType {
   addProduct: (product: Product) => Promise<void>;
   updateProduct: (product: Product) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
+  // Categories CRUD State
+  categories: CategoryItem[];
+  addCategory: (category: CategoryItem) => Promise<void>;
+  updateCategory: (category: CategoryItem) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
   // Blog Posts CRUD State
   blogPosts: BlogPost[];
   addBlogPost: (post: BlogPost) => Promise<void>;
@@ -106,7 +121,7 @@ const flattenProducts = (): Product[] => {
           list.push({
             id: p.slug || `prod-${idx}-${Math.random()}`,
             name: p.title || "Medical Device",
-            category: "Ventilation & Sleep",
+            category: catObj.name || "Ventilation & Sleep",
             price: p.price || 45990,
             originalPrice: p.originalPrice || roundUpPrice(p.price),
             image: p.image || "/images/pulmocare/pulmocare_prisma-smart.png",
@@ -114,6 +129,7 @@ const flattenProducts = (): Product[] => {
             reviewsCount: 4,
             inStock: true,
             description: p.tagline || p.introParagraph || "High-performance medical equipment.",
+            features: p.features || [],
             specifications: p.specifications || [],
           });
         });
@@ -124,6 +140,79 @@ const flattenProducts = (): Product[] => {
 };
 
 const initialProducts: Product[] = flattenProducts();
+
+const initialCategories: CategoryItem[] = [
+  {
+    id: "cat-1",
+    name: "CPAP & APAP Devices",
+    slug: "cpap-apap-devices",
+    image: "/images/pulmocare/pulmocare_prisma-20a.png",
+    count: "3 Models",
+    badge: "Most Popular",
+    desc: "Premium auto-CPAP titration for obstructive sleep apnea.",
+  },
+  {
+    id: "cat-2",
+    name: "Bilevel-S & ST Devices",
+    slug: "bilevel-s-st-devices",
+    image: "/images/pulmocare/pulmocare_prisma-25-st.png",
+    count: "3 Models",
+    badge: "Clinical Grade",
+    desc: "High pressure support BiLevel S and ST therapy.",
+  },
+  {
+    id: "cat-3",
+    name: "ASV & Titration Devices",
+    slug: "asv-titration-devices",
+    image: "/images/pulmocare/pulmocare_prisma-lab.png",
+    count: "2 Models",
+    badge: "Advanced Tech",
+    desc: "Adaptive servo-ventilation and lab titration.",
+  },
+  {
+    id: "cat-4",
+    name: "Humidifiers",
+    slug: "humidifiers",
+    image: "/images/pulmocare/pulmocare_prisma-aqua.png",
+    count: "1 Model",
+    desc: "Heated humidification for patient comfort.",
+  },
+  {
+    id: "cat-5",
+    name: "Ventilation",
+    slug: "ventilation",
+    image: "/images/pulmocare/pulmocare_luisa-ventilator.png",
+    count: "3 Models",
+    badge: "Life Support",
+    desc: "Hospital & home care life support ventilators.",
+  },
+  {
+    id: "cat-6",
+    name: "Oxygen Therapy",
+    slug: "oxygen-therapy",
+    image: "/images/pulmocare/pulmocare_inogen-rove-6.png",
+    count: "2 Models",
+    badge: "High Purity",
+    desc: "Portable & stationary 5L LPM oxygen concentrators.",
+  },
+  {
+    id: "cat-7",
+    name: "Sleep Diagnostics",
+    slug: "sleep-diagnostics",
+    image: "/images/site/sleep_diagnostics_csm_samoa_sleep_diagnostics_device_frontal_dba1194f3b.png",
+    count: "3 Models",
+    desc: "10-33 channel polygraphy and polysomnography.",
+  },
+  {
+    id: "cat-8",
+    name: "Masks",
+    slug: "masks",
+    image: "/images/pulmocare/pulmo_l-wenstein-lena.png",
+    count: "4 Models",
+    badge: "Ergonomic Seal",
+    desc: "Nasal and full face ventilation patient masks.",
+  },
+];
 
 const initialReviews: ReviewItem[] = [
   {
@@ -171,18 +260,6 @@ const initialInquiries: InquiryItem[] = [
     status: "New Lead",
     createdAt: "August 2, 2026",
   },
-  {
-    id: "inq-102",
-    fullName: "Meenakshi Sundaram",
-    phone: "+91 9443198765",
-    email: "meenakshi.s@gmail.com",
-    inquiryType: "CPAP / BiLevel Purchase",
-    device: "Löwenstein Prisma SMART Auto CPAP",
-    city: "Chennai",
-    message: "Doctor recommended Prisma SMART Auto CPAP for sleep apnea. Please share home delivery schedule.",
-    status: "Contacted",
-    createdAt: "August 1, 2026",
-  },
 ];
 
 const initialOrders: OrderItem[] = [
@@ -211,36 +288,45 @@ const initialOrders: OrderItem[] = [
     prescriptionNote: "Doctor prescription attached for OSA patient therapy.",
     createdAt: "August 2, 2026",
   },
-  {
-    orderId: "ORD-654129",
-    customerName: "Kavita Rao",
-    phone: "+91 9902187364",
-    email: "kavita.rao@yahoo.co.in",
-    street: "#42, 4th Main, Indiranagar",
-    city: "Bengaluru",
-    state: "Karnataka",
-    pincode: "560038",
-    items: [
-      {
-        productId: "cara-full-face",
-        name: "Löwenstein CARA Full Face Mask",
-        price: 5800,
-        quantity: 1,
-        image: "/images/site/masks_cara_full_face_csm_cara_mask_patient_interface_fullface_right_3bfbc3e771.png",
-      },
-    ],
-    totalAmount: 5800,
-    paymentMethod: "Cash on Delivery",
-    orderStatus: "Delivered",
-    createdAt: "August 1, 2026",
-  },
 ];
+
+function mergeProductsList(initial: Product[], fetched: Product[]): Product[] {
+  const map = new Map<string, Product>();
+  initial.forEach((p) => map.set(p.id.toLowerCase(), p));
+  fetched.forEach((p) => {
+    if (p && p.id) {
+      map.set(p.id.toLowerCase(), p);
+    }
+  });
+  return Array.from(map.values());
+}
+
+function mergeCategoriesList(initial: CategoryItem[], fetched: CategoryItem[]): CategoryItem[] {
+  const map = new Map<string, CategoryItem>();
+  initial.forEach((c) => {
+    map.set(c.id.toLowerCase(), c);
+  });
+  fetched.forEach((c) => {
+    if (!c) return;
+    const existingKey = Array.from(map.keys()).find(
+      (k) => k === c.id.toLowerCase() || map.get(k)?.name.toLowerCase() === c.name.toLowerCase()
+    );
+    if (existingKey) {
+      const existing = map.get(existingKey)!;
+      map.set(existingKey, { ...existing, ...c });
+    } else {
+      map.set(c.id.toLowerCase(), c);
+    }
+  });
+  return Array.from(map.values());
+}
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
 
   const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [categories, setCategories] = useState<CategoryItem[]>(initialCategories);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>(BLOG_POSTS);
   const [reviews, setReviews] = useState<ReviewItem[]>(initialReviews);
   const [inquiries, setInquiries] = useState<InquiryItem[]>(initialInquiries);
@@ -254,8 +340,22 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setIsAdminAuthenticated(true);
         setAdminUser(parsed);
       }
+      const savedProds = localStorage.getItem("pulmocare_custom_products");
+      if (savedProds) {
+        const parsed = JSON.parse(savedProds);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setProducts(mergeProductsList(initialProducts, parsed));
+        }
+      }
+      const savedCats = localStorage.getItem("pulmocare_custom_categories");
+      if (savedCats) {
+        const parsed = JSON.parse(savedCats);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setCategories(mergeCategoriesList(initialCategories, parsed));
+        }
+      }
     } catch (err) {
-      console.error("Failed to load admin auth from localStorage", err);
+      console.error("Failed to load admin state from localStorage", err);
     }
 
     // Fetch initial MongoDB Atlas dataset
@@ -263,13 +363,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       .then((res) => res.json())
       .then((data) => {
         if (data.success && data.products && data.products.length > 0) {
-          setProducts(data.products);
+          setProducts((prev) => mergeProductsList(initialProducts, [...prev, ...data.products]));
         } else {
           fetch("/api/seed")
             .then((r) => r.json())
             .then((seedData) => {
               if (seedData.success) {
-                fetch("/api/products").then((r) => r.json()).then((d) => d.success && setProducts(d.products));
+                fetch("/api/products").then((r) => r.json()).then((d) => d.success && setProducts((prev) => mergeProductsList(initialProducts, [...prev, ...d.products])));
                 fetch("/api/reviews").then((r) => r.json()).then((d) => d.success && setReviews(d.reviews));
                 fetch("/api/inquiries").then((r) => r.json()).then((d) => d.success && setInquiries(d.inquiries));
                 fetch("/api/orders").then((r) => r.json()).then((d) => d.success && setOrders(d.orders));
@@ -278,6 +378,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       })
       .catch((e) => console.log("Using local state fallback for products", e));
+
+    fetch("/api/categories")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.categories && data.categories.length > 0) {
+          setCategories((prev) => mergeCategoriesList(initialCategories, [...prev, ...data.categories]));
+        }
+      })
+      .catch((e) => console.log("Using local state fallback for categories", e));
 
     fetch("/api/blogs")
       .then((res) => res.json())
@@ -337,6 +446,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const addProduct = async (newProduct: Product) => {
     const updated = [newProduct, ...products];
     setProducts(updated);
+    try { localStorage.setItem("pulmocare_custom_products", JSON.stringify(updated)); } catch (e) {}
     try {
       await fetch("/api/products", {
         method: "POST",
@@ -351,6 +461,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const updateProduct = async (updatedProduct: Product) => {
     const updated = products.map((p) => (p.id === updatedProduct.id ? updatedProduct : p));
     setProducts(updated);
+    try { localStorage.setItem("pulmocare_custom_products", JSON.stringify(updated)); } catch (e) {}
     try {
       await fetch("/api/products", {
         method: "PUT",
@@ -365,12 +476,57 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const deleteProduct = async (id: string) => {
     const updated = products.filter((p) => p.id !== id);
     setProducts(updated);
+    try { localStorage.setItem("pulmocare_custom_products", JSON.stringify(updated)); } catch (e) {}
     try {
       await fetch(`/api/products?id=${encodeURIComponent(id)}`, {
         method: "DELETE",
       });
     } catch (err) {
       console.error("Error deleting product from MongoDB Atlas", err);
+    }
+  };
+
+  // Categories CRUD Handlers
+  const addCategory = async (newCategory: CategoryItem) => {
+    const updated = [...categories, newCategory];
+    setCategories(updated);
+    try { localStorage.setItem("pulmocare_custom_categories", JSON.stringify(updated)); } catch (e) {}
+    try {
+      await fetch("/api/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newCategory),
+      });
+    } catch (err) {
+      console.error("Error adding category to MongoDB Atlas", err);
+    }
+  };
+
+  const updateCategory = async (updatedCategory: CategoryItem) => {
+    const updated = categories.map((c) => (c.id === updatedCategory.id ? updatedCategory : c));
+    setCategories(updated);
+    try { localStorage.setItem("pulmocare_custom_categories", JSON.stringify(updated)); } catch (e) {}
+    try {
+      await fetch("/api/categories", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedCategory),
+      });
+    } catch (err) {
+      console.error("Error updating category in MongoDB Atlas", err);
+    }
+  };
+
+  const deleteCategory = async (id: string) => {
+    const updated = categories.filter((c) => c.id !== id);
+    setCategories(updated);
+    try { localStorage.setItem("pulmocare_custom_categories", JSON.stringify(updated)); } catch (e) {}
+    try {
+      await fetch(`/api/categories?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+    } catch (err) {
+      console.error("Error deleting category from MongoDB Atlas", err);
     }
   };
 
@@ -558,6 +714,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addProduct,
         updateProduct,
         deleteProduct,
+        categories,
+        addCategory,
+        updateCategory,
+        deleteCategory,
         blogPosts,
         addBlogPost,
         updateBlogPost,
