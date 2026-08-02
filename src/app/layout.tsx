@@ -5,6 +5,8 @@ import { WishlistProvider } from "@/context/WishlistContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { AdminProvider } from "@/context/AdminContext";
 import { ToastContainer } from "@/components/ui/Toast";
+import { CartDrawer } from "@/components/cart/CartDrawer";
+import { WishlistDrawer } from "@/components/wishlist/WishlistDrawer";
 
 export const metadata: Metadata = {
   title: "Pulmo Care — Hospital & Home Healthcare Products",
@@ -25,6 +27,8 @@ export default function RootLayout({
             <CartProvider>
               <WishlistProvider>
                 {children}
+                <CartDrawer />
+                <WishlistDrawer />
                 <ToastContainer />
               </WishlistProvider>
             </CartProvider>

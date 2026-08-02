@@ -18,14 +18,14 @@ interface AdminContextType {
   logout: () => void;
   // Products CRUD State
   products: Product[];
-  addProduct: (product: Product) => void;
-  updateProduct: (product: Product) => void;
-  deleteProduct: (id: string) => void;
+  addProduct: (product: Product) => Promise<void>;
+  updateProduct: (product: Product) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
   // Blog Posts CRUD State
   blogPosts: BlogPost[];
-  addBlogPost: (post: BlogPost) => void;
-  updateBlogPost: (post: BlogPost) => void;
-  deleteBlogPost: (slug: string) => void;
+  addBlogPost: (post: BlogPost) => Promise<void>;
+  updateBlogPost: (post: BlogPost) => Promise<void>;
+  deleteBlogPost: (slug: string) => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -74,19 +74,37 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setIsAdminAuthenticated(true);
         setAdminUser(parsed);
       }
-
-      const savedProducts = localStorage.getItem("pulmocare_admin_products");
-      if (savedProducts) {
-        setProducts(JSON.parse(savedProducts));
-      }
-
-      const savedBlog = localStorage.getItem("pulmocare_admin_blogs");
-      if (savedBlog) {
-        setBlogPosts(JSON.parse(savedBlog));
-      }
     } catch (err) {
-      console.error("Failed to load admin context from localStorage", err);
+      console.error("Failed to load admin auth from localStorage", err);
     }
+
+    // Fetch initial MongoDB Atlas dataset
+    fetch("/api/products")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.products && data.products.length > 0) {
+          setProducts(data.products);
+        } else {
+          // If Atlas is empty, automatically seed Atlas cluster
+          fetch("/api/seed")
+            .then((r) => r.json())
+            .then((seedData) => {
+              if (seedData.success) {
+                fetch("/api/products").then((r) => r.json()).then((d) => d.success && setProducts(d.products));
+              }
+            });
+        }
+      })
+      .catch((e) => console.log("Using local state fallback for products", e));
+
+    fetch("/api/blogs")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.blogs && data.blogs.length > 0) {
+          setBlogPosts(data.blogs);
+        }
+      })
+      .catch((e) => console.log("Using local state fallback for blogs", e));
   }, []);
 
   const login = (email: string, pass: string): boolean => {
@@ -106,42 +124,86 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     localStorage.removeItem("pulmocare_admin_auth");
   };
 
-  // Products CRUD Handlers
-  const addProduct = (newProduct: Product) => {
+  // MongoDB Atlas Products CRUD Handlers
+  const addProduct = async (newProduct: Product) => {
     const updated = [newProduct, ...products];
     setProducts(updated);
-    localStorage.setItem("pulmocare_admin_products", JSON.stringify(updated));
+    try {
+      await fetch("/api/products", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newProduct),
+      });
+    } catch (err) {
+      console.error("Error adding product to MongoDB Atlas", err);
+    }
   };
 
-  const updateProduct = (updatedProduct: Product) => {
+  const updateProduct = async (updatedProduct: Product) => {
     const updated = products.map((p) => (p.id === updatedProduct.id ? updatedProduct : p));
     setProducts(updated);
-    localStorage.setItem("pulmocare_admin_products", JSON.stringify(updated));
+    try {
+      await fetch("/api/products", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedProduct),
+      });
+    } catch (err) {
+      console.error("Error updating product in MongoDB Atlas", err);
+    }
   };
 
-  const deleteProduct = (id: string) => {
+  const deleteProduct = async (id: string) => {
     const updated = products.filter((p) => p.id !== id);
     setProducts(updated);
-    localStorage.setItem("pulmocare_admin_products", JSON.stringify(updated));
+    try {
+      await fetch(`/api/products?id=${encodeURIComponent(id)}`, {
+        method: "DELETE",
+      });
+    } catch (err) {
+      console.error("Error deleting product from MongoDB Atlas", err);
+    }
   };
 
-  // Blog CRUD Handlers
-  const addBlogPost = (newPost: BlogPost) => {
+  // MongoDB Atlas Blog CRUD Handlers
+  const addBlogPost = async (newPost: BlogPost) => {
     const updated = [newPost, ...blogPosts];
     setBlogPosts(updated);
-    localStorage.setItem("pulmocare_admin_blogs", JSON.stringify(updated));
+    try {
+      await fetch("/api/blogs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newPost),
+      });
+    } catch (err) {
+      console.error("Error publishing article to MongoDB Atlas", err);
+    }
   };
 
-  const updateBlogPost = (updatedPost: BlogPost) => {
+  const updateBlogPost = async (updatedPost: BlogPost) => {
     const updated = blogPosts.map((b) => (b.slug === updatedPost.slug ? updatedPost : b));
     setBlogPosts(updated);
-    localStorage.setItem("pulmocare_admin_blogs", JSON.stringify(updated));
+    try {
+      await fetch("/api/blogs", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updatedPost),
+      });
+    } catch (err) {
+      console.error("Error updating article in MongoDB Atlas", err);
+    }
   };
 
-  const deleteBlogPost = (slug: string) => {
+  const deleteBlogPost = async (slug: string) => {
     const updated = blogPosts.filter((b) => b.slug !== slug);
     setBlogPosts(updated);
-    localStorage.setItem("pulmocare_admin_blogs", JSON.stringify(updated));
+    try {
+      await fetch(`/api/blogs?slug=${encodeURIComponent(slug)}`, {
+        method: "DELETE",
+      });
+    } catch (err) {
+      console.error("Error deleting article from MongoDB Atlas", err);
+    }
   };
 
   return (

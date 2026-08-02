@@ -37,6 +37,7 @@ import {
   ChevronDown,
   Filter,
   Check,
+  Menu,
   Phone,
   Mail,
   Sliders,
@@ -63,6 +64,7 @@ export default function AdminDashboardPage() {
   const { addToast } = useToast();
 
   const [activeTab, setActiveTab] = useState<"dashboard" | "products" | "blogs" | "tracking" | "messages">("dashboard");
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Search & Filter States
   const [globalSearch, setGlobalSearch] = useState("");
@@ -239,7 +241,57 @@ export default function AdminDashboardPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#F4F7FA] text-[#1E293B] font-inter flex">
+    <div className="min-h-screen bg-[#F4F7FA] text-[#1E293B] font-inter flex relative">
+      {/* MOBILE SIDEBAR DRAWER OVERLAY */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-50 flex md:hidden">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-xs" onClick={() => setMobileSidebarOpen(false)} />
+          <aside className="w-64 bg-white border-r border-[#E2E8F0] p-6 flex flex-col justify-between relative z-10 h-full overflow-y-auto shadow-2xl">
+            <div className="space-y-6">
+              <div className="flex items-center justify-between pb-2 border-b border-[#F1F5F9]">
+                <Link href="/" className="flex items-center gap-2">
+                  <img src="/images/pulmocare/pulmocare_logo.png" alt="Pulmo Care Logo" className="h-7 w-auto object-contain" />
+                </Link>
+                <button onClick={() => setMobileSidebarOpen(false)} className="p-1 rounded-lg hover:bg-[#F1F5F9] text-[#64748B]">
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="space-y-1">
+                <span className="text-[11px] font-bold text-[#94A3B8] uppercase tracking-wider block px-3 mb-2">Main Menu</span>
+                <button
+                  onClick={() => { setActiveTab("dashboard"); setMobileSidebarOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "dashboard" ? "bg-[#EBF5FF] text-[#0066FF]" : "text-[#64748B]"}`}
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  <span>Dashboard</span>
+                </button>
+                <button
+                  onClick={() => { setActiveTab("products"); setMobileSidebarOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "products" ? "bg-[#EBF5FF] text-[#0066FF]" : "text-[#64748B]"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Package className="w-4 h-4" />
+                    <span>Products Catalog</span>
+                  </div>
+                  <span className="bg-[#F1F5F9] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono">{products.length}</span>
+                </button>
+                <button
+                  onClick={() => { setActiveTab("blogs"); setMobileSidebarOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "blogs" ? "bg-[#EBF5FF] text-[#0066FF]" : "text-[#64748B]"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <FileText className="w-4 h-4" />
+                    <span>Clinical Blog</span>
+                  </div>
+                  <span className="bg-[#F1F5F9] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono">{blogPosts.length}</span>
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      )}
+
       {/* 1. LEFT SIDEBAR (Matching Reference Design) */}
       <aside className="w-64 bg-white border-r border-[#E2E8F0] p-6 flex flex-col justify-between shrink-0 hidden md:flex sticky top-0 h-screen overflow-y-auto">
         <div className="space-y-6">
@@ -372,17 +424,27 @@ export default function AdminDashboardPage() {
       {/* 2. MAIN CONTENT WRAPPER */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* TOP UTILITY HEADER BAR (Matching Reference Image) */}
-        <header className="bg-white border-b border-[#E2E8F0] px-6 py-4 flex items-center justify-between gap-4 sticky top-0 z-30">
-          {/* Search Deliveries Bar */}
-          <div className="relative max-w-sm w-full">
-            <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search deliveries, devices, or articles..."
-              value={globalSearch}
-              onChange={(e) => setGlobalSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#1E293B] focus:outline-none focus:border-[#0066FF] focus:bg-white transition-all font-inter"
-            />
+        <header className="bg-white border-b border-[#E2E8F0] px-4 md:px-6 py-4 flex items-center justify-between gap-4 sticky top-0 z-30">
+          <div className="flex items-center gap-3 w-full max-w-sm">
+            {/* Mobile Sidebar Hamburger Toggle */}
+            <button
+              onClick={() => setMobileSidebarOpen(!mobileSidebarOpen)}
+              className="md:hidden p-2 rounded-xl border border-[#E2E8F0] bg-white text-[#1E293B]"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            {/* Search Deliveries Bar */}
+            <div className="relative w-full">
+              <Search className="w-4 h-4 text-[#94A3B8] absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search deliveries, devices..."
+                value={globalSearch}
+                onChange={(e) => setGlobalSearch(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] text-xs text-[#1E293B] focus:outline-none focus:border-[#0066FF] focus:bg-white transition-all font-inter"
+              />
+            </div>
           </div>
 
           {/* Right Header Actions */}

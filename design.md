@@ -12,12 +12,10 @@ Design documentation for the **Pulmo Care** hospital and home healthcare equipme
 - **`MOTION_INTENSITY: 7`** (Physics-based infinite marquee carousel, smooth tab filters, spring micro-interactions)
 - **`VISUAL_DENSITY: 4`** (Spacious clinical hardware presentation)
 
-1. **Admin Control Suite Redesign (`src/app/admin/page.tsx`):**
-   - Redesigned Admin Panel matching reference SaaS dashboard UI layout:
-     - Fixed left sidebar with active soft-blue highlight pills (`bg-[#EBF5FF] text-[#0066FF]`), count badges, and 3D gradient Pro upgrade banner.
-     - Top search bar and Admin Profile header strip with bell notification badges.
-     - 3-column metric & chart grid: 3-stack stat metrics (`On Delivery`, `Success Deliveries`, `Revenue`), interactive delivery analytics bar chart with active September popover tooltip, live tracker map widget, and activity data table with color-coded status badges.
-     - Full CRUD management tabs for Products Catalog and Clinical Blog.
+1. **MongoDB Atlas Live Database Integration:**
+   - Connected project to MongoDB Atlas Cluster (`cluster0.qmqgldx.mongodb.net/pulmocare`).
+   - Built Mongoose models (`Product.ts`, `BlogPost.ts`, `Inquiry.ts`) and API CRUD endpoints (`/api/products`, `/api/blogs`, `/api/seed`).
+   - Integrated live database synchronization with Admin Control Suite (`AdminContext.tsx`).
 
 ---
 
@@ -72,7 +70,7 @@ Design documentation for the **Pulmo Care** hospital and home healthcare equipme
 - **v5.3 (Hero Banner & Description Sequence Alignment):** Placed sleeping man pill banner in top Hero right column.
 - **v5.4 (Full-Width Pill Capsule Banner Above Content Realignment):** Realigned layout sequence.
 - **v5.5 (Vendor Chunk Transpilation Fix):** Added `transpilePackages: ["motion", "framer-motion"]` to `next.config.ts`.
-- **v5.6 (Strict Accordion Aspect-Ratio Container Alignment):** Enforced a square white card container (`aspect-square max-w-[380px]`) for accordion image previews.
+- **v5.6 (Strict Accordion Aspect-Ratio Container Alignment):** Enforced a square white card container (`aspect-[#380px]`) for accordion image previews.
 - **v5.7 (Required App Router Error Components Addition):** Built `src/app/error.tsx` & `src/app/global-error.tsx`.
 - **v5.8 (Header Block Integration Above Description Container):** Placed Title Header block directly above Description container.
 - **v5.9 (Title Header Block Positioned in Left Column Above Description):** Placed Title Header Block directly above `introParagraphText` in the left column.
@@ -100,3 +98,7 @@ Design documentation for the **Pulmo Care** hospital and home healthcare equipme
 - **v21.0 (Section 3 Flagship Banner Redesign & Small Logo Sizing):** Redesigned Section 3 into a dark navy glassmorphic hero stage with glowing radial pedestals, 100% transparent PNG device cutouts, dual CTAs, and set logo sizing to small (`h-7 sm:h-8`).
 - **v22.0 (Full Admin Section & Control Suite Integration):** Built `/admin/login` authentication page with demo credentials button (`admin@pulmocare.in` / `admin123`) and `/admin` Control Suite with full CRUD management for Products and Clinical Blog Posts.
 - **v23.0 (Admin Panel Redesign Matching Reference SaaS Layout):** Transformed Admin Panel into a sleek SaaS dashboard matching the reference image layout, complete with sidebar navigation, 3-stack stat metrics, interactive delivery analytics chart with September tooltip popover, live tracker map widget, activity table with status tags, and Pro plan promo card.
+- **v24.0 (Full Mobile & Desktop Responsiveness Optimization):** Added mobile hamburger menu and slide-over sidebar drawer to Admin Panel (`/admin`), ensured 100% responsive fluid grid scaling across all mobile devices, tablets, and desktop displays.
+- **v25.0 (Mobile UX Fixes for Top Bar, Hamburger Drawer, & Hero Carousel):** Cleaned messy top utility bar on mobile screens, built full mobile hamburger drawer listing all options, and scaled Hero Carousel so text and product images are 100% visible together.
+- **v26.0 (Cart & Wishlist Global Drawer Fix & Badge Alignment):** Integrated `<CartDrawer />` and `<WishlistDrawer />` into `RootLayout`, ensuring full interactive slide-over drawer functionality and pixel-perfect badge positioning.
+- **v27.0 (MongoDB Atlas Cloud Database Connection):** Connected project to MongoDB Atlas cluster (`vaderharsh127_db_user`), created Mongoose schemas (`Product`, `BlogPost`), API endpoints, seeder handler (`/api/seed`), and live MongoDB sync in `AdminContext.tsx`.

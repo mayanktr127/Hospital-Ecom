@@ -4,13 +4,18 @@ Comprehensive technical and design documentation for the **Pulmo Care** hospital
 
 ---
 
-## 1. Admin Control Suite SaaS Dashboard Redesign Specs
+## 1. MongoDB Atlas Cluster Technical Specs
 
-- **Component:** `src/app/admin/page.tsx`
-- **Reference Layout Mapped:**
-  - Sidebar: Soft blue highlight pill (`bg-[#EBF5FF] text-[#0066FF]`), badges, 3D Pro upgrade banner.
-  - Metrics Grid: 3-stack stat cards, Interactive delivery analytics bar chart with active September popover tooltip, Live tracker map widget, Activity data table with color status badges.
-  - CRUD Controls: Products Catalog CRUD & Clinical Blog CRUD integrated seamlessly into the navigation tabs.
+- **Connection URI:** `MONGODB_URI` stored in `.env.local`
+- **Atlas Cluster Host:** `cluster0.qmqgldx.mongodb.net/pulmocare`
+- **Database Utilities:** `src/lib/mongodb.ts` (cached singleton connection for Next.js API routes)
+- **Mongoose Models:**
+  - `Product` (`src/models/Product.ts`)
+  - `BlogPost` (`src/models/BlogPost.ts`)
+- **API Endpoints:**
+  - `GET/POST/PUT/DELETE /api/products`
+  - `GET/POST/PUT/DELETE /api/blogs`
+  - `GET /api/seed` (Seeds Pulmo Care dataset into MongoDB Atlas)
 
 ---
 

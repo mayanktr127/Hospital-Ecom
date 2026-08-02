@@ -81,7 +81,6 @@ export const ShowcaseSlider: React.FC = () => {
     setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
   };
 
-  // Auto-advance slide every 5 seconds (5000ms)
   useEffect(() => {
     if (!isPlaying) return;
     const interval = setInterval(() => {
@@ -94,8 +93,8 @@ export const ShowcaseSlider: React.FC = () => {
 
   return (
     <section className="wrap max-w-[1240px] mx-auto px-4 md:px-6 pt-3">
-      {/* Outer Hero Container matching Lovable.app reference screenshot */}
-      <div className="w-full rounded-[36px] md:rounded-[48px] overflow-hidden relative shadow-[0_20px_50px_rgba(0,40,80,0.25)] min-h-[460px] md:min-h-[540px] flex items-center border border-[#003865]/10">
+      {/* Outer Hero Container */}
+      <div className="w-full rounded-[28px] sm:rounded-[36px] md:rounded-[48px] overflow-hidden relative shadow-2xl min-h-[520px] sm:min-h-[480px] md:min-h-[540px] flex items-center border border-[#003865]/10">
         <AnimatePresence mode="wait">
           <motion.div
             key={active.id}
@@ -103,46 +102,45 @@ export const ShowcaseSlider: React.FC = () => {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 1.02 }}
             transition={{ duration: 0.45, ease: [0.22, 0.61, 0.36, 1] }}
-            className={`absolute inset-0 bg-gradient-to-r ${active.bgGradient} p-8 sm:p-14 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-8`}
+            className={`absolute inset-0 bg-gradient-to-r ${active.bgGradient} p-6 sm:p-12 lg:p-16 flex flex-col lg:flex-row items-center justify-between gap-6 pb-20 sm:pb-16`}
           >
-            {/* Tech Grid Overlay Texture matching reference screenshot */}
+            {/* Tech Grid Overlay Texture */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0f_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0f_1px,transparent_1px)] bg-[size:28px_28px] opacity-40 pointer-events-none" />
 
             {/* Left Content Column */}
-            <div className="max-w-xl z-10 text-left">
-              {/* Category Pill Badge with animated pulse dot */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-xs font-archivo font-bold uppercase tracking-wider mb-6 shadow-sm">
+            <div className="max-w-xl z-10 text-left w-full">
+              {/* Category Pill Badge */}
+              <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-4 sm:py-1.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 text-white text-[10px] sm:text-xs font-archivo font-bold uppercase tracking-wider mb-3 sm:mb-6 shadow-xs">
                 <span className="w-2 h-2 rounded-full bg-cyan-300 animate-pulse" />
                 <span>{active.badge}</span>
               </div>
 
-              {/* Display Headline matching Lovable screenshot typography */}
-              <h1 className="font-archivo font-extrabold text-5xl sm:text-6xl lg:text-7xl text-white tracking-tight leading-[1.04] mb-5 drop-shadow-sm">
+              {/* Display Headline */}
+              <h1 className="font-archivo font-extrabold text-3xl sm:text-5xl lg:text-7xl text-white tracking-tight leading-[1.08] mb-3 sm:mb-5 drop-shadow-xs">
                 {active.title}
               </h1>
 
               {/* Subtitle text */}
-              <p className="text-white/90 text-lg sm:text-xl font-inter font-normal leading-relaxed max-w-xl mb-9">
+              <p className="text-white/90 text-xs sm:text-lg lg:text-xl font-inter font-normal leading-relaxed max-w-xl mb-5 sm:mb-8 line-clamp-2 sm:line-clamp-none">
                 {active.subtitle}
               </p>
 
               {/* Primary White Pill CTA Button */}
               <Link
                 href={active.ctaAction}
-                className="inline-flex items-center gap-3 bg-white text-[#003865] hover:bg-white/95 px-8 py-4 rounded-full font-archivo font-bold text-sm sm:text-base shadow-xl hover:shadow-2xl hover:scale-105 active:scale-95 transition-all group"
+                className="inline-flex items-center gap-2.5 bg-white text-[#003865] hover:bg-white/95 px-6 py-3 sm:px-8 sm:py-4 rounded-full font-archivo font-bold text-xs sm:text-base shadow-xl transition-all group"
               >
                 <span>{active.ctaText}</span>
-                <ArrowRight className="w-5 h-5 text-[#003865] group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#003865] group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
 
-            {/* Right Column: Frosted Product Device Container Card */}
-            <div className="w-full lg:w-[460px] aspect-square rounded-[32px] sm:rounded-[40px] bg-white/15 backdrop-blur-md border border-white/25 p-6 sm:p-10 flex items-center justify-center relative shadow-[0_24px_60px_-15px_rgba(0,0,0,0.35)] group overflow-hidden z-10 shrink-0">
-              <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/10 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+            {/* Right Column: Product Device Image Container (Visible on Mobile & Desktop) */}
+            <div className="w-full max-w-[260px] sm:max-w-[340px] lg:w-[440px] aspect-square rounded-[24px] sm:rounded-[36px] bg-white/15 backdrop-blur-md border border-white/25 p-4 sm:p-8 flex items-center justify-center relative shadow-2xl overflow-hidden z-10 shrink-0 max-h-48 sm:max-h-72 lg:max-h-full">
               <img
                 src={active.image}
                 alt={active.title}
-                className="w-full h-full object-contain drop-shadow-[0_20px_35px_rgba(0,0,0,0.4)] mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
+                className="w-full h-full object-contain drop-shadow-[0_15px_30px_rgba(0,0,0,0.4)] mix-blend-multiply transition-transform duration-500"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = "/images/products/microscope.png";
                 }}
@@ -151,12 +149,12 @@ export const ShowcaseSlider: React.FC = () => {
           </motion.div>
         </AnimatePresence>
 
-        {/* Bottom Floating Control Bar matching reference screenshot */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-3">
-          {/* Slide Progress Pill with Pause/Play */}
-          <div className="flex items-center gap-3 px-5 py-2.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 shadow-lg text-white">
-            <span className="font-mono text-xs font-bold tracking-wider">{currentSlide + 1} / {slides.length}</span>
-            <div className="w-12 h-1.5 bg-white/25 rounded-full overflow-hidden">
+        {/* Bottom Control Bar */}
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2.5">
+          {/* Slide Progress Pill */}
+          <div className="flex items-center gap-2.5 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full bg-white/15 backdrop-blur-md border border-white/20 shadow-lg text-white">
+            <span className="font-mono text-[10px] sm:text-xs font-bold tracking-wider">{currentSlide + 1} / {slides.length}</span>
+            <div className="w-8 sm:w-12 h-1.5 bg-white/25 rounded-full overflow-hidden">
               <div
                 className="h-full bg-white transition-all duration-300 rounded-full"
                 style={{ width: `${((currentSlide + 1) / slides.length) * 100}%` }}
@@ -164,30 +162,29 @@ export const ShowcaseSlider: React.FC = () => {
             </div>
             <button
               onClick={() => setIsPlaying(!isPlaying)}
-              className="text-white hover:text-cyan-300 transition-colors p-0.5 cursor-pointer ml-1"
-              title={isPlaying ? "Pause auto-play" : "Play auto-play"}
+              className="text-white hover:text-cyan-300 transition-colors p-0.5 cursor-pointer"
               aria-label="Toggle carousel auto-play"
             >
               {isPlaying ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
             </button>
           </div>
 
-          {/* Previous & Next Arrow Circular Buttons */}
-          <div className="flex items-center gap-2">
+          {/* Navigation Arrows */}
+          <div className="flex items-center gap-1.5">
             <button
               onClick={prevSlide}
-              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-md border border-white/20 grid place-items-center text-white transition-all shadow-md active:scale-95 cursor-pointer"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-md border border-white/20 grid place-items-center text-white transition-all shadow-md cursor-pointer"
               aria-label="Previous slide"
             >
-              <ChevronLeft className="w-5 h-5" />
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
             <button
               onClick={nextSlide}
-              className="w-10 h-10 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-md border border-white/20 grid place-items-center text-white transition-all shadow-md active:scale-95 cursor-pointer"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/15 hover:bg-white/30 backdrop-blur-md border border-white/20 grid place-items-center text-white transition-all shadow-md cursor-pointer"
               aria-label="Next slide"
             >
-              <ChevronRight className="w-5 h-5" />
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>
