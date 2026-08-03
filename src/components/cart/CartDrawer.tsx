@@ -59,7 +59,7 @@ export const CartDrawer: React.FC = () => {
                 <div className="flex items-center gap-2 text-xs font-inter text-[#0a1f3c] font-medium mb-1.5">
                   <Truck className="w-4 h-4 shrink-0 text-[#2a6ecb]" />
                   {remainingForFreeShipping > 0 ? (
-                    <span>Add <strong>${remainingForFreeShipping.toFixed(2)}</strong> more for <strong>FREE Priority Express Shipping</strong></span>
+                    <span>Add <strong>₹{remainingForFreeShipping.toLocaleString("en-IN")}.00</strong> more for <strong>FREE Priority Express Shipping</strong></span>
                   ) : (
                     <span className="font-bold text-[#1fb37a]">You unlocked FREE Express Priority Shipping! 🚚</span>
                   )}
@@ -105,7 +105,7 @@ export const CartDrawer: React.FC = () => {
                           {product.name}
                         </h4>
                         <span className="font-archivo font-bold text-sm text-[#0a1f3c] block mt-0.5">
-                          ${(product.price * quantity).toFixed(2)}
+                          ₹{(product.price * quantity).toLocaleString("en-IN")}.00
                         </span>
 
                         <div className="flex items-center gap-2 mt-2">

@@ -85,7 +85,7 @@ export const WishlistDrawer: React.FC = () => {
                           {product.name}
                         </h4>
                         <span className="font-archivo font-bold text-sm text-[#0a1f3c] block mt-0.5">
-                          ${product.price.toFixed(2)}
+                          ₹{product.price.toLocaleString("en-IN")}.00
                         </span>
 
                         <div className="flex items-center gap-2 mt-2">

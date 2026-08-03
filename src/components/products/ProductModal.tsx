@@ -93,11 +93,11 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
 
                 <div className="flex items-baseline gap-3 mt-3">
                   <span className="font-archivo font-bold text-2xl text-[#0a1f3c]">
-                    ${product.price.toFixed(2)}
+                    ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                   {product.originalPrice && (
                     <s className="text-sm font-inter text-[#64748b] font-medium">
-                      ${product.originalPrice.toFixed(2)}
+                      ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </s>
                   )}
                   <span className="ml-auto text-xs font-semibold text-[#2a6ecb] bg-[#dcebfb] px-2.5 py-1 rounded-full">
@@ -156,7 +156,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                     className="btn btn-primary flex-1 active:scale-[0.98]"
                   >
                     <ShoppingBag className="w-4 h-4" />
-                    <span>Add to Cart — ${(product.price * quantity).toFixed(2)}</span>
+                    <span>Add to Cart — ₹{(product.price * quantity).toLocaleString("en-IN")}.00</span>
                   </button>
 
                   <button

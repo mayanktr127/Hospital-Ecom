@@ -85,10 +85,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
       {/* Rating & Price */}
       <div className="price flex items-center justify-between pt-1">
         <div className="flex items-baseline gap-2">
-          <span className="now">${product.price.toFixed(2)}</span>
+          <span className="now">
+            ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </span>
           {product.originalPrice && (
             <s className="was">
-              ${product.originalPrice.toFixed(2)}
+              ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </s>
           )}
         </div>

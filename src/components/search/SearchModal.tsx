@@ -130,7 +130,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                             {product.name}
                           </h4>
                           <span className="font-archivo font-bold text-sm text-[#0a1f3c] mt-0.5 block">
-                            ${product.price.toFixed(2)}
+                            ₹{product.price.toLocaleString("en-IN")}.00
                           </span>
                         </div>
                       </div>
