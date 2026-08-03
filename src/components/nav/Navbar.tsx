@@ -218,7 +218,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
       ref={navContainerRef}
       onMouseLeave={() => setActiveDropdown(null)}
     >
-      {/* Top Utility Bar: Contact & Global Portal */}
+      {/* Top Utility Bar: Contact & Admin Portal */}
       <div className="wrap max-w-[1240px] mx-auto px-4 md:px-6 py-1.5 flex items-center justify-between text-xs text-[#0a1f3c] font-inter font-medium border-b border-[#e9edf4]">
         <div className="flex items-center gap-4 text-[#64748b] w-full sm:w-auto justify-center sm:justify-start">
           <span>📞 Hotline: <a href="tel:+919343444428" className="font-bold text-[#0a1f3c] hover:text-[#2a6ecb]">+91 9343444428</a></span>
@@ -226,69 +226,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
           <span className="hidden sm:inline">✉️ <a href="mailto:enquiry@pulmocare.in" className="font-bold text-[#0a1f3c] hover:text-[#2a6ecb]">enquiry@pulmocare.in</a></span>
         </div>
 
-        <div className="hidden sm:flex items-center gap-6">
-          {/* Admin Portal Link */}
+        <div className="hidden sm:flex items-center gap-4">
+          {/* Admin Portal Link on Top Right */}
           <Link
             href="/admin"
-            className="flex items-center gap-1 text-[#2a6ecb] hover:text-[#0a1f3c] font-bold transition-colors"
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#dcebfb] text-[#0a1f3c] hover:bg-[#2a6ecb] hover:text-white font-bold transition-all border border-[#2a6ecb]/20"
           >
-            <ShieldCheck className="w-3.5 h-3.5" />
+            <ShieldCheck className="w-3.5 h-3.5 text-[#2a6ecb]" />
             <span>Admin Portal</span>
           </Link>
-
-          {/* Safety Information Link */}
-          <button
-            onClick={() => setSafetyModalOpen(true)}
-            className="flex items-center gap-1.5 hover:text-[#2a6ecb] transition-colors cursor-pointer"
-          >
-            <ShieldAlert className="w-3.5 h-3.5 text-[#2a6ecb]" />
-            <span>Safety information</span>
-          </button>
-
-          {/* Global Portal & Language Switcher Dropdown */}
-          <div className="relative" ref={globalRef}>
-            <button
-              onClick={() => setGlobalWebsiteOpen(!globalWebsiteOpen)}
-              className="flex items-center gap-1.5 hover:text-[#2a6ecb] transition-colors cursor-pointer"
-            >
-              <Globe className="w-3.5 h-3.5 text-[#2a6ecb]" />
-              <span>{selectedLanguage}</span>
-              <ChevronDown className="w-3 h-3 text-[#64748b]" />
-            </button>
-
-            <AnimatePresence>
-              {globalWebsiteOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 6 }}
-                  className="absolute right-0 top-full mt-2 w-56 bg-white border border-[#e9edf4] rounded-2xl shadow-xl py-2 z-50 text-xs font-inter"
-                >
-                  <div className="px-3.5 py-1.5 font-bold text-[#0a1f3c] border-b border-[#e9edf4]">
-                    Select Region &amp; Language
-                  </div>
-
-                  {languages.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => {
-                        setSelectedLanguage(lang.label);
-                        setGlobalWebsiteOpen(false);
-                        addToast("Region Updated", `Switched to ${lang.label}`);
-                      }}
-                      className="w-full flex items-center justify-between px-3.5 py-2 hover:bg-[#f6f4fb] text-left text-[#0a1f3c] transition-colors cursor-pointer"
-                    >
-                      <div>
-                        <span className="block font-medium">{lang.label}</span>
-                        <span className="text-[10px] text-[#64748b]">{lang.region}</span>
-                      </div>
-                      {selectedLanguage === lang.label && <Check className="w-3.5 h-3.5 text-[#2a6ecb]" />}
-                    </button>
-                  ))}
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
         </div>
       </div>
 
@@ -356,6 +302,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
 
         {/* Right Action Icons Cluster */}
         <div className="flex items-center gap-2">
+          {/* Admin Portal Direct Button on Right Side */}
+          <Link
+            href="/admin"
+            className="hidden sm:inline-flex items-center gap-1.5 h-10 px-4 rounded-full border border-[#2a6ecb]/30 bg-[#dcebfb] text-xs font-archivo font-bold text-[#0a1f3c] hover:bg-[#0a1f3c] hover:text-white shadow-[0_2px_8px_rgba(24,42,65,0.05)] transition-all cursor-pointer shrink-0"
+          >
+            <ShieldCheck className="w-4 h-4 text-[#2a6ecb]" />
+            <span>Admin Portal</span>
+          </Link>
+
           {onOpenSearch && (
             <button
               onClick={onOpenSearch}
