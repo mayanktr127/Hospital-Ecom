@@ -7,22 +7,25 @@ import { ShieldCheck, Lock, Eye, CheckCircle2, Mail, FileText } from "lucide-rea
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink">
+    <div className="min-h-[100dvh] flex flex-col bg-[#F8FAFC] text-[#0A192F] font-inter">
       <Navbar />
 
       <main className="wrap max-w-[1040px] w-full mx-auto px-4 md:px-6 flex-1 py-10">
         {/* Page Hero Header */}
-        <div className="rounded-[28px] bg-[#0a1f3c] text-white p-8 md:p-12 mb-10 shadow-xl relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-80 h-80 bg-[#2a6ecb]/20 rounded-full blur-3xl pointer-events-none" />
-          <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 text-white text-xs font-semibold font-archivo mb-3 border border-white/20">
+        <div className="pastel-canvas rounded-[28px] text-[#182a41] p-8 md:p-12 mb-10 border border-white/80 shadow-[0_2px_8px_rgba(24,42,65,0.05)] relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-80 h-80 bg-[#e9e6fb] rounded-full blur-3xl pointer-events-none" />
+          
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md text-xs font-bold font-inter mb-3 border border-white text-[#2a6ecb]">
             <ShieldCheck className="w-3.5 h-3.5 text-[#2a6ecb]" />
-            GDPR Compliance Declaration (EU 2016/679)
+            Data Protection &amp; Patient Privacy Declaration
           </span>
-          <h1 className="font-archivo font-semibold text-4xl md:text-5xl text-white mb-3">
+
+          <h1 className="font-archivo font-medium text-3xl md:text-4xl text-[#0a1f3c] mb-3">
             Privacy Policy &amp; Data Protection
           </h1>
-          <p className="text-sm md:text-base font-inter text-[#182a41] max-w-2xl leading-relaxed">
-            How Pulmo Care SE &amp; Co. KG processes, stores, and protects patient and healthcare provider personal data in compliance with European GDPR directives.
+
+          <p className="text-sm md:text-base font-inter text-[#64748b] max-w-2xl leading-relaxed">
+            How Pulmo Care India collects, processes, stores, and protects patient data, physician inquiries, and device telemetry under Indian Digital Personal Data Protection standards.
           </p>
         </div>
 
@@ -39,12 +42,12 @@ export default function PrivacyPolicyPage() {
             
             <div className="text-xs md:text-sm text-[#64748b] leading-relaxed space-y-3">
               <p>
-                The entity responsible for processing personal data on this website pursuant to Art. 4 No. 7 GDPR is:
+                The entity responsible for data protection and medical device privacy compliance on this website is:
               </p>
               <div className="p-4 rounded-2xl bg-[#f6f4fb] border border-[#e9edf4] font-mono text-[#0a1f3c]">
-                <p className="font-bold font-sans text-sm">Pulmo Care SE &amp; Co. KG</p>
+                <p className="font-bold font-sans text-sm">Pulmo Care</p>
                 <p>#85, 20th Main Rd, 1st N Block, Rajajinagar, Bengaluru, Karnataka 560010, India</p>
-                <p>Data Protection Officer: <span className="underline">datenschutz@loewensteinmedical.de</span></p>
+                <p>Data Privacy Officer Email: <span className="underline">enquiry@pulmocare.in</span></p>
               </div>
             </div>
           </div>
@@ -54,36 +57,32 @@ export default function PrivacyPolicyPage() {
             <h2 className="font-archivo font-bold text-xl text-[#0a1f3c]">Principles of Data Processing</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs text-[#64748b]">
               <div className="p-4 rounded-2xl bg-[#f6f4fb] border border-[#e9edf4]">
-                <span className="font-bold text-[#0a1f3c] block mb-1">Server Log Files (Art. 6(1)(f) GDPR):</span>
-                <p>IP addresses, browser type, operating system, timestamp, and requested download filenames are automatically logged to ensure server integrity and DDoS protection.</p>
+                <span className="font-bold text-[#0a1f3c] block mb-1">Doctor &amp; Hospital Demo Inquiries:</span>
+                <p>Forms submitted for equipment demonstrations store physician name, hospital details, contact phone, and requested device models solely for clinical demo coordination.</p>
               </div>
 
               <div className="p-4 rounded-2xl bg-[#f6f4fb] border border-[#e9edf4]">
-                <span className="font-bold text-[#0a1f3c] block mb-1">Document Request Forms (Art. 6(1)(b) GDPR):</span>
-                <p>Form submissions for manual inquiries or custom IFUs store name, email, institution, and device model exclusively to fulfill regulatory fulfillment requirements.</p>
+                <span className="font-bold text-[#0a1f3c] block mb-1">Customer E-Commerce &amp; Order Fulfillment:</span>
+                <p>Order transactions store delivery addresses and phone numbers to fulfill delivery of CPAP masks, oxygen concentrators, and ventilator accessories.</p>
               </div>
             </div>
           </div>
 
           {/* Section 3: User Rights */}
           <div className="bg-white border border-[#e9edf4] rounded-[28px] p-6 md:p-8 shadow-sm space-y-4">
-            <h2 className="font-archivo font-bold text-xl text-[#0a1f3c]">Your Rights Under GDPR</h2>
+            <h2 className="font-archivo font-bold text-xl text-[#0a1f3c]">Your Privacy Rights</h2>
             <div className="space-y-3 text-xs md:text-sm text-[#64748b] leading-relaxed">
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#1fb37a] shrink-0 mt-0.5" />
-                <span><strong>Right of Access (Art. 15 GDPR):</strong> Right to obtain confirmation as to whether personal data concerning you is processed.</span>
+                <span><strong>Right of Information:</strong> Right to know what personal or clinical data is collected during order processing.</span>
               </div>
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#1fb37a] shrink-0 mt-0.5" />
-                <span><strong>Right to Rectification (Art. 16 GDPR):</strong> Right to request completion or correction of inaccurate personal data.</span>
+                <span><strong>Right to Correction:</strong> Right to request correction or updating of contact details or delivery addresses.</span>
               </div>
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-[#1fb37a] shrink-0 mt-0.5" />
-                <span><strong>Right to Erasure (Art. 17 GDPR):</strong> Right to request deletion of personal data (&quot;Right to be forgotten&quot;).</span>
-              </div>
-              <div className="flex items-start gap-2">
-                <CheckCircle2 className="w-4 h-4 text-[#1fb37a] shrink-0 mt-0.5" />
-                <span><strong>Right to Data Portability (Art. 20 GDPR):</strong> Right to receive personal data in a structured, machine-readable format.</span>
+                <span><strong>Right to Deletion:</strong> Right to request deletion of personal information upon completion of equipment warranty periods.</span>
               </div>
             </div>
           </div>

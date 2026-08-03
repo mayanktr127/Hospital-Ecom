@@ -65,62 +65,62 @@ export const Footer: React.FC = () => {
             {/* Official Social Media Links */}
             <div className="flex items-center gap-3">
               <a
-                href="https://www.youtube.com/@LoewensteinMedicalGlobal"
+                href="https://pulmocare.in"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
-                aria-label="Official Löwenstein Medical YouTube Channel"
+                aria-label="Official Pulmo Care YouTube Channel"
               >
                 <Youtube className="w-4 h-4" />
               </a>
               <a
-                href="https://www.facebook.com/loewensteinmedical/"
+                href="https://pulmocare.in"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
-                aria-label="Official Löwenstein Medical Facebook Page"
+                aria-label="Official Pulmo Care Facebook Page"
               >
                 <Facebook className="w-4 h-4" />
               </a>
               <a
-                href="https://www.instagram.com/loewensteinmedical?igsh=MW9kY3luZnFidzdqYw%3D%3D&utm_source=qr"
+                href="https://pulmocare.in"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
-                aria-label="Official Löwenstein Medical Instagram Profile"
+                aria-label="Official Pulmo Care Instagram Profile"
               >
                 <Instagram className="w-4 h-4" />
               </a>
               <a
-                href="https://www.linkedin.com/company/loewensteinmedical/"
+                href="https://pulmocare.in"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
-                aria-label="Official Löwenstein Medical LinkedIn Company Page"
+                aria-label="Official Pulmo Care LinkedIn Company Page"
               >
                 <Linkedin className="w-4 h-4" />
               </a>
             </div>
           </div>
 
-          {/* Column 2: Emergency numbers & Remote Support */}
+          {/* Column 2: Pulmo Care Support & Helplines */}
           <div>
-            <h3 className="font-archivo font-bold text-2xl text-white mb-4">Emergency numbers</h3>
+            <h3 className="font-archivo font-bold text-2xl text-white mb-4">Support &amp; Helplines</h3>
 
             <div className="space-y-4 text-xs md:text-sm text-white/90 mb-6">
               <div>
-                <span className="font-bold text-white block">Homecare</span>
-                <span className="text-white/80">+49 800 10021-20</span>
+                <span className="font-bold text-white block">Helpline &amp; WhatsApp</span>
+                <span className="text-[#7fb0ee] font-semibold">+91 93434 44428</span>
               </div>
 
               <div>
-                <span className="font-bold text-white block">Hospital</span>
-                <span className="text-white/80">+49 800 960020-5</span>
+                <span className="font-bold text-white block">Homecare &amp; Sleep Therapy</span>
+                <span className="text-white/80">+91 93434 44428</span>
               </div>
 
               <div>
-                <span className="font-bold text-white block">Diagnostics</span>
-                <span className="text-white/80">+49 800 960020-4</span>
+                <span className="font-bold text-white block">Hospital &amp; ICU Equipment</span>
+                <span className="text-white/80">enquiry@pulmocare.in</span>
               </div>
             </div>
 
@@ -181,7 +181,7 @@ export const Footer: React.FC = () => {
             </ul>
 
             <p className="text-xs text-white/70 leading-relaxed max-w-xs font-inter">
-              Please note that the product range may vary from country to country.
+              Please note that the product range may vary across regions in India.
             </p>
           </div>
         </div>

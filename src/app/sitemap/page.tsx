@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
-import { Map, Layers, FileText, ShoppingBag, ShieldCheck, Download, ChevronRight } from "lucide-react";
+import { Map, Layers, FileText, ShoppingBag, ShieldCheck, Stethoscope, ChevronRight } from "lucide-react";
 
 export default function SitemapPage() {
   const sections = [
@@ -16,53 +16,58 @@ export default function SitemapPage() {
         { label: "5-Slide Product Showcase Slider", href: "/#hero" },
         { label: "Featured Medical Devices", href: "/#shop" },
         { label: "Clinical Benefits & Engineering", href: "/#benefits" },
+        { label: "Company Overview", href: "/company" },
       ],
     },
     {
-      title: "Downloads & Software Center",
-      icon: Download,
+      title: "Doctors & Clinical Professionals",
+      icon: Stethoscope,
       links: [
-        { label: "Official Document Repository (1,495 Files)", href: "/downloads" },
-        { label: "prismaTS & LUISA Software Suites", href: "/downloads#software" },
-        { label: "Custom Document Request Portal", href: "/downloads#request" },
+        { label: "Healthcare Professionals Portal", href: "/professionals" },
+        { label: "Equipment Demo & Trial Request", href: "/professionals/demo-request" },
+        { label: "Clinical Training & Academy", href: "/professionals/academy" },
+        { label: "Clinical Research & Articles", href: "/blog" },
       ],
     },
     {
       title: "Legal & Corporate Compliance",
       icon: ShieldCheck,
       links: [
-        { label: "Legal Notice (Impressum)", href: "/legal-notice" },
-        { label: "Privacy Policy (GDPR)", href: "/privacy-policy" },
+        { label: "Legal Notice", href: "/legal-notice" },
+        { label: "Privacy Policy", href: "/privacy-policy" },
         { label: "General Terms & Conditions (GTCs)", href: "/gtcs" },
         { label: "Sitemap Directory", href: "/sitemap" },
       ],
     },
     {
-      title: "Remote Support & Tools",
+      title: "System Administration",
       icon: FileText,
       links: [
-        { label: "Remote Support Tool Diagnostics (ZIP)", href: "/doc-files/LM_QuickSupport_Win_v15.zip" },
+        { label: "Admin Portal (Products & Category Management)", href: "/admin" },
       ],
     },
   ];
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink">
+    <div className="min-h-[100dvh] flex flex-col bg-[#F8FAFC] text-[#0A192F] font-inter">
       <Navbar />
 
       <main className="wrap max-w-[1040px] w-full mx-auto px-4 md:px-6 flex-1 py-10">
         {/* Page Hero Header */}
-        <div className="rounded-[28px] bg-[#0a1f3c] text-white p-8 md:p-12 mb-10 shadow-xl relative overflow-hidden">
-          <div className="absolute right-0 top-0 w-80 h-80 bg-[#2a6ecb]/20 rounded-full blur-3xl pointer-events-none" />
-          <span className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/15 text-white text-xs font-semibold font-archivo mb-3 border border-white/20">
+        <div className="pastel-canvas rounded-[28px] text-[#182a41] p-8 md:p-12 mb-10 border border-white/80 shadow-[0_2px_8px_rgba(24,42,65,0.05)] relative overflow-hidden">
+          <div className="absolute right-0 top-0 w-80 h-80 bg-[#e9e6fb] rounded-full blur-3xl pointer-events-none" />
+          
+          <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md text-xs font-bold font-inter mb-3 border border-white text-[#2a6ecb]">
             <Map className="w-3.5 h-3.5 text-[#2a6ecb]" />
             Website Index &amp; Structure
           </span>
-          <h1 className="font-archivo font-semibold text-4xl md:text-5xl text-white mb-3">
+
+          <h1 className="font-archivo font-medium text-3xl md:text-4xl text-[#0a1f3c] mb-3">
             Sitemap
           </h1>
-          <p className="text-sm md:text-base font-inter text-[#182a41] max-w-2xl leading-relaxed">
-            Navigate through all pages, clinical categories, downloads, and legal documents of the Löwenstein Medical portal.
+
+          <p className="text-sm md:text-base font-inter text-[#64748b] max-w-2xl leading-relaxed">
+            Navigate through all pages, clinical categories, doctor portal features, and legal disclosures of the Pulmo Care India portal.
           </p>
         </div>
 
