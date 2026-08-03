@@ -453,15 +453,8 @@ export default function CheckoutPage() {
                       className="w-full py-4 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold text-xs uppercase tracking-wider shadow-lg hover:shadow-xl active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                     >
                       <Lock className="w-4 h-4" />
-                      <span>{isSubmitting ? "Processing Order..." : "Place Order & Submit to Backend"}</span>
+                      <span>{isSubmitting ? "Processing Order..." : "Place Order"}</span>
                     </button>
-
-                    <div className="text-center">
-                      <span className="text-[10px] text-[#94A3B8] flex items-center justify-center gap-1">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                        Guaranteed Genuine Löwenstein &amp; Inogen Products
-                      </span>
-                    </div>
                   </>
                 )}
               </div>
