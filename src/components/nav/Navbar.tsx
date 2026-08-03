@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useToast } from "@/context/ToastContext";
+import { useAdmin } from "@/context/AdminContext";
 import { ProductCategory } from "@/types/product";
 import {
   Search,
@@ -49,6 +50,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
   const { totalItems, toggleCart } = useCart();
   const { wishlist, toggleWishlist } = useWishlist();
   const { addToast } = useToast();
+  const { categories: adminCategories, products: adminProducts } = useAdmin();
 
   const [activeDropdown, setActiveDropdown] = useState<DropdownKey>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
@@ -646,9 +648,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                   </div>
 
                   <div className="col-span-5 px-6 border-r border-[#e9edf4]">
-                    <div className="space-y-1 max-h-[360px] overflow-y-auto pr-1">
-                      {(
-                        [
+                    {/* Category Sidebar List with Vertical Scroll Bar */}
+                    <div className="space-y-1 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
+                      {(() => {
+                        const defaultFocusList = [
                           { key: "sleep-therapy", label: "Sleep Apnea Therapy" },
                           { key: "ventilation", label: "Ventilation" },
                           { key: "bilevel-s-st-devices", label: "BiLevel S & ST Devices" },
@@ -657,59 +660,120 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                           { key: "oxygen-therapy", label: "Oxygen Therapy" },
                           { key: "sleep-diagnostics", label: "Sleep Diagnostics" },
                           { key: "masks", label: "Masks" },
-                        ] as { key: ProductFocusKey; label: string }[]
-                      ).map((focus) => {
-                        const isSelected = activeProductFocus === focus.key;
-                        return (
-                          <button
-                            key={focus.key}
-                            onClick={() => {
-                              setActiveProductFocus(focus.key);
-                              setExpandedSubGroup(productSubMenuMap[focus.key].subGroups[0]?.title || null);
-                            }}
-                            className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-left font-medium transition-all cursor-pointer ${
-                              isSelected ? "bg-[#0a1f3c] text-[#FFFFFF] font-semibold shadow-sm" : "hover:bg-[#f6f4fb] hover:text-[#2a6ecb]"
-                            }`}
-                          >
-                            <span>{focus.label}</span>
-                            <ChevronRight className={`w-4 h-4 ${isSelected ? "text-white" : "text-[#0a1f3c]/40"}`} />
-                          </button>
-                        );
-                      })}
+                        ];
+
+                        const dynamicAdminCategories = (adminCategories || [])
+                          .filter((c: any) => !defaultFocusList.some((df) => df.label.toLowerCase() === c.name.toLowerCase() || df.key === c.slug))
+                          .map((c: any) => ({
+                            key: c.slug || c.id || c.name.toLowerCase().replace(/[^a-z0-9]/g, "-"),
+                            label: c.name,
+                          }));
+
+                        const allFocusCategories = [...defaultFocusList, ...dynamicAdminCategories];
+
+                        return allFocusCategories.map((focus) => {
+                          const isSelected = activeProductFocus === focus.key;
+                          return (
+                            <button
+                              key={focus.key}
+                              onClick={() => {
+                                setActiveProductFocus(focus.key as any);
+                                const sub = (productSubMenuMap as any)[focus.key];
+                                if (sub && sub.subGroups[0]) {
+                                  setExpandedSubGroup(sub.subGroups[0].title || null);
+                                }
+                              }}
+                              className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-left font-medium transition-all cursor-pointer ${
+                                isSelected ? "bg-[#0a1f3c] text-[#FFFFFF] font-semibold shadow-sm" : "hover:bg-[#f6f4fb] hover:text-[#2a6ecb]"
+                              }`}
+                            >
+                              <span>{focus.label}</span>
+                              <ChevronRight className={`w-4 h-4 ${isSelected ? "text-white" : "text-[#0a1f3c]/40"}`} />
+                            </button>
+                          );
+                        });
+                      })()}
                     </div>
                   </div>
 
                   <div className="col-span-4 pl-6 space-y-4">
-                    <div className="flex items-center justify-between pb-2 border-b border-[#e9edf4]">
-                      <Link
-                        href={productSubMenuMap[activeProductFocus].overviewLink}
-                        onClick={() => setActiveDropdown(null)}
-                        className="text-xs font-bold text-[#2a6ecb] hover:underline flex items-center gap-1 font-inter"
-                      >
-                        <span>Category Overview</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </Link>
-                    </div>
+                    {productSubMenuMap[activeProductFocus] ? (
+                      <>
+                        <div className="flex items-center justify-between pb-2 border-b border-[#e9edf4]">
+                          <Link
+                            href={productSubMenuMap[activeProductFocus].overviewLink}
+                            onClick={() => setActiveDropdown(null)}
+                            className="text-xs font-bold text-[#2a6ecb] hover:underline flex items-center gap-1 font-inter"
+                          >
+                            <span>Category Overview</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
 
-                    <div className="space-y-2">
-                      {productSubMenuMap[activeProductFocus].subGroups.map((subGroup) => (
-                        <div key={subGroup.title} className="border border-[#0a1f3c]/10 rounded-2xl p-3 bg-white/90">
-                          <span className="font-bold text-[#0a1f3c] block mb-2">{subGroup.title}</span>
-                          <div className="space-y-1 pl-2">
-                            {subGroup.items.map((item) => (
-                              <Link
-                                key={item.name}
-                                href={item.link}
-                                onClick={() => setActiveDropdown(null)}
-                                className="block py-1 hover:text-[#2a6ecb] font-medium"
-                              >
-                                • {item.name}
-                              </Link>
-                            ))}
+                        <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1 custom-scrollbar">
+                          {productSubMenuMap[activeProductFocus].subGroups.map((subGroup) => (
+                            <div key={subGroup.title} className="border border-[#0a1f3c]/10 rounded-2xl p-3 bg-white/90">
+                              <span className="font-bold text-[#0a1f3c] block mb-2">{subGroup.title}</span>
+                              <div className="space-y-1 pl-2">
+                                {subGroup.items.map((item) => (
+                                  <Link
+                                    key={item.name}
+                                    href={item.link}
+                                    onClick={() => setActiveDropdown(null)}
+                                    className="block py-1 hover:text-[#2a6ecb] font-medium"
+                                  >
+                                    • {item.name}
+                                  </Link>
+                                ))}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    ) : (
+                      /* Fallback Submenu for Admin-Created Categories */
+                      <>
+                        <div className="flex items-center justify-between pb-2 border-b border-[#e9edf4]">
+                          <Link
+                            href={`/${activeProductFocus}`}
+                            onClick={() => setActiveDropdown(null)}
+                            className="text-xs font-bold text-[#2a6ecb] hover:underline flex items-center gap-1 font-inter"
+                          >
+                            <span>Category Overview</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                          </Link>
+                        </div>
+
+                        <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1 custom-scrollbar">
+                          <div className="border border-[#0a1f3c]/10 rounded-2xl p-3 bg-white/90">
+                            <span className="font-bold text-[#0a1f3c] block mb-2">
+                              {(adminCategories || []).find((c: any) => c.slug === activeProductFocus || c.id === activeProductFocus)?.name || "Category Products"}
+                            </span>
+                            <div className="space-y-1 pl-2">
+                              {(adminProducts || [])
+                                .filter(
+                                  (p: any) =>
+                                    p.category.toLowerCase().includes(activeProductFocus.toLowerCase()) ||
+                                    activeProductFocus.toLowerCase().includes(p.category.toLowerCase())
+                                )
+                                .map((item: any) => (
+                                  <Link
+                                    key={item.id}
+                                    href={`/product/${item.id}`}
+                                    onClick={() => setActiveDropdown(null)}
+                                    className="block py-1 hover:text-[#2a6ecb] font-medium text-xs text-[#64748b]"
+                                  >
+                                    • {item.name}
+                                  </Link>
+                                ))}
+                              {(adminProducts || []).filter((p: any) => p.category.toLowerCase().includes(activeProductFocus.toLowerCase())).length === 0 && (
+                                <span className="text-xs text-[#64748b] italic">No products added yet</span>
+                              )}
+                            </div>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}

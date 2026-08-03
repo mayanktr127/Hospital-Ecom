@@ -54,24 +54,6 @@ export const CartDrawer: React.FC = () => {
                 </button>
               </div>
 
-              {/* Free shipping banner */}
-              <div className="px-6 py-3 bg-white border-b border-[#e9edf4]">
-                <div className="flex items-center gap-2 text-xs font-inter text-[#0a1f3c] font-medium mb-1.5">
-                  <Truck className="w-4 h-4 shrink-0 text-[#2a6ecb]" />
-                  {remainingForFreeShipping > 0 ? (
-                    <span>Add <strong>₹{remainingForFreeShipping.toLocaleString("en-IN")}.00</strong> more for <strong>FREE Priority Express Shipping</strong></span>
-                  ) : (
-                    <span className="font-bold text-[#1fb37a]">You unlocked FREE Express Priority Shipping! 🚚</span>
-                  )}
-                </div>
-                <div className="w-full bg-[#e9edf4] h-1.5 rounded-full overflow-hidden">
-                  <div
-                    className="bg-[#2a6ecb] h-full transition-all duration-300 rounded-full"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
-              </div>
-
               {/* Items List */}
               <div className="flex-1 overflow-y-auto p-6 space-y-4">
                 {cart.length === 0 ? (
