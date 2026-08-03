@@ -17,12 +17,12 @@ export default function ProfessionalsPage() {
       badge: "Physician Hub",
     },
     {
-      title: "Downloads & Technical Manuals",
-      subtitle: "Access official PDF user manuals, technical brochures & software downloads.",
-      icon: Download,
-      href: "/downloads",
+      title: "Clinical Demos & Equipment Trials",
+      subtitle: "Request on-site hospital demonstrations, patient trial units & clinic evaluations.",
+      icon: Stethoscope,
+      href: "/professionals/demo-request",
       color: "text-[#1fb37a]",
-      badge: "PDF Manuals",
+      badge: "Doctor Trials",
     },
     {
       title: "Clinical Research & Articles",

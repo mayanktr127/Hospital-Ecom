@@ -25,6 +25,7 @@ import {
   Building2,
   Briefcase,
   UserCheck,
+  Stethoscope,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
@@ -599,7 +600,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                   <div className="col-span-4 pr-6 border-r border-[#e9edf4]">
                     <h3 className="font-archivo font-normal text-3xl text-[#64748b] mb-3">Professionals</h3>
                     <p className="text-xs font-inter text-[#64748b] leading-relaxed mb-4">
-                      Clinical resources, technical manuals, software downloads, and training for physicians and medical specialists.
+                      Clinical resources, equipment trial requests, specialist training, and research insights for physicians and medical specialists.
                     </p>
                   </div>
                   <div className="col-span-8 grid grid-cols-3 gap-4">
@@ -613,13 +614,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                       <span className="text-[11px] text-[#64748b]">Physician &amp; specialist hub</span>
                     </Link>
                     <Link
-                      href="/downloads"
+                      href="/professionals/demo-request"
                       onClick={() => setActiveDropdown(null)}
                       className="p-4 rounded-[20px] bg-[#f6f4fb] border border-[#e9edf4] hover:border-[#7fb0ee] hover:bg-[#dcebfb] hover:-translate-y-0.5 transition-all group"
                     >
-                      <FileText className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
-                      <span className="font-bold text-[#0a1f3c] block mb-1">Downloads &amp; Manuals</span>
-                      <span className="text-[11px] text-[#64748b]">Technical PDF documentation</span>
+                      <Stethoscope className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
+                      <span className="font-bold text-[#0a1f3c] block mb-1">Clinical Demos &amp; Trials</span>
+                      <span className="text-[11px] text-[#64748b]">Request hospital &amp; clinic trial units</span>
                     </Link>
                     <Link
                       href="/blog"
