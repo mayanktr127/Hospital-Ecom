@@ -476,7 +476,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                       <Link href="/company/compliance" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#2a6ecb]">Compliance</Link>
                       <Link href="/company/quality-management" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#2a6ecb]">Quality Management</Link>
                       <Link href="/company/sustainability" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#2a6ecb]">Sustainability</Link>
-                      <Link href="/career/job-openings" onClick={() => setMobileMenuOpen(false)} className="block py-1 font-medium hover:text-[#2a6ecb]">Job Openings</Link>
                     </div>
                   )}
                 </div>
@@ -534,7 +533,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                   <div className="col-span-4 pr-6 border-r border-[#e9edf4]">
                     <h3 className="font-archivo font-normal text-3xl text-[#64748b] mb-3">Company</h3>
                     <p className="text-xs font-inter text-[#64748b] leading-relaxed mb-4">
-                      Discover Pulmo Care&apos;s history, corporate values, quality standards, clinical solutions, and career opportunities in sleep and respiratory care.
+                      Discover Pulmo Care&apos;s history, corporate values, quality standards, and clinical solutions in sleep and respiratory care.
                     </p>
                   </div>
                   <div className="col-span-8 grid grid-cols-3 gap-4">
@@ -582,15 +581,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                       <Globe className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
                       <span className="font-bold text-[#0a1f3c] block mb-1">Sustainability</span>
                       <span className="text-[11px] text-[#64748b]">Eco-friendly manufacturing</span>
-                    </Link>
-                    <Link
-                      href="/career/job-openings"
-                      onClick={() => setActiveDropdown(null)}
-                      className="p-4 rounded-[20px] bg-[#f6f4fb] border border-[#e9edf4] hover:border-[#7fb0ee] hover:bg-[#dcebfb] hover:-translate-y-0.5 transition-all group"
-                    >
-                      <Briefcase className="w-5 h-5 text-[#2a6ecb] mb-2 group-hover:scale-110 transition-transform" />
-                      <span className="font-bold text-[#0a1f3c] block mb-1">Careers</span>
-                      <span className="text-[11px] text-[#64748b]">Join our medical team</span>
                     </Link>
                   </div>
                 </div>
