@@ -23,8 +23,8 @@ import {
   Truck,
   CreditCard,
   Facebook,
-  Twitter,
-  Linkedin,
+  Instagram,
+  Youtube,
   Plus,
   Minus,
   ShoppingBag,
@@ -399,17 +399,17 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   <span className="text-[#0a1f3c] font-medium">{brandName}</span>
                 </div>
 
-                {/* Social Sharing Icons (Matching Screenshot 2) */}
+                {/* Social Sharing Icons */}
                 <div className="flex items-center gap-3 pt-3">
                   <span className="text-[11px] font-bold text-[#0a1f3c] uppercase">Share:</span>
-                  <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[#f6f4fb] text-[#0a1f3c] hover:bg-[#dcebfb] hover:text-[#2a6ecb] transition-colors">
+                  <a href="https://www.facebook.com/profile.php?id=61579199146649" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[#f6f4fb] text-[#0a1f3c] hover:bg-[#dcebfb] hover:text-[#2a6ecb] transition-colors" title="Facebook">
                     <Facebook className="w-4 h-4" />
                   </a>
-                  <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[#f6f4fb] text-[#0a1f3c] hover:bg-[#dcebfb] hover:text-[#2a6ecb] transition-colors">
-                    <Twitter className="w-4 h-4" />
+                  <a href="https://www.instagram.com/pulmocaremedicalsystems/" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[#f6f4fb] text-[#0a1f3c] hover:bg-[#dcebfb] hover:text-[#2a6ecb] transition-colors" title="Instagram">
+                    <Instagram className="w-4 h-4" />
                   </a>
-                  <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[#f6f4fb] text-[#0a1f3c] hover:bg-[#dcebfb] hover:text-[#2a6ecb] transition-colors">
-                    <Linkedin className="w-4 h-4" />
+                  <a href="https://www.youtube.com/@PulmoCareMedicalSystems" target="_blank" rel="noopener noreferrer" className="p-2 rounded-full bg-[#f6f4fb] text-[#0a1f3c] hover:bg-[#dcebfb] hover:text-[#2a6ecb] transition-colors" title="YouTube">
+                    <Youtube className="w-4 h-4" />
                   </a>
                 </div>
               </div>

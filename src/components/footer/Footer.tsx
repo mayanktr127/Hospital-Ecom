@@ -12,7 +12,6 @@ import {
   Youtube,
   Facebook,
   Instagram,
-  Linkedin,
   ShieldCheck,
   X,
   CheckCircle,
@@ -65,16 +64,16 @@ export const Footer: React.FC = () => {
             {/* Official Social Media Links */}
             <div className="flex items-center gap-3">
               <a
-                href="https://pulmocare.in"
+                href="https://www.youtube.com/@PulmoCareMedicalSystems"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
-                aria-label="Official Pulmo Care YouTube Channel"
+                aria-label="Official Pulmo Care Medical Systems YouTube Channel"
               >
                 <Youtube className="w-4 h-4" />
               </a>
               <a
-                href="https://pulmocare.in"
+                href="https://www.facebook.com/profile.php?id=61579199146649"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
@@ -83,22 +82,13 @@ export const Footer: React.FC = () => {
                 <Facebook className="w-4 h-4" />
               </a>
               <a
-                href="https://pulmocare.in"
+                href="https://www.instagram.com/pulmocaremedicalsystems/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
-                aria-label="Official Pulmo Care Instagram Profile"
+                aria-label="Official Pulmo Care Medical Systems Instagram Profile"
               >
                 <Instagram className="w-4 h-4" />
-              </a>
-              <a
-                href="https://pulmocare.in"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-9 h-9 rounded-full bg-white/10 hover:bg-[#7fb0ee] grid place-items-center transition-all text-white border border-white/10 hover:border-[#7fb0ee]"
-                aria-label="Official Pulmo Care LinkedIn Company Page"
-              >
-                <Linkedin className="w-4 h-4" />
               </a>
             </div>
           </div>
