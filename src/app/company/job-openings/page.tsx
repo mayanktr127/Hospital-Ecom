@@ -3,42 +3,42 @@
 import React from "react";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
-import { Briefcase, ArrowUpRight, Building2, MapPin, CheckCircle2, Search } from "lucide-react";
+import { Briefcase, ArrowUpRight, MapPin, Building2, CheckCircle2, Mail } from "lucide-react";
 
 export default function JobOpeningsPage() {
   const jobs = [
     {
-      title: "Senior Embedded Software Developer (m/w/d) — Mechanical Ventilation",
-      location: "Bad Ems / Remote Germany",
+      title: "Biomedical Service Engineer — Sleep & Ventilation Systems",
+      location: "Bengaluru (HQ) / Field Visit Karnataka",
       type: "Full-time",
-      department: "R&D Software Engineering",
-      link: "https://loewensteinmedical.com/en/career/job-openings/",
+      department: "Biomedical Technical Services",
+      description: "Installation, pressure calibration, preventive maintenance, and emergency troubleshooting for CPAP/BiPAP and home ventilators.",
     },
     {
-      title: "Clinical Application Specialist (m/w/d) — Intensive Care & Anesthesia",
-      location: "Hamburg / Field Nationwide",
+      title: "Clinical Application Specialist — ICU & Home Respiratory Care",
+      location: "Bengaluru / Field Regional South India",
       type: "Full-time",
-      department: "Clinical Field Application",
-      link: "https://loewensteinmedical.com/en/career/job-openings/",
+      department: "Clinical Training & Support",
+      description: "Conducting clinical demonstrations for pulmonologists, mask fitting sessions, and therapy data reporting (prismaTS / titration software).",
     },
     {
-      title: "Regulatory Affairs Manager (m/w/d) — EU MDR & FDA Submissions",
-      location: "Bad Ems HQ",
+      title: "Medical Equipment Sales Manager — Respiratory Care",
+      location: "Bengaluru / Remote Field",
       type: "Full-time",
-      department: "Quality & Compliance",
-      link: "https://loewensteinmedical.com/en/career/job-openings/",
+      department: "Hospital & Patient Sales",
+      description: "Managing relationships with sleep clinic labs, hospitals, and homecare patients for sale & rental of sleep therapy equipment.",
     },
     {
-      title: "Field Service Technician (m/w/d) — Homecare Systems",
-      location: "Berlin / Brandenburg",
+      title: "Customer Support & Hotline Executive",
+      location: "Bengaluru Office",
       type: "Full-time",
-      department: "Technical Customer Service",
-      link: "https://loewensteinmedical.com/en/career/job-openings/",
+      department: "Patient & Customer Care",
+      description: "Handling patient inquiries, managing rental logistics, order tracking, and 24/7 technical hotline assistance.",
     },
   ];
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink">
+    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink font-inter">
       <Navbar />
 
       <main className="wrap max-w-[1140px] w-full mx-auto px-4 md:px-6 flex-1 py-10">
@@ -48,49 +48,47 @@ export default function JobOpeningsPage() {
           
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md eyebrow mb-4 border border-white">
             <Briefcase className="w-4 h-4 text-[#2a6ecb]" />
-            Careers at Löwenstein Medical
+            Careers at Pulmo Care
           </span>
 
           <h1 className="font-archivo font-medium text-4xl md:text-[64px] tracking-[-0.04em] text-[#0a1f3c] mb-4 leading-[1.0]">
-            Job Openings Löwenstein Medical Germany
+            Join Our Respiratory Healthcare Team
           </h1>
 
           <p className="text-base md:text-lg font-inter text-[#182a41] max-w-3xl leading-relaxed">
-            Shape the future of mechanical ventilation, neonatal care, and digital medical software with a passionate team of over 2,000 specialists.
+            At Pulmo Care, we are committed to making life easier for sleep apnea and respiratory patients. Explore open opportunities to grow your career in biomedical engineering and clinical sales.
           </p>
         </div>
 
-        {/* Job Listings */}
+        {/* Job Listings Grid */}
         <div className="space-y-4 mb-12">
-          {jobs.map((job) => (
-            <div
-              key={job.title}
-              className="bg-white border border-[#e9edf4] rounded-[24px] p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-[#2a6ecb]/40 transition-colors shadow-sm"
-            >
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <span className="bg-[#f6f4fb] text-[#2a6ecb] text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-[#e9edf4]">
+          {jobs.map((job, idx) => (
+            <div key={idx} className="bg-white border border-[#e9edf4] rounded-[24px] p-6 shadow-xs hover:border-[#2a6ecb]/40 transition-all flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#ebf5ff] text-[#2a6ecb]">
                     {job.department}
                   </span>
-                  <span className="text-xs text-[#64748b]">{job.type}</span>
+                  <span className="text-xs font-semibold text-[#1fb37a] flex items-center gap-1">
+                    <MapPin className="w-3 h-3" /> {job.location}
+                  </span>
                 </div>
 
-                <h3 className="font-archivo font-bold text-lg text-[#0a1f3c] mb-1">{job.title}</h3>
+                <h3 className="font-archivo font-bold text-lg text-[#0a1f3c]">
+                  {job.title}
+                </h3>
 
-                <div className="flex items-center gap-2 text-xs text-[#64748b]">
-                  <MapPin className="w-3.5 h-3.5 text-[#2a6ecb]" />
-                  <span>{job.location}</span>
-                </div>
+                <p className="text-xs text-[#64748b] max-w-2xl leading-relaxed">
+                  {job.description}
+                </p>
               </div>
 
               <a
-                href={job.link}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-5 py-2.5 rounded-full bg-[#0a1f3c] text-white font-inter font-semibold text-xs flex items-center gap-1.5 hover:bg-[#12315c] shadow-sm shrink-0"
+                href="mailto:enquiry@pulmocare.in?subject=Application for %20" 
+                className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#0a1f3c] text-white text-xs font-bold hover:bg-[#2a6ecb] transition-all cursor-pointer"
               >
-                <span>Apply Now</span>
-                <ArrowUpRight className="w-4 h-4" />
+                <span>Apply via Email</span>
+                <Mail className="w-3.5 h-3.5" />
               </a>
             </div>
           ))}

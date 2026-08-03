@@ -531,7 +531,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                   <div className="col-span-4 pr-6 border-r border-[#e9edf4]">
                     <h3 className="font-archivo font-normal text-3xl text-[#64748b] mb-3">Company</h3>
                     <p className="text-xs font-inter text-[#64748b] leading-relaxed mb-4">
-                      Discover Löwenstein Medical &amp; Pulmo Care history, company values, quality management, and clinical innovation.
+                      Discover Pulmo Care&apos;s history, corporate values, quality standards, clinical solutions, and career opportunities in sleep and respiratory care.
                     </p>
                   </div>
                   <div className="col-span-8 grid grid-cols-3 gap-4">

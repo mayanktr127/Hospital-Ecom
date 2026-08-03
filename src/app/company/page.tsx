@@ -4,13 +4,13 @@ import React from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
-import { Building2, Heart, Scale, Award, Leaf, Briefcase, ArrowRight, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Building2, Heart, Scale, Award, Leaf, Briefcase, ArrowRight, CheckCircle2, Stethoscope, ShieldCheck } from "lucide-react";
 
 export default function CompanyOverviewPage() {
   const companyCards = [
     {
       title: "About Us",
-      subtitle: "Our heritage, leadership & German medical engineering history.",
+      subtitle: "Pulmo Care's history, mission, leadership, and national network across India.",
       icon: Building2,
       href: "/company/about-us",
       color: "text-[#2a6ecb]",
@@ -18,15 +18,15 @@ export default function CompanyOverviewPage() {
     },
     {
       title: "Our Values",
-      subtitle: "Patient-first responsibility, trust & zero-compromise care.",
+      subtitle: "Patient-first care, technical excellence, empathy, and 24/7 clinical support.",
       icon: Heart,
       href: "/company/our-values",
       color: "text-[#dc4b56]",
       badge: "Philosophy",
     },
     {
-      title: "Compliance",
-      subtitle: "Ethics, EU MDR 2017/745 & regulatory compliance framework.",
+      title: "Compliance & Ethics",
+      subtitle: "CDSCO regulatory compliance, transparent warranties, and ethical healthcare standards.",
       icon: Scale,
       href: "/company/compliance",
       color: "text-[#2a6ecb]",
@@ -34,27 +34,27 @@ export default function CompanyOverviewPage() {
     },
     {
       title: "Quality Management",
-      subtitle: "ISO 13485:2016 quality standards & clinical evaluation.",
+      subtitle: "Certified biomedical testing, device calibration, and genuine OEM spare parts.",
       icon: Award,
       href: "/company/quality-management",
       color: "text-[#1fb37a]",
-      badge: "ISO 13485",
+      badge: "ISO Standards",
     },
     {
-      title: "Sustainability",
-      subtitle: "Eco-friendly manufacturing, solar energy & ESG initiatives.",
+      title: "Sustainability & ESG",
+      subtitle: "Responsible equipment handling, energy-efficient concentrators, and paperless care.",
       icon: Leaf,
       href: "/company/sustainability",
       color: "text-[#1fb37a]",
-      badge: "ESG Green",
+      badge: "Eco Responsibility",
     },
     {
-      title: "Careers & Team",
-      subtitle: "Join our R&D medical engineering & clinical application team.",
+      title: "Careers at Pulmo Care",
+      subtitle: "Join our team of biomedical engineers, clinical specialists, and customer care leaders.",
       icon: Briefcase,
       href: "/career/job-openings",
       color: "text-[#2a6ecb]",
-      badge: "Hiring",
+      badge: "Careers",
     },
   ];
 
@@ -73,11 +73,11 @@ export default function CompanyOverviewPage() {
           </span>
 
           <h1 className="font-archivo font-medium text-4xl md:text-[60px] tracking-[-0.04em] text-[#0a1f3c] mb-4 leading-[1.05]">
-            Löwenstein Medical &amp; Pulmo Care
+            About Pulmo Care
           </h1>
 
           <p className="text-base md:text-lg font-inter text-[#64748b] max-w-3xl leading-relaxed">
-            Discover our history, company values, ISO 13485 quality management systems, regulatory compliance, and eco-friendly medical manufacturing.
+            Pulmo Care is India&apos;s trusted leader in advanced sleep therapy, home &amp; ICU ventilation, oxygen concentrators, and sleep diagnostic technology. Headquartered in Bengaluru, we empower patients and healthcare providers with world-class medical equipment and dedicated support.
           </p>
         </div>
 
@@ -123,25 +123,25 @@ export default function CompanyOverviewPage() {
         <div className="bg-white border border-[#E2E8F0] rounded-[28px] p-8 md:p-12 shadow-sm space-y-6 font-inter text-[#0A192F]">
           <div>
             <h2 className="font-archivo font-bold text-2xl md:text-3xl text-[#0a1f3c] mb-3">
-              German Precision Engineering for Global Healthcare
+              Empowering Respiratory Health Across India
             </h2>
             <p className="text-sm text-[#64748b] leading-relaxed">
-              With specialized development facilities in Bad Ems, Hamburg, and Karlsruhe, Löwenstein Medical develops, manufactures, and services intensive care ventilators, sleep therapy devices, diagnostics, and patient masks for clinicians in over 100 countries.
+              From individual CPAP setups for Obstructive Sleep Apnea (OSA) patients to complex ICU ventilation systems in top hospitals, Pulmo Care delivers end-to-end care — including product consultation, mask fitting, therapy titration, rental options, and 24/7 technical hotline support.
             </p>
           </div>
 
           <div className="pt-4 border-t border-[#F1F5F9] grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold text-[#0a1f3c]">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-[#1fb37a] shrink-0" />
-              <span>40+ Years Clinical Heritage</span>
+              <span>Pan-India Distribution &amp; Service</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-[#1fb37a] shrink-0" />
-              <span>ISO 13485 Certified</span>
+              <span>Certified Biomedical Engineers</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-[#1fb37a] shrink-0" />
-              <span>EU MDR 2017/745 Compliant</span>
+              <span>24/7 Customer Hotline</span>
             </div>
           </div>
         </div>

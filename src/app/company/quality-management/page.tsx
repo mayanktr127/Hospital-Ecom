@@ -3,11 +3,11 @@
 import React from "react";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
-import { ShieldCheck, Award, FileCheck, CheckCircle2, Building2 } from "lucide-react";
+import { ShieldCheck, Award, FileCheck, CheckCircle2, Wrench, Sparkles } from "lucide-react";
 
 export default function QualityManagementPage() {
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink">
+    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink font-inter">
       <Navbar />
 
       <main className="wrap max-w-[1140px] w-full mx-auto px-4 md:px-6 flex-1 py-10">
@@ -17,15 +17,15 @@ export default function QualityManagementPage() {
           
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md eyebrow mb-4 border border-white">
             <Award className="w-4 h-4 text-[#1fb37a]" />
-            Clinical Excellence &amp; Safety
+            Device Inspection &amp; Calibration
           </span>
 
           <h1 className="font-archivo font-medium text-4xl md:text-[64px] tracking-[-0.04em] text-[#0a1f3c] mb-4 leading-[1.0]">
-            Quality Management &amp; Regulatory Certifications
+            Pulmo Care Quality Assurance
           </h1>
 
           <p className="text-base md:text-lg font-inter text-[#182a41] max-w-3xl leading-relaxed">
-            Quality is the foundation of patient safety. Löwenstein Medical operates under rigorous international quality management systems certified to ISO 13485 and EU MDR 2017/745 standards.
+            Every medical device distributed or rented by Pulmo Care undergoes multi-point biomedical inspection, pressure testing, and factory-standard calibration prior to patient delivery.
           </p>
         </div>
 
@@ -35,29 +35,29 @@ export default function QualityManagementPage() {
             <div className="w-12 h-12 rounded-2xl bg-[#f6f4fb] text-[#2a6ecb] grid place-items-center mb-4">
               <ShieldCheck className="w-6 h-6 text-[#2a6ecb]" />
             </div>
-            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">ISO 13485:2016</h3>
+            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">ISO 13485 Standards</h3>
             <p className="text-xs md:text-sm text-[#64748b] leading-relaxed">
-              Certified Quality Management System for design, development, production, installation, and servicing of medical devices.
+              We supply ISO 13485 certified respiratory systems engineered under strict international quality management parameters.
             </p>
           </div>
 
           <div className="bg-white border border-[#e9edf4] rounded-[28px] p-6 shadow-sm">
             <div className="w-12 h-12 rounded-2xl bg-[#f6f4fb] text-[#2a6ecb] grid place-items-center mb-4">
-              <FileCheck className="w-6 h-6 text-[#1fb37a]" />
+              <Wrench className="w-6 h-6 text-[#1fb37a]" />
             </div>
-            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">EU MDR 2017/745 CE</h3>
+            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Pre-Delivery Calibration</h3>
             <p className="text-xs md:text-sm text-[#64748b] leading-relaxed">
-              Full CE compliance and clinical evaluation under European Medical Device Regulation for Class IIa &amp; Class IIb ventilators.
+              Pressure sensor verification, flow accuracy tests, motor noise checks, and humidifier seal testing on specialized calibration benches.
             </p>
           </div>
 
           <div className="bg-white border border-[#e9edf4] rounded-[28px] p-6 shadow-sm">
             <div className="w-12 h-12 rounded-2xl bg-[#f6f4fb] text-[#2a6ecb] grid place-items-center mb-4">
-              <Award className="w-6 h-6 text-[#f2b134]" />
+              <FileCheck className="w-6 h-6 text-[#2a6ecb]" />
             </div>
-            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">FDA 510(k) Clearances</h3>
+            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Genuine OEM Parts</h3>
             <p className="text-xs md:text-sm text-[#64748b] leading-relaxed">
-              International market authorizations certified by regulatory authorities across the United States, Japan, and Australia.
+              100% original filters, tubings, power adapters, and replacement mask cushions direct from certified manufacturers.
             </p>
           </div>
         </div>

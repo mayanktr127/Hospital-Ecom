@@ -4,13 +4,13 @@ import React from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
-import { UserCheck, FileText, GraduationCap, ShieldCheck, ArrowRight, CheckCircle2, Download, BookOpen } from "lucide-react";
+import { UserCheck, FileText, GraduationCap, ShieldCheck, ArrowRight, CheckCircle2, Download, BookOpen, Stethoscope, PhoneCall } from "lucide-react";
 
 export default function ProfessionalsPage() {
   const professionalCards = [
     {
-      title: "Clinical Portal & Academy",
-      subtitle: "Specialist hub for physicians, pulmonologists, and clinical trial teams.",
+      title: "Clinical Portal & Training",
+      subtitle: "Specialist hub for physicians, pulmonologists, sleep labs, and clinical trial teams.",
       icon: UserCheck,
       href: "/professionals/academy",
       color: "text-[#2a6ecb]",
@@ -22,15 +22,15 @@ export default function ProfessionalsPage() {
       icon: Download,
       href: "/downloads",
       color: "text-[#1fb37a]",
-      badge: "PDF Downloads",
+      badge: "PDF Manuals",
     },
     {
-      title: "Clinical Research & Blog",
-      subtitle: "Ventilation study insights, Cheyne-Stokes research & clinical whitepapers.",
+      title: "Clinical Research & Articles",
+      subtitle: "Ventilation study insights, OSA prevalence in India & therapy whitepapers.",
       icon: BookOpen,
       href: "/blog",
       color: "text-[#2a6ecb]",
-      badge: "Clinical Whitepapers",
+      badge: "Research & Blog",
     },
   ];
 
@@ -45,15 +45,15 @@ export default function ProfessionalsPage() {
           
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md eyebrow mb-4 border border-white">
             <UserCheck className="w-4 h-4 text-[#2a6ecb]" />
-            Healthcare Professionals Hub
+            Pulmo Care Professional Portal
           </span>
 
           <h1 className="font-archivo font-medium text-4xl md:text-[60px] tracking-[-0.04em] text-[#0a1f3c] mb-4 leading-[1.05]">
-            Clinical Resources &amp; Specialist Training
+            Clinical Resources &amp; Specialist Hub
           </h1>
 
           <p className="text-base md:text-lg font-inter text-[#64748b] max-w-3xl leading-relaxed">
-            Technical documentation, clinical study insights, software downloads, and specialist training programs for physicians, sleep technicians, and clinical care teams.
+            Dedicated technical support, sleep telemetry reporting (prismaTS), certified CME training, and device manual downloads for pulmonologists, sleep specialists, and clinical care teams in India.
           </p>
         </div>
 
@@ -87,7 +87,7 @@ export default function ProfessionalsPage() {
                 </div>
 
                 <div className="pt-4 border-t border-[#F1F5F9] flex items-center justify-between text-xs font-bold text-[#2a6ecb]">
-                  <span>Access Resources</span>
+                  <span>Access Portal</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
               </Link>
@@ -95,29 +95,29 @@ export default function ProfessionalsPage() {
           })}
         </div>
 
-        {/* Clinical Services Banner */}
+        {/* Doctor & Hospital Collaboration Banner */}
         <div className="bg-white border border-[#E2E8F0] rounded-[28px] p-8 md:p-12 shadow-sm space-y-6 font-inter text-[#0A192F]">
           <div>
             <h2 className="font-archivo font-bold text-2xl md:text-3xl text-[#0a1f3c] mb-3">
-              Löwenstein Academy &amp; Clinical Support
+              Physician &amp; Sleep Lab Collaboration
             </h2>
             <p className="text-sm text-[#64748b] leading-relaxed">
-              We provide continuous education for healthcare professionals on ventilation algorithm optimization, FOT (Forced Oscillation Technology) signal interpretation, and sleep apnea titration software (prismaTS / prismaCONNECT).
+              Pulmo Care collaborates directly with hospital ICUs, sleep laboratories, and pulmonology clinics. We assist physicians with automated AHI therapy report generation, mask leak troubleshooting, and remote patient monitoring setup.
             </p>
           </div>
 
           <div className="pt-4 border-t border-[#F1F5F9] grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-semibold text-[#0a1f3c]">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-[#1fb37a] shrink-0" />
-              <span>Certified Physician Workshops</span>
+              <span>Dedicated Physician Helpline</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-[#1fb37a] shrink-0" />
-              <span>24/7 Technical Support Line</span>
+              <span>Complimentary Demo Requests</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-4 h-4 text-[#1fb37a] shrink-0" />
-              <span>EU MDR &amp; ISO 13485 Documentation</span>
+              <span>Therapy Compliance Data Export</span>
             </div>
           </div>
         </div>

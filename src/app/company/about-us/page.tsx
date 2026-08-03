@@ -3,12 +3,11 @@
 import React from "react";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
-import { Building2, Award, HeartHandshake, ShieldCheck, CheckCircle2, Users, Flame, Globe2 } from "lucide-react";
-import { motion } from "motion/react";
+import { Building2, Award, ShieldCheck, CheckCircle2, Users, HeartPulse, Globe2, MapPin, Phone, Mail } from "lucide-react";
 
 export default function AboutUsPage() {
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink">
+    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink font-inter">
       <Navbar />
 
       <main className="wrap max-w-[1140px] w-full mx-auto px-4 md:px-6 flex-1 py-10">
@@ -18,15 +17,15 @@ export default function AboutUsPage() {
           
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md eyebrow mb-4 border border-white">
             <Building2 className="w-4 h-4 text-[#2a6ecb]" />
-            About Löwenstein Medical
+            About Pulmo Care
           </span>
 
           <h1 className="font-archivo font-medium text-4xl md:text-[64px] tracking-[-0.04em] text-[#0a1f3c] mb-4 leading-[1.0]">
-            40 Years of Medical Engineering Excellence
+            India&apos;s Trusted Respiratory &amp; Sleep Care Partner
           </h1>
 
           <p className="text-base md:text-lg font-inter text-[#182a41] max-w-3xl leading-relaxed">
-            Löwenstein has been developing and distributing medical technology for 40 years. Ventilation is our field of expertise — not only supporting breathing, but saving lives, maintaining health, and simplifying care.
+            Pulmo Care is dedicated to improving life quality through world-class medical equipment, sleep apnea therapy, oxygen solutions, and critical care ventilation.
           </p>
         </div>
 
@@ -34,65 +33,91 @@ export default function AboutUsPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <div className="bg-white border border-[#e9edf4] rounded-[28px] p-6 shadow-sm">
             <div className="w-12 h-12 rounded-2xl bg-[#f6f4fb] text-[#2a6ecb] grid place-items-center mb-4">
-              <Flame className="w-6 h-6" />
+              <HeartPulse className="w-6 h-6 text-[#2a6ecb]" />
             </div>
-            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Our Expertise</h3>
+            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Sleep &amp; Respiratory Focus</h3>
             <p className="text-xs md:text-sm text-[#64748b] leading-relaxed">
-              Specialized in intensive care ventilation, neonatology, sleep diagnostics, anesthesia workstations, and homecare ventilation systems.
+              Specialized in CPAP, APAP, BiLevel S/ST, ASV devices, oxygen concentrators, and diagnostic sleep polygraphy systems.
             </p>
           </div>
 
           <div className="bg-white border border-[#e9edf4] rounded-[28px] p-6 shadow-sm">
             <div className="w-12 h-12 rounded-2xl bg-[#f6f4fb] text-[#2a6ecb] grid place-items-center mb-4">
-              <Globe2 className="w-6 h-6" />
+              <Globe2 className="w-6 h-6 text-[#2a6ecb]" />
             </div>
-            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Global Reach</h3>
+            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Global Medical Partnerships</h3>
             <p className="text-xs md:text-sm text-[#64748b] leading-relaxed">
-              Serving hospitals, specialist dealers, and homecare patients across 100+ countries with German-engineered quality and compliance.
+              Authorized provider for world-renowned international brands including Löwenstein Medical, Inogen, and Nidek Medical.
             </p>
           </div>
 
           <div className="bg-white border border-[#e9edf4] rounded-[28px] p-6 shadow-sm">
             <div className="w-12 h-12 rounded-2xl bg-[#f6f4fb] text-[#2a6ecb] grid place-items-center mb-4">
-              <Users className="w-6 h-6" />
+              <Users className="w-6 h-6 text-[#2a6ecb]" />
             </div>
-            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">With People in Mind</h3>
+            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Patient-Centric Service</h3>
             <p className="text-xs md:text-sm text-[#64748b] leading-relaxed">
-              Our guiding slogan defines our patient-centric approach — providing innovative support for clinicians, caregivers, and families alike.
+              Comprehensive care model — mask fitting, home setup, therapy data reporting, maintenance calibration, and 24/7 technical hotline.
             </p>
           </div>
         </div>
 
-        {/* Main Content Section */}
+        {/* Detailed Story & Mission */}
         <div className="bg-white border border-[#e9edf4] rounded-[28px] p-8 md:p-12 shadow-sm space-y-8 font-inter text-[#0a1f3c]">
           <div>
             <h2 className="font-archivo font-bold text-2xl md:text-3xl text-[#0a1f3c] mb-4">
-              Pioneers in Medical Ventilation &amp; Respiratory Care
+              Our Journey &amp; Clinical Mission
             </h2>
             <p className="text-sm md:text-base text-[#64748b] leading-relaxed mb-4">
-              Founded in Germany, Löwenstein Medical SE &amp; Co. KG has grown into a premier medical technology company. Our development centers in Bad Ems, Hamburg, and Karlsruhe engineer state-of-the-art ventilation systems such as <strong>LUISA</strong>, <strong>prismaVENT</strong>, <strong>LEON plus</strong>, and <strong>elisa ICU ventilators</strong>.
+              Pulmo Care was established to bridge the gap between advanced medical technology and patient needs in India. Headquartered in Bengaluru, we work closely with leading pulmonologists, somnologists, neurologists, and intensive care units to deliver precise respiratory solutions.
             </p>
             <p className="text-sm md:text-base text-[#64748b] leading-relaxed">
-              We stand by healthcare providers every step of the way — from initial sleep diagnostic polysomnography to emergency room ventilation and lifelong home care support.
+              Whether supporting a patient suffering from Obstructive Sleep Apnea (OSA) with a silent CPAP system or providing life-support ventilation for chronic respiratory failure, Pulmo Care guarantees authenticity, warranty protection, and prompt technical service.
             </p>
+          </div>
+
+          {/* Location & Headquarters */}
+          <div className="pt-6 border-t border-[#0a1f3c]/10 grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#f8fafc] p-6 rounded-2xl border border-[#e2e8f0]">
+            <div>
+              <span className="font-archivo font-bold text-[#0a1f3c] flex items-center gap-2 mb-2">
+                <MapPin className="w-4 h-4 text-[#2a6ecb]" />
+                Headquarters Address
+              </span>
+              <p className="text-xs md:text-sm text-[#64748b] leading-relaxed">
+                Pulmo Care<br />
+                #85, 20th Main Rd, 1st N Block,<br />
+                Rajajinagar, Bengaluru, Karnataka 560010, India
+              </p>
+            </div>
+            <div>
+              <span className="font-archivo font-bold text-[#0a1f3c] flex items-center gap-2 mb-2">
+                <Phone className="w-4 h-4 text-[#2a6ecb]" />
+                Direct Contact &amp; Helpline
+              </span>
+              <p className="text-xs md:text-sm text-[#64748b] leading-relaxed">
+                Helpline: +91 93434 44428<br />
+                Email: enquiry@pulmocare.in<br />
+                Website: https://pulmocare.in
+              </p>
+            </div>
           </div>
 
           <div className="pt-6 border-t border-[#0a1f3c]/10 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs md:text-sm text-[#64748b]">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-[#1fb37a] shrink-0" />
-              <span>ISO 13485 Certified Medical Quality Management</span>
+              <span>Genuine Factory-Warranted Medical Devices</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-[#1fb37a] shrink-0" />
-              <span>Full Compliance with EU MDR 2017/745 Regulations</span>
+              <span>Certified Sleep Therapy Titration &amp; Data Analysis</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-[#1fb37a] shrink-0" />
-              <span>100% In-house Development &amp; Clinical Testing</span>
+              <span>Pan-India Rental &amp; Purchase Support</span>
             </div>
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-5 h-5 text-[#1fb37a] shrink-0" />
-              <span>Dedicated Academy Training for Healthcare Professionals</span>
+              <span>24/7 Clinical &amp; Biomedical Engineer Support</span>
             </div>
           </div>
         </div>

@@ -3,32 +3,32 @@
 import React from "react";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
-import { GraduationCap, BookOpen, Award, CheckCircle2, Calendar, UserCheck } from "lucide-react";
+import { GraduationCap, BookOpen, Award, CheckCircle2, Calendar, UserCheck, PhoneCall, Mail } from "lucide-react";
 
 export default function AcademyPage() {
   const courses = [
     {
-      title: "Advanced Clinical Ventilation Masterclass (LUISA & elisa Series)",
-      target: "ICU Physicians, Intensivists, & Respiratory Therapists",
-      duration: "2-Day Intensive Hands-on Workshop",
-      location: "Bad Ems Training Center / Online CME",
+      title: "CPAP & BiPAP Titration Masterclass for Sleep Technicians",
+      target: "Sleep Technicians, Pulmonology Nurses, & Clinical Specialists",
+      duration: "1-Day Workshop & Hands-on Titration",
+      location: "Bengaluru HQ / Online Interactive",
     },
     {
-      title: "Neonatal & Infant Ventilation Seminar (LEONI 4)",
-      target: "Neonatal Nurses & Pediatric ICU Specialists",
-      duration: "1-Day Certified Training",
-      location: "Hamburg Medical Academy",
+      title: "Mechanical Ventilation & Home Care Respiratory Support",
+      target: "ICU Doctors, Intensivists, & Homecare Specialists",
+      duration: "2-Day Advanced Clinical Training",
+      location: "Bengaluru / Regional Medical Centers",
     },
     {
-      title: "prismaTS & Data Telemetry Software Certification",
-      target: "Sleep Lab Technicians & Homecare Managers",
-      duration: "Interactive Webinar (CME Accredited)",
+      title: "prismaTS Telemetry & Sleep Data Analysis Certification",
+      target: "Pulmonologists & Sleep Lab Directors",
+      duration: "Webinar CME Certification",
       location: "Online Portal",
     },
   ];
 
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink">
+    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink font-inter">
       <Navbar />
 
       <main className="wrap max-w-[1140px] w-full mx-auto px-4 md:px-6 flex-1 py-10">
@@ -38,48 +38,42 @@ export default function AcademyPage() {
           
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md eyebrow mb-4 border border-white">
             <GraduationCap className="w-4 h-4 text-[#1fb37a]" />
-            Clinical Education &amp; Training
+            Pulmo Care Clinical Training
           </span>
 
           <h1 className="font-archivo font-medium text-4xl md:text-[64px] tracking-[-0.04em] text-[#0a1f3c] mb-4 leading-[1.0]">
-            Löwenstein Medical Academy
+            Pulmo Care Academy
           </h1>
 
           <p className="text-base md:text-lg font-inter text-[#182a41] max-w-3xl leading-relaxed">
-            Empowering physicians, clinical nurses, sleep specialists, and service technicians with certified CME education, hands-on ventilator workshops, and device operation masterclasses.
+            Empowering Indian physicians, sleep technicians, and respiratory therapists with certified CME training, hands-on ventilator titration workshops, and telemetry software masterclasses.
           </p>
         </div>
 
-        {/* Courses Grid */}
-        <div className="space-y-6 mb-12 font-inter text-[#0a1f3c]">
-          <h2 className="font-archivo font-bold text-2xl text-[#0a1f3c] mb-4">Upcoming Accredited Seminars &amp; CME Courses</h2>
-
-          {courses.map((c) => (
-            <div
-              key={c.title}
-              className="bg-white border border-[#e9edf4] rounded-[28px] p-6 md:p-8 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-[#2a6ecb]/40 transition-colors"
-            >
-              <div>
-                <span className="bg-[#f6f4fb] text-[#2a6ecb] text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full border border-[#e9edf4] mb-2 inline-block">
-                  CME Certified
-                </span>
-                <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">{c.title}</h3>
-                <p className="text-xs md:text-sm text-[#64748b] mb-2">Target Audience: {c.target}</p>
-                <div className="flex flex-wrap items-center gap-4 text-xs text-[#64748b]">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="w-3.5 h-3.5 text-[#2a6ecb]" /> {c.duration}
-                  </span>
-                  <span>•</span>
-                  <span>Location: {c.location}</span>
+        {/* Courses List */}
+        <div className="space-y-6 mb-12">
+          {courses.map((c, idx) => (
+            <div key={idx} className="bg-white border border-[#e9edf4] rounded-[28px] p-6 md:p-8 shadow-sm">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+                <div>
+                  <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-1">{c.title}</h3>
+                  <p className="text-xs text-[#2a6ecb] font-semibold">{c.target}</p>
                 </div>
+                <span className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#f6f4fb] text-xs font-bold text-[#0a1f3c]">
+                  <Calendar className="w-3.5 h-3.5 text-[#2a6ecb]" />
+                  {c.duration}
+                </span>
               </div>
-
-              <button
-                onClick={() => alert("Registration request submitted to Löwenstein Academy.")}
-                className="px-5 py-2.5 rounded-full bg-[#0a1f3c] text-white font-inter font-semibold text-xs hover:bg-[#12315c] shadow-sm shrink-0"
-              >
-                Register for Course
-              </button>
+              <div className="pt-4 border-t border-[#0a1f3c]/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#64748b]">
+                <span>Venue: <strong>{c.location}</strong></span>
+                <a
+                  href="mailto:enquiry@pulmocare.in?subject=Registration Inquiry for Academy Course"
+                  className="inline-flex items-center gap-1 font-bold text-[#2a6ecb] hover:underline"
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Register Interest →</span>
+                </a>
+              </div>
             </div>
           ))}
         </div>

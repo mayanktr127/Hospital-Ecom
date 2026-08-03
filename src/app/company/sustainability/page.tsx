@@ -7,7 +7,7 @@ import { Leaf, Sun, Recycle, ShieldCheck, CheckCircle2 } from "lucide-react";
 
 export default function SustainabilityPage() {
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink">
+    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink font-inter">
       <Navbar />
 
       <main className="wrap max-w-[1140px] w-full mx-auto px-4 md:px-6 flex-1 py-10">
@@ -17,15 +17,15 @@ export default function SustainabilityPage() {
           
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md eyebrow mb-4 border border-white">
             <Leaf className="w-4 h-4 text-[#1fb37a]" />
-            Environmental Responsibility &amp; ESG
+            Environmental Responsibility
           </span>
 
           <h1 className="font-archivo font-medium text-4xl md:text-[64px] tracking-[-0.04em] text-[#0a1f3c] mb-4 leading-[1.0]">
-            Sustainability &amp; Eco Responsibility
+            Pulmo Care Sustainability &amp; ESG
           </h1>
 
           <p className="text-base md:text-lg font-inter text-[#182a41] max-w-3xl leading-relaxed">
-            Reducing environmental impact in healthcare: Eco-friendly device manufacturing, solar energy powered facilities, and circular mask recycling programs.
+            Pulmo Care is committed to sustainable healthcare logistics in India: energy-efficient equipment, paperless digital clinical reports, and eco-friendly protective packaging.
           </p>
         </div>
 
@@ -35,9 +35,9 @@ export default function SustainabilityPage() {
             <div className="w-12 h-12 rounded-2xl bg-[#f6f4fb] text-[#1fb37a] grid place-items-center mb-4">
               <Sun className="w-6 h-6" />
             </div>
-            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Solar Clean Energy</h3>
+            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Energy Efficient Devices</h3>
             <p className="text-xs md:text-sm text-[#64748b] leading-relaxed">
-              Photovoltaic solar installations at our Bad Ems headquarters generate over 60% of our annual manufacturing electricity requirement.
+              We supply modern low-power CPAP blowers and pulse-dose oxygen concentrators that reduce household electrical draw by up to 35%.
             </p>
           </div>
 
@@ -45,19 +45,19 @@ export default function SustainabilityPage() {
             <div className="w-12 h-12 rounded-2xl bg-[#f6f4fb] text-[#1fb37a] grid place-items-center mb-4">
               <Recycle className="w-6 h-6" />
             </div>
-            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Circular Material Reuse</h3>
+            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Paperless Telemetry</h3>
             <p className="text-xs md:text-sm text-[#64748b] leading-relaxed">
-              REMONDIS certified waste tracking balance reduces plastic production waste by over 45 tons annually.
+              Digital PDF reports, cloud compliance monitoring, and electronic invoicing eliminate unnecessary paper waste.
             </p>
           </div>
 
           <div className="bg-white border border-[#e9edf4] rounded-[28px] p-6 shadow-sm">
             <div className="w-12 h-12 rounded-2xl bg-[#f6f4fb] text-[#1fb37a] grid place-items-center mb-4">
-              <Leaf className="w-6 h-6" />
+              <ShieldCheck className="w-6 h-6" />
             </div>
-            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Energy-Efficient Turbines</h3>
+            <h3 className="font-archivo font-bold text-xl text-[#0a1f3c] mb-2">Responsible E-Waste</h3>
             <p className="text-xs md:text-sm text-[#64748b] leading-relaxed">
-              LUISA and prismaVENT turbine designs optimize power consumption, reducing carbon footprint during long-term home ventilation.
+              Certified e-waste recycling for retired battery packs, internal circuitry, and older oxygen concentrator units.
             </p>
           </div>
         </div>

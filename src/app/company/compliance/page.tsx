@@ -7,7 +7,7 @@ import { Scale, Lock, ShieldCheck, CheckCircle2, FileText, AlertCircle } from "l
 
 export default function CompliancePage() {
   return (
-    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink">
+    <div className="min-h-[100dvh] flex flex-col bg-paper text-ink font-inter">
       <Navbar />
 
       <main className="wrap max-w-[1140px] w-full mx-auto px-4 md:px-6 flex-1 py-10">
@@ -17,31 +17,38 @@ export default function CompliancePage() {
           
           <span className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 backdrop-blur-md eyebrow mb-4 border border-white">
             <Scale className="w-4 h-4 text-[#2a6ecb]" />
-            Corporate Integrity &amp; Ethics
+            Regulatory Compliance &amp; Standards
           </span>
 
           <h1 className="font-archivo font-medium text-4xl md:text-[64px] tracking-[-0.04em] text-[#0a1f3c] mb-4 leading-[1.0]">
-            Corporate Compliance &amp; Ethics
+            Pulmo Care Compliance Framework
           </h1>
 
           <p className="text-base md:text-lg font-inter text-[#182a41] max-w-3xl leading-relaxed">
-            Löwenstein Medical enforces zero-tolerance policies against bribery, antitrust violations, and supply chain non-compliance.
+            Pulmo Care operates under strict Indian CDSCO medical device regulations, consumer protection laws, transparent warranty standards, and ethical healthcare marketing practices.
           </p>
         </div>
 
         {/* Compliance Highlights */}
         <div className="bg-white border border-[#e9edf4] rounded-[28px] p-8 md:p-12 shadow-sm space-y-6 font-inter text-[#0a1f3c]">
           <div>
-            <h2 className="font-archivo font-bold text-2xl text-[#0a1f3c] mb-3">Code of Conduct</h2>
+            <h2 className="font-archivo font-bold text-2xl text-[#0a1f3c] mb-3">CDSCO &amp; Indian Regulatory Compliance</h2>
             <p className="text-sm text-[#64748b] leading-relaxed">
-              Our Code of Conduct binds all employees, management, and global distributors to legal integrity, ethical purchasing, fair competition, and strict compliance with German and international medical device marketing laws (HWG).
+              All medical equipment supplied by Pulmo Care — including CPAP/APAP machines, BiPAP systems, ventilators, and oxygen concentrators — holds valid CDSCO (Central Drugs Standard Control Organisation) registration and import licenses.
             </p>
           </div>
 
           <div className="pt-4 border-t border-[#0a1f3c]/10">
-            <h2 className="font-archivo font-bold text-2xl text-[#0a1f3c] mb-3">Whistleblower System (Hinweisgebersystem)</h2>
+            <h2 className="font-archivo font-bold text-2xl text-[#0a1f3c] mb-3">Ethical Code of Conduct</h2>
             <p className="text-sm text-[#64748b] leading-relaxed">
-              In accordance with the EU Whistleblower Directive (2019/1937) and German Hinweisgeberschutzgesetz (HinSchG), employees and external partners can submit confidential compliance reports regarding regulatory, financial, or data safety violations.
+              We adhere to strict ethical guidelines regarding patient data privacy, prescription-based device dispensing, clear warranty terms, and honest pricing in Indian Rupees (INR) without hidden charges.
+            </p>
+          </div>
+
+          <div className="pt-4 border-t border-[#0a1f3c]/10">
+            <h2 className="font-archivo font-bold text-2xl text-[#0a1f3c] mb-3">Patient Data Protection</h2>
+            <p className="text-sm text-[#64748b] leading-relaxed">
+              Therapy telemetry data downloaded via SD cards or cloud software (prismaTS / Web-based portals) is handled in full accordance with Indian Information Technology &amp; Data Protection regulations.
             </p>
           </div>
         </div>
