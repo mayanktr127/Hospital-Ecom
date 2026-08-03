@@ -155,11 +155,15 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
   // Documentation & Warranty
   const documentBrochure = `${displayTitle} Brochure.pdf`;
-  const brochureDownloadUrl = adminMatch?.brochureUrl || "/doc-files/LM_QuickSupport_Win_v15.zip";
-  const warrantyText = adminMatch?.warranty || "2 Years Official Löwenstein Warranty";
+  const brochureDownloadUrl = (adminMatch?.brochureUrl && adminMatch.brochureUrl.trim().length > 0)
+    ? adminMatch.brochureUrl
+    : (foundProd?.brochureUrl && foundProd.brochureUrl.trim().length > 0)
+    ? foundProd.brochureUrl
+    : undefined;
+  const warrantyText = adminMatch?.warranty || "2 Years Official Warranty";
 
   // Sample Customer Reviews
-  const reviewsList = [
+  const defaultReviewsList = [
     {
       author: "Dr. Rajesh K.",
       rating: 5,
@@ -180,7 +184,31 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       r.productName.toLowerCase().includes(displayTitle.toLowerCase()) ||
       displayTitle.toLowerCase().includes(r.productName.toLowerCase())
   );
-  const reviewsToDisplay = matchedReviews.length > 0 ? matchedReviews : reviewsList;
+  const initialReviewsToDisplay = matchedReviews.length > 0 ? matchedReviews : defaultReviewsList;
+
+  const [reviewsListState, setReviewsListState] = useState(initialReviewsToDisplay);
+  const [hasPurchased, setHasPurchased] = useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const orders = JSON.parse(localStorage.getItem("pulmocare_orders") || "[]");
+        const bought = orders.some((o: any) =>
+          o.items?.some(
+            (i: any) =>
+              i.id === itemSlug ||
+              i.slug === itemSlug ||
+              i.name?.toLowerCase().includes(displayTitle.toLowerCase()) ||
+              displayTitle.toLowerCase().includes(i.name?.toLowerCase() || "")
+          )
+        );
+        return bought || localStorage.getItem(`purchased_${itemSlug}`) === "true";
+      } catch {
+        return false;
+      }
+    }
+    return false;
+  });
+
+  const [newReviewForm, setNewReviewForm] = useState({ author: "", rating: 5, comment: "" });
 
   const currentProductObj: Product = foundProd || {
     id: itemSlug,
@@ -474,27 +502,31 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           </div>
         </section>
 
-        {/* DOCUMENTATION & ADDITIONAL INFO SECTION (Matching Screenshot 5) */}
+        {/* DOCUMENTATION & ADDITIONAL INFO SECTION */}
         <section className="bg-white rounded-[28px] border border-[#e9edf4] p-8 md:p-12 mb-16 shadow-[0_2px_8px_rgba(24,42,65,0.05)]">
-          {/* Documentation */}
-          <div className="mb-10">
-            <h3 className="font-archivo font-medium text-2xl tracking-[-0.03em] text-[#0a1f3c] mb-4">
-              {displayTitle} Documentation:
-            </h3>
+          {/* Documentation (Only rendered if product has brochure URL) */}
+          {brochureDownloadUrl && (
+            <div className="mb-10">
+              <h3 className="font-archivo font-medium text-2xl tracking-[-0.03em] text-[#0a1f3c] mb-4">
+                {displayTitle} Documentation:
+              </h3>
 
-            <a
-              href={brochureDownloadUrl}
-              download
-              className="inline-flex items-center gap-3 p-4 rounded-[14px] bg-[#f6f4fb] border border-[#e9edf4] text-xs sm:text-sm font-semibold text-[#0a1f3c] hover:border-[#7fb0ee] hover:text-[#2a6ecb] transition-colors"
-            >
-              <FileText className="w-5 h-5 text-[#2a6ecb]" />
-              <span>{documentBrochure}</span>
-              <Download className="w-4 h-4 text-[#2a6ecb] ml-2" />
-            </a>
-          </div>
+              <a
+                href={brochureDownloadUrl}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-3 p-4 rounded-[14px] bg-[#f6f4fb] border border-[#e9edf4] text-xs sm:text-sm font-semibold text-[#0a1f3c] hover:border-[#7fb0ee] hover:text-[#2a6ecb] transition-colors"
+              >
+                <FileText className="w-5 h-5 text-[#2a6ecb]" />
+                <span>{documentBrochure}</span>
+                <Download className="w-4 h-4 text-[#2a6ecb] ml-2" />
+              </a>
+            </div>
+          )}
 
           {/* Additional Information */}
-          <div className="pt-8 border-t border-[#e9edf4] mb-12">
+          <div className={`${brochureDownloadUrl ? "pt-8 border-t border-[#e9edf4]" : ""} mb-12`}>
             <h3 className="font-archivo font-medium text-2xl tracking-[-0.03em] text-[#0a1f3c] mb-6">
               Additional information
             </h3>
@@ -508,11 +540,11 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           {/* Customer Reviews */}
           <div className="pt-8 border-t border-[#e9edf4]">
             <h3 className="font-archivo font-medium text-2xl tracking-[-0.03em] text-[#0a1f3c] mb-8">
-              {reviewsToDisplay.length} {reviewsToDisplay.length === 1 ? "review" : "reviews"} for {displayTitle}
+              {reviewsListState.length} {reviewsListState.length === 1 ? "review" : "reviews"} for {displayTitle}
             </h3>
 
-            <div className="space-y-6">
-              {reviewsToDisplay.map((rev, idx) => (
+            <div className="space-y-6 mb-10">
+              {reviewsListState.map((rev, idx) => (
                 <div key={idx} className="p-6 bg-[#f6f4fb] rounded-[20px] border border-[#e9edf4] space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="font-archivo font-bold text-sm text-[#0a1f3c]">{rev.author}</span>
@@ -530,6 +562,121 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   </p>
                 </div>
               ))}
+            </div>
+
+            {/* Add Review Section (Only after purchasing product) */}
+            <div className="pt-8 border-t border-[#e9edf4]">
+              {hasPurchased ? (
+                <div className="bg-[#f8fafc] border border-[#e9edf4] rounded-[24px] p-6 md:p-8 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-archivo font-bold text-lg text-[#0a1f3c] flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-[#1fb37a]" />
+                      <span>Write a Customer Review</span>
+                    </h4>
+                    <span className="text-[10px] font-archivo font-bold uppercase tracking-wider px-2.5 py-1 rounded-full bg-[#f0fdf4] text-[#1fb37a] border border-[#1fb37a]/30">
+                      Verified Buyer
+                    </span>
+                  </div>
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (!newReviewForm.author || !newReviewForm.comment) {
+                        addToast("Review Error", "Please fill in your name and review details.");
+                        return;
+                      }
+                      const submittedRev = {
+                        author: newReviewForm.author,
+                        rating: newReviewForm.rating,
+                        date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
+                        comment: newReviewForm.comment,
+                      };
+                      setReviewsListState([submittedRev, ...reviewsListState]);
+                      setNewReviewForm({ author: "", rating: 5, comment: "" });
+                      addToast("Review Published!", `Thank you ${submittedRev.author}! Your review for ${displayTitle} has been published.`);
+                    }}
+                    className="space-y-4 font-inter"
+                  >
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold text-[#0a1f3c] uppercase tracking-wider mb-1.5">
+                          Your Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          placeholder="e.g. Dr. Rajesh Sharma"
+                          value={newReviewForm.author}
+                          onChange={(e) => setNewReviewForm({ ...newReviewForm, author: e.target.value })}
+                          className="w-full h-11 px-4 rounded-xl border border-[#e9edf4] bg-white text-xs font-medium focus:outline-none focus:border-[#2a6ecb]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-[#0a1f3c] uppercase tracking-wider mb-1.5">
+                          Rating
+                        </label>
+                        <div className="flex items-center gap-1.5 h-11">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setNewReviewForm({ ...newReviewForm, rating: star })}
+                              className="p-1 text-[#f2b134] hover:scale-125 transition-transform cursor-pointer"
+                            >
+                              <Star className={`w-5 h-5 ${star <= newReviewForm.rating ? "fill-current" : "text-gray-300"}`} />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-[#0a1f3c] uppercase tracking-wider mb-1.5">
+                        Your Review *
+                      </label>
+                      <textarea
+                        rows={3}
+                        required
+                        placeholder={`Share your experience using ${displayTitle}...`}
+                        value={newReviewForm.comment}
+                        onChange={(e) => setNewReviewForm({ ...newReviewForm, comment: e.target.value })}
+                        className="w-full p-3 rounded-xl border border-[#e9edf4] bg-white text-xs font-medium focus:outline-none focus:border-[#2a6ecb] resize-none"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="px-6 py-2.5 rounded-xl bg-[#2a6ecb] text-white text-xs font-bold hover:bg-[#0a1f3c] transition-all cursor-pointer shadow-sm"
+                    >
+                      Publish Review
+                    </button>
+                  </form>
+                </div>
+              ) : (
+                <div className="bg-[#f8fafc] border border-[#e9edf4] rounded-[24px] p-6 text-center space-y-3 font-inter">
+                  <h4 className="font-archivo font-bold text-base text-[#0a1f3c]">
+                    Purchased Customer Reviews Only
+                  </h4>
+                  <p className="text-xs text-[#64748b] max-w-md mx-auto leading-relaxed">
+                    Reviews can only be added by verified customers who have purchased <strong>{displayTitle}</strong>.
+                  </p>
+                  <div className="pt-2">
+                    <button
+                      onClick={() => {
+                        if (typeof window !== "undefined") {
+                          localStorage.setItem(`purchased_${itemSlug}`, "true");
+                        }
+                        setHasPurchased(true);
+                        addToast("Verified Buyer Status!", `Purchase verified for ${displayTitle}. Review submission unlocked!`);
+                      }}
+                      className="px-4 py-2.5 rounded-xl bg-[#0a1f3c] text-white text-xs font-bold hover:bg-[#2a6ecb] transition-all cursor-pointer shadow-sm"
+                    >
+                      Verify Purchase &amp; Write Review
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </section>

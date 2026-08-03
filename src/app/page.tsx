@@ -113,12 +113,21 @@ export default function Home() {
           {/* Dynamic Category Grid Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
             {categories.map((cat, idx) => {
-              const matchingCount = products.filter(
-                (p) =>
-                  p.category === cat.name ||
-                  p.category.toLowerCase().includes(cat.name.toLowerCase()) ||
-                  cat.name.toLowerCase().includes(p.category.toLowerCase())
-              ).length;
+              const matchingCount = products.filter((p) => {
+                if (!p || !p.category) return false;
+                const pCat = p.category.toLowerCase().trim();
+                const cName = cat.name.toLowerCase().trim();
+                const cSlug = (cat.slug || "").toLowerCase().trim();
+                const cId = (cat.id || "").toLowerCase().trim();
+                return (
+                  pCat === cName ||
+                  pCat === cSlug ||
+                  pCat === cId ||
+                  pCat.includes(cName) ||
+                  cName.includes(pCat) ||
+                  pCat.replace(/[^a-z0-9]/g, "") === cSlug.replace(/[^a-z0-9]/g, "")
+                );
+              }).length;
 
               return (
                 <Link
@@ -129,7 +138,7 @@ export default function Home() {
                   {/* Top Badge Pill */}
                   <div className="flex items-center justify-between mb-4 relative z-10">
                     <span className="bg-white/90 backdrop-blur-md text-[#2a6ecb] text-[11px] font-archivo font-semibold px-3 py-1 rounded-full border border-white shadow-[0_2px_8px_rgba(24,42,65,0.05)]">
-                      {cat.count || `${matchingCount} ${matchingCount === 1 ? "Model" : "Models"}`}
+                      {`${matchingCount} ${matchingCount === 1 ? "Model" : "Models"}`}
                     </span>
                     {cat.badge && (
                       <span className="bg-[#0066FF] text-white text-[10px] font-archivo font-extrabold uppercase px-2.5 py-0.5 rounded-full">

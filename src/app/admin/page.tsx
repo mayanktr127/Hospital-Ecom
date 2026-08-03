@@ -1810,12 +1810,14 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div>
-                    <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Brochure / Spec PDF Link</label>
+                    <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
+                      Brochure / Spec PDF Link <span className="text-[#64748b] text-[10px] font-normal">(Optional — Leave blank if product has no PDF)</span>
+                    </label>
                     <input
                       type="text"
                       value={pBrochureUrl}
                       onChange={(e) => setPBrochureUrl(e.target.value)}
-                      placeholder="e.g. /doc-files/sample_doc.pdf"
+                      placeholder="Leave blank if no PDF (e.g. /doc-files/sample_doc.pdf)"
                       className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
                     />
                   </div>
