@@ -27,10 +27,15 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
 
   const filteredProducts = products.filter((product) => {
     if (selectedCategory === "All") return true;
+    if (!product || !product.category) return false;
+
+    const pCatNorm = product.category.toLowerCase().replace(/[^a-z0-9]/g, "");
+    const selCatNorm = (selectedCategory as string).toLowerCase().replace(/[^a-z0-9]/g, "");
+
     return (
-      product.category === selectedCategory ||
-      product.category.toLowerCase().includes((selectedCategory as string).toLowerCase()) ||
-      (selectedCategory as string).toLowerCase().includes(product.category.toLowerCase())
+      pCatNorm === selCatNorm ||
+      pCatNorm.includes(selCatNorm) ||
+      selCatNorm.includes(pCatNorm)
     );
   });
 

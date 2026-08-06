@@ -22,14 +22,14 @@ export default function Home() {
 
   const thematicFocuses = [
     {
-      name: "CPAP & APAP Devices",
-      slug: "cpap-apap-devices",
+      name: "Sleep Apnea Therapy",
+      slug: "sleep-apnea-therapy",
       image: "/images/pulmocare/pulmocare_prisma-20a.png",
       count: "3 Models",
       desc: "Prisma 20A, Prisma Smart, and Prisma Smart Plus APAP devices.",
     },
     {
-      name: "Bilevel-S & ST Devices",
+      name: "BiLevel",
       slug: "bilevel-s-st-devices",
       image: "/images/pulmocare/pulmocare_prisma-25-st.png",
       count: "3 Models",
@@ -64,7 +64,7 @@ export default function Home() {
       desc: "Inogen Rove 6 & Nidek Neo 5 oxygen therapy devices.",
     },
     {
-      name: "Sleep Diagnostics",
+      name: "Diagnostic",
       slug: "sleep-diagnostics",
       image: "/images/pulmocare/pulmocare_polygraphy-devices-samoa.png",
       count: "3 Systems",
@@ -204,7 +204,7 @@ export default function Home() {
 
                 <div className="flex flex-wrap items-center gap-4 pt-2">
                   <Link
-                    href="/cpap-apap-devices/prisma-smart"
+                    href="/sleep-apnea-therapy/prisma-smart-plus"
                     className="btn btn-primary cursor-pointer"
                   >
                     <span>Explore Prisma Series</span>
@@ -227,8 +227,8 @@ export default function Home() {
               <div className="lg:col-span-5 flex justify-center items-center relative">
                 <div className="w-full max-w-[340px] aspect-square rounded-full bg-white/60 backdrop-blur-md border border-white p-6 flex items-center justify-center relative shadow-[0_30px_70px_rgba(24,42,65,0.14)]">
                   <img
-                    src="/images/pulmocare/pulmocare_prisma-smart.png"
-                    alt="Prisma Smart Device"
+                    src="/images/pulmocare/pulmocare_prisma-smart-plus.png"
+                    alt="Löwenstein Prisma SMART Plus Auto CPAP Device"
                     className="max-h-72 w-auto object-contain mix-blend-multiply drop-shadow-[0_20px_30px_rgba(24,42,65,0.25)] hover:scale-105 transition-transform duration-500"
                     onError={(e) => {
                       (e.target as HTMLImageElement).src = "/images/products/mask.png";

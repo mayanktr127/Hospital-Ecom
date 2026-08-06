@@ -31,7 +31,9 @@ import {
   Heart,
   CheckCircle,
   FileText,
+  Activity,
 } from "lucide-react";
+import { getProductModes } from "@/utils/productModes";
 import siteContent from "@/data/site_content.json";
 import structuredProducts from "@/data/product_pages/structured_products.json";
 
@@ -123,11 +125,21 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           "Familiar features such as recognition of Cheyne-Stokes respiration across the entire line",
         ];
 
+  // Available Device Modes
+  const modesInfo = getProductModes(displayTitle || itemSlug);
+
   // Specifications
-  const specificationsList =
-    foundProd?.specifications && foundProd.specifications.length > 0
-      ? // Pulled catalog data uses `key`; admin-authored products use `label`.
-        foundProd.specifications.map((s: any) => ({
+  const specificationsList = [
+    ...(modesInfo
+      ? [
+          {
+            label: "Available Ventilation Modes",
+            value: modesInfo.modes.join(", ") + (modesInfo.note ? ` (${modesInfo.note})` : ""),
+          },
+        ]
+      : []),
+    ...(foundProd?.specifications && foundProd.specifications.length > 0
+      ? foundProd.specifications.map((s: any) => ({
           label: s.label || s.key,
           value: s.value,
         }))
@@ -138,7 +150,8 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           { label: "System interface", value: "24 V DC max. 5 VA" },
           { label: "Mean sound pressure level", value: "about 26 dB(A) at 10 hPa" },
           { label: "Recommended max O₂ flow", value: "15 liters/minute" },
-        ];
+        ]),
+  ];
 
   // Box Content
   const boxContentsList =
@@ -296,6 +309,31 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   <span className="text-xs font-bold text-[#0a1f3c] ml-1">2 reviews</span>
                 </div>
               </div>
+
+              {/* AVAILABLE DEVICE MODES CARD */}
+              {modesInfo && (
+                <div className="mb-5 p-4 rounded-2xl bg-gradient-to-r from-[#EBF5FF] via-[#F0FDF4] to-white border border-[#0066FF]/20 shadow-xs space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-archivo font-extrabold text-[#0A192F] uppercase tracking-wider">
+                    <Activity className="w-4 h-4 text-[#0066FF]" />
+                    <span>Available Operating Modes</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {modesInfo.modes.map((modeItem, idx) => (
+                      <span
+                        key={idx}
+                        className="px-2.5 py-1 bg-white text-[#0066FF] font-archivo font-extrabold text-[11px] rounded-lg border border-[#0066FF]/30 shadow-2xs"
+                      >
+                        {modeItem}
+                      </span>
+                    ))}
+                  </div>
+                  {modesInfo.note && (
+                    <p className="text-[11px] text-[#64748B] font-medium italic pt-0.5">
+                      *{modesInfo.note}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {/* Price & Discounts Block */}
               <div className="flex items-baseline gap-3 mb-6">

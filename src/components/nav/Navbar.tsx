@@ -55,9 +55,9 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
   const [activeDropdown, setActiveDropdown] = useState<DropdownKey>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
-  // Focus Category selection inside Products mega dropdown
-  const [activeProductFocus, setActiveProductFocus] = useState<ProductFocusKey>("sleep-therapy");
-  const [expandedSubGroup, setExpandedSubGroup] = useState<string | null>("CPAP & APAP Devices");
+  // Focus Category selection inside Products mega dropdown (Default: 1st BiLevel)
+  const [activeProductFocus, setActiveProductFocus] = useState<ProductFocusKey>("bilevel-s-st-devices");
+  const [expandedSubGroup, setExpandedSubGroup] = useState<string | null>("BiLevel Therapy Units");
 
   // Global Website Selector Dropdown State
   const [globalWebsiteOpen, setGlobalWebsiteOpen] = useState<boolean>(false);
@@ -94,11 +94,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
       overviewLink: "/sleep-apnea-therapy",
       subGroups: [
         {
-          title: "CPAP & APAP Devices",
+          title: "Sleep Apnea Therapy",
           items: [
-            { name: "Prisma SMART", link: "/cpap-apap-devices/prisma-smart" },
-            { name: "Prisma SOFT", link: "/cpap-apap-devices/prisma-soft" },
-            { name: "Prisma 20A", link: "/cpap-apap-devices/prisma-20a" },
+            { name: "Prisma SMART", link: "/sleep-apnea-therapy/prisma-smart" },
+            { name: "Prisma SMART Plus", link: "/sleep-apnea-therapy/prisma-smart-plus" },
+            { name: "Prisma 20A", link: "/sleep-apnea-therapy/prisma-20a" },
           ],
         },
       ],
@@ -117,7 +117,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
       ],
     },
     "bilevel-s-st-devices": {
-      title: "BiLevel S & ST Devices",
+      title: "BiLevel",
       overviewLink: "/bilevel-s-st-devices",
       subGroups: [
         {
@@ -151,7 +151,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
           title: "Respiratory Humidification",
           items: [
             { name: "Prisma AQUA", link: "/humidifiers/prisma-aqua" },
-            { name: "VENTIclick", link: "/humidifiers/venticlick" },
           ],
         },
       ],
@@ -170,7 +169,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
       ],
     },
     "sleep-diagnostics": {
-      title: "Sleep Diagnostics",
+      title: "Diagnostic",
       overviewLink: "/sleep-diagnostics",
       subGroups: [
         {
@@ -588,14 +587,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                     <div className="space-y-1 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
                       {(() => {
                         const defaultFocusList = [
+                          { key: "bilevel-s-st-devices", label: "BiLevel" },
+                          { key: "sleep-diagnostics", label: "Diagnostic" },
+                          { key: "masks", label: "Masks" },
                           { key: "sleep-therapy", label: "Sleep Apnea Therapy" },
                           { key: "ventilation", label: "Ventilation" },
-                          { key: "bilevel-s-st-devices", label: "BiLevel S & ST Devices" },
                           { key: "asv-titration-devices", label: "ASV & Titration Devices" },
                           { key: "humidifiers", label: "Humidifiers" },
                           { key: "oxygen-therapy", label: "Oxygen Therapy" },
-                          { key: "sleep-diagnostics", label: "Sleep Diagnostics" },
-                          { key: "masks", label: "Masks" },
                         ];
 
                         const dynamicAdminCategories = (adminCategories || [])

@@ -6,7 +6,7 @@ import { CategoryOverviewComponent } from "@/components/products/CategoryOvervie
 
 export default function DynamicCategoryPage() {
   const params = useParams();
-  const slug = (params?.slug as string) || "cpap-apap-devices";
+  const slug = (params?.slug as string) || "sleep-apnea-therapy";
 
   return <CategoryOverviewComponent categorySlug={slug} />;
 }

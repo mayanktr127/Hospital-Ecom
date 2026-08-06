@@ -77,10 +77,13 @@ export default function AdminDashboardPage() {
     orders,
     deleteOrder,
     updateOrderStatus,
+    sleepStudyBookings,
+    deleteSleepStudyBooking,
+    updateSleepStudyBookingStatus,
   } = useAdmin();
   const { addToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "products" | "categories" | "blogs" | "reviews" | "tracking" | "messages">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "products" | "categories" | "blogs" | "reviews" | "tracking" | "messages" | "sleep-studies">("dashboard");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Search & Filter States
@@ -89,6 +92,7 @@ export default function AdminDashboardPage() {
   const [blogSearch, setBlogSearch] = useState("");
   const [reviewSearch, setReviewSearch] = useState("");
   const [inquirySearch, setInquirySearch] = useState("");
+  const [ssSearch, setSsSearch] = useState("");
 
   // Product Modal State
   const [productModalOpen, setProductModalOpen] = useState(false);
@@ -598,6 +602,16 @@ export default function AdminDashboardPage() {
                   </div>
                   <span className="w-5 h-5 rounded-full bg-[#2a6ecb] text-white text-[10px] flex items-center justify-center font-bold">4</span>
                 </button>
+                <button
+                  onClick={() => { setActiveTab("sleep-studies"); setMobileSidebarOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "sleep-studies" ? "bg-[#0066FF] text-white shadow-xs" : "text-[#64748B]"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Calendar className="w-4 h-4" />
+                    <span>Sleep Study Bookings</span>
+                  </div>
+                  <span className="bg-[#EBF5FF] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono font-bold">{sleepStudyBookings.length}</span>
+                </button>
               </div>
 
               <div className="space-y-1">
@@ -750,6 +764,23 @@ export default function AdminDashboardPage() {
                 <span>Inquiries &amp; Support</span>
               </div>
               <span className="w-5 h-5 rounded-full bg-[#2a6ecb] text-white text-[10px] flex items-center justify-center font-bold">4</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("sleep-studies")}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs transition-all cursor-pointer ${
+                activeTab === "sleep-studies"
+                  ? "bg-[#0066FF] text-white shadow-xs"
+                  : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0066FF]"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Calendar className="w-4 h-4" />
+                <span>Sleep Study Bookings</span>
+              </div>
+              <span className="bg-[#EBF5FF] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono font-bold">
+                {sleepStudyBookings.length}
+              </span>
             </button>
           </div>
 
@@ -1539,6 +1570,179 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           )}
+
+          {/* 7. SLEEP STUDY BOOKINGS TAB */}
+          {activeTab === "sleep-studies" && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                  <h2 className="font-archivo font-extrabold text-2xl text-[#0A192F]">
+                    Sleep Study Bookings &amp; Patient Registrations
+                  </h2>
+                  <p className="text-xs text-[#64748B]">
+                    Manage patient registrations for home/hospital overnight diagnostic sleep studies (Daily rate: ₹5,000 / Study).
+                  </p>
+                </div>
+                <div className="relative w-full sm:w-64">
+                  <Search className="w-4 h-4 text-[#94A3B8] absolute left-3 top-2.5" />
+                  <input
+                    type="text"
+                    placeholder="Search patient, phone, level..."
+                    value={ssSearch}
+                    onChange={(e) => setSsSearch(e.target.value)}
+                    className="w-full pl-9 pr-4 py-2 rounded-xl border border-[#E2E8F0] text-xs bg-white focus:border-[#0066FF] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Stats Bar */}
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <div className="bg-white rounded-2xl p-4 border border-[#E2E8F0] shadow-xs">
+                  <span className="text-[10px] font-bold text-[#64748B] uppercase block">Total Bookings</span>
+                  <span className="font-archivo font-extrabold text-2xl text-[#0A192F]">
+                    {sleepStudyBookings.length}
+                  </span>
+                </div>
+                <div className="bg-[#EBF5FF] rounded-2xl p-4 border border-[#0066FF]/20 shadow-xs">
+                  <span className="text-[10px] font-bold text-[#0066FF] uppercase block">Pending Confirmations</span>
+                  <span className="font-archivo font-extrabold text-2xl text-[#0066FF]">
+                    {sleepStudyBookings.filter((b) => b.status === "Pending").length}
+                  </span>
+                </div>
+                <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-200 shadow-xs">
+                  <span className="text-[10px] font-bold text-emerald-700 uppercase block">Confirmed Studies</span>
+                  <span className="font-archivo font-extrabold text-2xl text-emerald-800">
+                    {sleepStudyBookings.filter((b) => b.status === "Confirmed").length}
+                  </span>
+                </div>
+                <div className="bg-purple-50 rounded-2xl p-4 border border-purple-200 shadow-xs">
+                  <span className="text-[10px] font-bold text-purple-700 uppercase block">Completed Studies</span>
+                  <span className="font-archivo font-extrabold text-2xl text-purple-800">
+                    {sleepStudyBookings.filter((b) => b.status === "Completed").length}
+                  </span>
+                </div>
+              </div>
+
+              {/* Data Table */}
+              <div className="bg-white rounded-2xl border border-[#E2E8F0] shadow-xs overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-[#F8FAFC] text-[#64748B] font-archivo font-bold uppercase tracking-wider border-b border-[#E2E8F0]">
+                      <tr>
+                        <th className="py-3.5 px-4">Booking Ref / Date</th>
+                        <th className="py-3.5 px-4">Patient Name &amp; Contact</th>
+                        <th className="py-3.5 px-4">Physical Stats</th>
+                        <th className="py-3.5 px-4">Sleep Schedule</th>
+                        <th className="py-3.5 px-4">Level Selected</th>
+                        <th className="py-3.5 px-4">Study Date &amp; Address</th>
+                        <th className="py-3.5 px-4">Status</th>
+                        <th className="py-3.5 px-4 text-right">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[#E2E8F0]">
+                      {sleepStudyBookings.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="py-8 text-center text-xs text-[#94A3B8]">
+                            No sleep study bookings received yet.
+                          </td>
+                        </tr>
+                      ) : (
+                        sleepStudyBookings
+                          .filter(
+                            (b) =>
+                              b.patientName.toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              b.phone.toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              b.email.toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              b.level.toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              b.city.toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              b.bookingId.toLowerCase().includes(ssSearch.toLowerCase())
+                          )
+                          .map((b) => (
+                            <tr key={b.bookingId} className="hover:bg-[#F8FAFC] transition-colors">
+                              <td className="py-3.5 px-4">
+                                <span className="font-mono font-bold text-[#0066FF] block">{b.bookingId}</span>
+                                <span className="text-[10px] text-[#94A3B8] block">
+                                  {b.createdAt ? new Date(b.createdAt).toLocaleDateString("en-IN") : "Recent"}
+                                </span>
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <span className="font-bold text-[#0A192F] block">{b.patientName}</span>
+                                <a href={`tel:${b.phone}`} className="text-[#0066FF] hover:underline font-mono text-[11px] block">
+                                  {b.phone}
+                                </a>
+                                <span className="text-[10px] text-[#64748B] block">{b.email}</span>
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <span className="block font-medium text-[#0A192F]">Ht: {b.height}</span>
+                                <span className="block font-medium text-[#0A192F]">Wt: {b.weight}</span>
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <span className="block text-[11px] text-[#0A192F]">Bed: <strong>{b.bedTime}</strong></span>
+                                <span className="block text-[11px] text-[#0A192F]">Up: <strong>{b.upTime}</strong></span>
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <span
+                                  className={`px-2.5 py-1 rounded-full text-[10px] font-archivo font-extrabold uppercase tracking-wide inline-block ${
+                                    b.level.includes("Lvl 1")
+                                      ? "bg-purple-100 text-purple-800 border border-purple-300"
+                                      : b.level.includes("Lvl 2")
+                                      ? "bg-blue-100 text-blue-800 border border-blue-300"
+                                      : "bg-emerald-100 text-emerald-800 border border-emerald-300"
+                                  }`}
+                                >
+                                  {b.level}
+                                </span>
+                              </td>
+                              <td className="py-3.5 px-4 max-w-xs">
+                                <span className="font-bold text-[#0A192F] block">{b.studyDate}</span>
+                                <span className="text-[11px] text-[#64748B] block line-clamp-1">{b.address}, {b.city}</span>
+                              </td>
+                              <td className="py-3.5 px-4">
+                                <select
+                                  value={b.status}
+                                  onChange={(e) => {
+                                    updateSleepStudyBookingStatus(b.bookingId, e.target.value);
+                                    addToast("Status Updated", `Booking #${b.bookingId} set to ${e.target.value}.`);
+                                  }}
+                                  className={`px-2.5 py-1 rounded-xl text-[10px] font-bold border cursor-pointer ${
+                                    b.status === "Pending"
+                                      ? "bg-amber-50 text-amber-700 border-amber-300"
+                                      : b.status === "Confirmed"
+                                      ? "bg-blue-50 text-blue-700 border-blue-300"
+                                      : b.status === "Completed"
+                                      ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                                      : "bg-rose-50 text-rose-700 border-rose-300"
+                                  }`}
+                                >
+                                  <option value="Pending">Pending</option>
+                                  <option value="Confirmed">Confirmed</option>
+                                  <option value="Completed">Completed</option>
+                                  <option value="Cancelled">Cancelled</option>
+                                </select>
+                              </td>
+                              <td className="py-3.5 px-4 text-right">
+                                <button
+                                  onClick={() => {
+                                    if (confirm(`Delete sleep study booking #${b.bookingId} for ${b.patientName}?`)) {
+                                      deleteSleepStudyBooking(b.bookingId);
+                                      addToast("Booking Deleted", `Removed booking #${b.bookingId}.`);
+                                    }
+                                  }}
+                                  className="p-1.5 rounded-lg bg-rose-50 text-rose-600 hover:bg-rose-600 hover:text-white transition-colors cursor-pointer"
+                                  title="Delete Booking"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
 
@@ -1603,7 +1807,7 @@ export default function AdminDashboardPage() {
                     ) : (
                       <>
                         <option value="Ventilation & Sleep">Ventilation &amp; Sleep</option>
-                        <option value="CPAP & APAP Devices">CPAP &amp; APAP Devices</option>
+                        <option value="Sleep Apnea Therapy">Sleep Apnea Therapy</option>
                         <option value="Bilevel-S & ST Devices">Bilevel-S &amp; ST Devices</option>
                         <option value="ASV & Titration Devices">ASV &amp; Titration Devices</option>
                         <option value="Humidifiers">Humidifiers</option>
@@ -1763,7 +1967,7 @@ export default function AdminDashboardPage() {
                   rows={3}
                   value={pFeaturesText}
                   onChange={(e) => setPFeaturesText(e.target.value)}
-                  placeholder="Auto-adjusting CPAP & APAP technology&#10;Deep-blue backlight graphics display&#10;Integrated warm-air humidification"
+                  placeholder="Auto-adjusting Sleep Apnea Therapy technology&#10;Deep-blue backlight graphics display&#10;Integrated warm-air humidification"
                   className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] font-mono focus:border-[#2a6ecb]"
                 />
               </div>

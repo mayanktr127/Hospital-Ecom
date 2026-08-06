@@ -16,8 +16,8 @@ import pulmocareProductsData from "@/data/pulmocare_products.json";
 const SEED_CATEGORIES = [
   {
     id: "cat-1",
-    name: "CPAP & APAP Devices",
-    slug: "cpap-apap-devices",
+    name: "Sleep Apnea Therapy",
+    slug: "sleep-apnea-therapy",
     image: "/images/pulmocare/pulmocare_prisma-20a.png",
     count: "3 Models",
     badge: "Most Popular",

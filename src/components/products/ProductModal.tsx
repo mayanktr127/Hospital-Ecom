@@ -6,8 +6,9 @@ import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useToast } from "@/context/ToastContext";
 import { motion, AnimatePresence } from "motion/react";
-import { X, ShoppingBag, Heart, Star, Plus, Minus } from "lucide-react";
+import { X, ShoppingBag, Heart, Star, Plus, Minus, ArrowRight } from "lucide-react";
 import Image from "next/image";
+import { getProductModes } from "@/utils/productModes";
 
 interface ProductModalProps {
   product: Product | null;
@@ -105,6 +106,32 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                   </span>
                 </div>
 
+                {/* Available Modes in Modal */}
+                {(() => {
+                  const modalModes = getProductModes(product.name || product.id);
+                  if (!modalModes) return null;
+                  return (
+                    <div className="mt-3 p-3 bg-[#EBF5FF] rounded-2xl border border-[#0066FF]/20 space-y-1.5">
+                      <span className="text-[10px] font-archivo font-extrabold text-[#0066FF] uppercase tracking-wider block">
+                        Available Operating Modes
+                      </span>
+                      <div className="flex flex-wrap gap-1">
+                        {modalModes.modes.map((m, idx) => (
+                          <span
+                            key={idx}
+                            className="px-2 py-0.5 bg-white text-[#0066FF] font-archivo font-bold text-[10px] rounded-md border border-[#0066FF]/30"
+                          >
+                            {m}
+                          </span>
+                        ))}
+                      </div>
+                      {modalModes.note && (
+                        <p className="text-[10px] text-[#64748B] italic">*{modalModes.note}</p>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 <p className="text-xs text-[#64748b] mt-3 leading-relaxed">
                   {product.description}
                 </p>
@@ -177,6 +204,17 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                   >
                     <Heart className={`w-5 h-5 ${favorite ? "fill-[#dc4b56]" : ""}`} />
                   </button>
+                </div>
+
+                <div className="pt-2 text-center">
+                  <a
+                    href={`/product/${product.id}`}
+                    onClick={onClose}
+                    className="inline-flex items-center gap-1.5 text-xs font-archivo font-bold text-[#0066FF] hover:underline"
+                  >
+                    <span>View Full Clinical Specifications & Details</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
                 </div>
               </div>
             </div>

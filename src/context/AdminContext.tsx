@@ -53,6 +53,26 @@ export interface OrderItem {
   createdAt?: string;
 }
 
+export interface SleepStudyBookingItem {
+  _id?: string;
+  bookingId: string;
+  patientName: string;
+  phone: string;
+  email: string;
+  height: string;
+  weight: string;
+  bedTime: string;
+  upTime: string;
+  level: string;
+  studyDate: string;
+  address: string;
+  city: string;
+  charges: number;
+  notes?: string;
+  status: string;
+  createdAt?: string;
+}
+
 export interface CategoryItem {
   id: string;
   name: string;
@@ -118,6 +138,11 @@ interface AdminContextType {
   addOrder: (order: OrderItem) => Promise<void>;
   deleteOrder: (orderId: string) => Promise<void>;
   updateOrderStatus: (orderId: string, status: string) => Promise<void>;
+  // Sleep Study Bookings CRUD State
+  sleepStudyBookings: SleepStudyBookingItem[];
+  addSleepStudyBooking: (booking: SleepStudyBookingItem) => Promise<void>;
+  deleteSleepStudyBooking: (bookingId: string) => Promise<void>;
+  updateSleepStudyBookingStatus: (bookingId: string, status: string) => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -134,6 +159,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
   const [orders, setOrders] = useState<OrderItem[]>([]);
+  const [sleepStudyBookings, setSleepStudyBookings] = useState<SleepStudyBookingItem[]>([]);
 
   useEffect(() => {
     // Restore admin session from localStorage
@@ -199,6 +225,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const ordRes = await fetch("/api/orders").then((r) => r.json()).catch(() => ({ success: false }));
         if (ordRes.success && ordRes.orders && ordRes.orders.length > 0) {
           setOrders(ordRes.orders);
+        }
+
+        // Fetch sleep study bookings
+        const ssbRes = await fetch("/api/sleep-study-bookings").then((r) => r.json()).catch(() => ({ success: false }));
+        if (ssbRes.success && ssbRes.bookings && ssbRes.bookings.length > 0) {
+          setSleepStudyBookings(ssbRes.bookings);
         }
       } catch (err) {
         console.error("Failed to load data from backend", err);
@@ -475,6 +507,50 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  // Sleep Study Booking Handlers
+  const addSleepStudyBooking = async (newBooking: SleepStudyBookingItem) => {
+    try {
+      const res = await fetch("/api/sleep-study-bookings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newBooking),
+      });
+      const data = await res.json();
+      if (data.success && data.booking) {
+        setSleepStudyBookings((prev) => [data.booking, ...prev]);
+      } else {
+        setSleepStudyBookings((prev) => [newBooking, ...prev]);
+      }
+    } catch (err) {
+      console.error("Error adding sleep study booking", err);
+      setSleepStudyBookings((prev) => [newBooking, ...prev]);
+    }
+  };
+
+  const deleteSleepStudyBooking = async (bookingId: string) => {
+    setSleepStudyBookings((prev) => prev.filter((b) => b.bookingId !== bookingId));
+    try {
+      await fetch(`/api/sleep-study-bookings?bookingId=${encodeURIComponent(bookingId)}`, { method: "DELETE" });
+    } catch (err) {
+      console.error("Error deleting sleep study booking", err);
+    }
+  };
+
+  const updateSleepStudyBookingStatus = async (bookingId: string, status: string) => {
+    setSleepStudyBookings((prev) =>
+      prev.map((b) => (b.bookingId === bookingId ? { ...b, status } : b))
+    );
+    try {
+      await fetch("/api/sleep-study-bookings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ bookingId, status }),
+      });
+    } catch (err) {
+      console.error("Error updating sleep study booking status", err);
+    }
+  };
+
   return (
     <AdminContext.Provider
       value={{
@@ -507,6 +583,10 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addOrder,
         deleteOrder,
         updateOrderStatus,
+        sleepStudyBookings,
+        addSleepStudyBooking,
+        deleteSleepStudyBooking,
+        updateSleepStudyBookingStatus,
       }}
     >
       {children}

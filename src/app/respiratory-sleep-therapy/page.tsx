@@ -19,7 +19,7 @@ export default function CategoryOverviewPage() {
             Pulmo Care Catalog
           </span>
           <h1 className="font-archivo font-medium text-4xl md:text-[52px] text-[#0a1f3c] mb-4 tracking-[-0.04em] leading-[1.02]">
-            CPAP & APAP Devices
+            Sleep Apnea Therapy
           </h1>
           <div className="w-12 h-1 bg-[#2a6ecb] mb-6 rounded-full" aria-hidden="true" />
           <p className="text-sm md:text-base text-[#182a41] leading-relaxed font-inter max-w-3xl">

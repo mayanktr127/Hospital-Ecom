@@ -9,7 +9,7 @@ export default function CategoryDetailPage({ params }: { params: Promise<{ slug:
 
   return (
     <ProductDetailPage
-      categoryTitle="CPAP & APAP Devices"
+      categoryTitle="Sleep Apnea Therapy"
       categorySlug="respiratory-sleep-therapy"
       itemSlug={slug}
       title={slug.replace(/-/g, " ").toUpperCase()}
