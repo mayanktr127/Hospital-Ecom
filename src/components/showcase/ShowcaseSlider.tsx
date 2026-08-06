@@ -26,7 +26,7 @@ export const ShowcaseSlider: React.FC = () => {
   const slides: SlideData[] = [
     {
       id: "slide-1",
-      badge: "• SLEEP APNEA THERAPY",
+      badge: "• CPAP THERAPY",
       title: "CPAP & APAP Therapy",
       subtitle: "Ultra-quiet, auto-adjusting CPAP & APAP devices engineered in Germany for obstructive sleep apnea.",
       ctaText: "Explore CPAP & APAP",

@@ -20,7 +20,7 @@ export default function SleepApneaDetailPage({ params }: { params: Promise<{ slu
 
   return (
     <ProductDetailPage
-      categoryTitle="Sleep Apnea Therapy"
+      categoryTitle="CPAP Therapy"
       categorySlug="sleep-apnea-therapy"
       itemSlug={slug}
       title={data.title}

@@ -90,11 +90,11 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
     }
   > = {
     "sleep-therapy": {
-      title: "Sleep Apnea Therapy",
+      title: "CPAP Therapy",
       overviewLink: "/sleep-apnea-therapy",
       subGroups: [
         {
-          title: "Sleep Apnea Therapy",
+          title: "CPAP Therapy",
           items: [
             { name: "Prisma SMART", link: "/sleep-apnea-therapy/prisma-smart" },
             { name: "Prisma SMART Plus", link: "/sleep-apnea-therapy/prisma-smart-plus" },
@@ -590,7 +590,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                           { key: "bilevel-s-st-devices", label: "BiLevel" },
                           { key: "sleep-diagnostics", label: "Diagnostic" },
                           { key: "masks", label: "Masks" },
-                          { key: "sleep-therapy", label: "Sleep Apnea Therapy" },
+                          { key: "sleep-therapy", label: "CPAP Therapy" },
                           { key: "ventilation", label: "Ventilation" },
                           { key: "asv-titration-devices", label: "ASV & Titration Devices" },
                           { key: "humidifiers", label: "Humidifiers" },

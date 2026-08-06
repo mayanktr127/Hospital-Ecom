@@ -104,7 +104,7 @@ export const Footer: React.FC = () => {
               </div>
 
               <div>
-                <span className="font-bold text-white block">Homecare &amp; Sleep Therapy</span>
+                <span className="font-bold text-white block">Homecare &amp; CPAP Therapy</span>
                 <span className="text-white/80">+91 93434 44428</span>
               </div>
 

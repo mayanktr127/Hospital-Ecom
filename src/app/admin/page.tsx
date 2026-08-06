@@ -1807,7 +1807,7 @@ export default function AdminDashboardPage() {
                     ) : (
                       <>
                         <option value="Ventilation & Sleep">Ventilation &amp; Sleep</option>
-                        <option value="Sleep Apnea Therapy">Sleep Apnea Therapy</option>
+                        <option value="CPAP Therapy">CPAP Therapy</option>
                         <option value="Bilevel-S & ST Devices">Bilevel-S &amp; ST Devices</option>
                         <option value="ASV & Titration Devices">ASV &amp; Titration Devices</option>
                         <option value="Humidifiers">Humidifiers</option>

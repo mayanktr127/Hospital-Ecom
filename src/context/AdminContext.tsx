@@ -192,14 +192,26 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
 
         // Fetch categories — if DB empty, auto-seed covered by /api/seed above
+        const normalizeCategories = (cats: CategoryItem[]) =>
+          cats.map((c) => {
+            if (c.slug === "sleep-apnea-therapy" || c.id === "cat-1" || c.name === "Sleep Apnea Therapy" || c.name === "Sleep Therapy") {
+              return {
+                ...c,
+                name: "CPAP Therapy",
+                image: "/images/pulmocare/pulmocare_prisma-smart-plus.png",
+              };
+            }
+            return c;
+          });
+
         const catRes = await fetch("/api/categories").then((r) => r.json()).catch(() => ({ success: false }));
         if (catRes.success && catRes.categories && catRes.categories.length > 0) {
-          setCategories(catRes.categories);
+          setCategories(normalizeCategories(catRes.categories));
         } else {
           // Re-try after seed
           const seededCats = await fetch("/api/categories").then((r) => r.json()).catch(() => ({ success: false }));
           if (seededCats.success && seededCats.categories) {
-            setCategories(seededCats.categories);
+            setCategories(normalizeCategories(seededCats.categories));
           }
         }
 

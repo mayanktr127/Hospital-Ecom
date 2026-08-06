@@ -22,9 +22,9 @@ export default function Home() {
 
   const thematicFocuses = [
     {
-      name: "Sleep Apnea Therapy",
+      name: "CPAP Therapy",
       slug: "sleep-apnea-therapy",
-      image: "/images/pulmocare/pulmocare_prisma-20a.png",
+      image: "/images/pulmocare/pulmocare_prisma-smart-plus.png",
       count: "3 Models",
       desc: "Prisma 20A, Prisma Smart, and Prisma Smart Plus APAP devices.",
     },

@@ -16,9 +16,9 @@ import pulmocareProductsData from "@/data/pulmocare_products.json";
 const SEED_CATEGORIES = [
   {
     id: "cat-1",
-    name: "Sleep Apnea Therapy",
+    name: "CPAP Therapy",
     slug: "sleep-apnea-therapy",
-    image: "/images/pulmocare/pulmocare_prisma-20a.png",
+    image: "/images/pulmocare/pulmocare_prisma-smart-plus.png",
     count: "3 Models",
     badge: "Most Popular",
     desc: "Premium auto-CPAP titration for obstructive sleep apnea.",
@@ -161,7 +161,11 @@ export async function GET() {
       results.productsSkipped = `${productCount} products already exist`;
     }
 
-    // === Seed Categories (only if empty) ===
+    // === Seed Categories (only if empty, but ensure CPAP Therapy name & image are updated) ===
+    await Category.updateMany(
+      { $or: [{ id: "cat-1" }, { slug: "sleep-apnea-therapy" }, { name: "Sleep Apnea Therapy" }] },
+      { $set: { name: "CPAP Therapy", image: "/images/pulmocare/pulmocare_prisma-smart-plus.png" } }
+    );
     const categoryCount = await Category.countDocuments();
     if (categoryCount === 0) {
       const seeded = await Category.insertMany(SEED_CATEGORIES);
