@@ -84,7 +84,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const foundProd =
     adminMatch ||
     products.find(
-      (p) => p.id === itemSlug || p.id.includes(itemSlug) || itemSlug.includes(p.id)
+      (p) =>
+        p.id === itemSlug ||
+        (itemSlug.length >= 3 && p.id.length >= 3 && (p.id.includes(itemSlug) || itemSlug.includes(p.id)))
     );
 
   // Product cutout image for Description & Image section

@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product } from "@/types/product";
+import { getDefaultProducts } from "@/utils/defaultProducts";
 
 export interface ReviewItem {
   id: string;
@@ -152,8 +153,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // All data starts empty — populated exclusively from API
-  const [products, setProducts] = useState<Product[]>([]);
+  // Products start pre-populated with default products, overwritten if API succeeds
+  const [products, setProducts] = useState<Product[]>(getDefaultProducts());
   const [categories, setCategories] = useState<CategoryItem[]>([]);
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);

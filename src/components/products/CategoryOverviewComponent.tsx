@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
 import { useAdmin } from "@/context/AdminContext";
+import { getDefaultProducts } from "@/utils/defaultProducts";
 import {
   ShoppingCart,
   Heart,
@@ -77,35 +78,35 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
     defaultDesc ||
     "High-performance medical hardware engineered for clinical hospital and homecare respiratory therapy. Certified to international CE and ISO 13485 quality standards.";
 
-  const categoryProducts = products.filter((p) => {
-    if (!p || !p.category) return false;
+  const sourceProducts = products && products.length > 0 ? products : getDefaultProducts();
 
-    const pCatNorm = p.category.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const slugNorm = categorySlug.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const filterCategoryProducts = (prods: typeof sourceProducts) =>
+    prods.filter((p) => {
+      if (!p || !p.category) return false;
 
-    if (!currentCategory) {
+      const pCatNorm = p.category.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const slugNorm = categorySlug.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+      const cNameNorm = currentCategory ? currentCategory.name.toLowerCase().replace(/[^a-z0-9]/g, "") : "";
+      const cSlugNorm = currentCategory ? (currentCategory.slug || "").toLowerCase().replace(/[^a-z0-9]/g, "") : "";
+
       return (
         pCatNorm === slugNorm ||
+        pCatNorm === cNameNorm ||
+        pCatNorm === cSlugNorm ||
         pCatNorm.includes(slugNorm) ||
-        slugNorm.includes(pCatNorm)
+        slugNorm.includes(pCatNorm) ||
+        (cNameNorm && (pCatNorm.includes(cNameNorm) || cNameNorm.includes(pCatNorm))) ||
+        (cSlugNorm && (pCatNorm.includes(cSlugNorm) || cSlugNorm.includes(pCatNorm))) ||
+        (slugNorm.includes("sleep") && pCatNorm.includes("cpap")) ||
+        (slugNorm.includes("cpap") && pCatNorm.includes("sleep"))
       );
-    }
+    });
 
-    const cNameNorm = currentCategory.name.toLowerCase().replace(/[^a-z0-9]/g, "");
-    const cSlugNorm = (currentCategory.slug || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-    const cIdNorm = (currentCategory.id || "").toLowerCase().replace(/[^a-z0-9]/g, "");
-
-    return (
-      pCatNorm === cNameNorm ||
-      pCatNorm === cSlugNorm ||
-      pCatNorm === cIdNorm ||
-      pCatNorm === slugNorm ||
-      pCatNorm.includes(cNameNorm) ||
-      cNameNorm.includes(pCatNorm) ||
-      pCatNorm.includes(slugNorm) ||
-      slugNorm.includes(pCatNorm)
-    );
-  });
+  let categoryProducts = filterCategoryProducts(sourceProducts);
+  if (categoryProducts.length === 0) {
+    categoryProducts = filterCategoryProducts(getDefaultProducts());
+  }
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
