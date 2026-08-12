@@ -5,7 +5,8 @@ import { useWishlist } from "@/context/WishlistContext";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import { motion, AnimatePresence } from "motion/react";
-import { X, Trash2, Heart, ShoppingBag } from "lucide-react";
+import { X, Trash2, Heart, ShoppingBag, Phone } from "lucide-react";
+import { isRentalProduct, RENTAL_SHORT_MESSAGE, RENTAL_PHONE } from "@/utils/rental";
 import Image from "next/image";
 
 export const WishlistDrawer: React.FC = () => {
@@ -84,22 +85,38 @@ export const WishlistDrawer: React.FC = () => {
                         <h4 className="font-archivo font-semibold text-xs text-[#182a41] line-clamp-1">
                           {product.name}
                         </h4>
-                        <span className="font-archivo font-bold text-sm text-[#0a1f3c] block mt-0.5">
-                          ₹{product.price.toLocaleString("en-IN")}.00
-                        </span>
+                        {isRentalProduct(product) ? (
+                          <span className="font-archivo font-bold text-[11px] text-[#2a6ecb] block mt-0.5">
+                            {RENTAL_SHORT_MESSAGE}
+                          </span>
+                        ) : (
+                          <span className="font-archivo font-bold text-sm text-[#0a1f3c] block mt-0.5">
+                            ₹{product.price.toLocaleString("en-IN")}.00
+                          </span>
+                        )}
 
                         <div className="flex items-center gap-2 mt-2">
-                          <button
-                            onClick={() => {
-                              addToCart(product);
-                              removeFromWishlist(product.id);
-                              addToast("Moved to Cart", `${product.name} moved to your shopping cart.`);
-                            }}
-                            className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
-                          >
-                            <ShoppingBag className="w-3 h-3" />
-                            <span>Move to Cart</span>
-                          </button>
+                          {isRentalProduct(product) ? (
+                            <a
+                              href={`tel:${RENTAL_PHONE}`}
+                              className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
+                            >
+                              <Phone className="w-3 h-3" />
+                              <span>Contact for Rental</span>
+                            </a>
+                          ) : (
+                            <button
+                              onClick={() => {
+                                addToCart(product);
+                                removeFromWishlist(product.id);
+                                addToast("Moved to Cart", `${product.name} moved to your shopping cart.`);
+                              }}
+                              className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
+                            >
+                              <ShoppingBag className="w-3 h-3" />
+                              <span>Move to Cart</span>
+                            </button>
+                          )}
 
                           <button
                             onClick={() => removeFromWishlist(product.id)}

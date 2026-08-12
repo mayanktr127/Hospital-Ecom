@@ -7,6 +7,7 @@ import { useAdmin, ReviewItem, CategoryItem } from "@/context/AdminContext";
 import { useToast } from "@/context/ToastContext";
 import { Product } from "@/types/product";
 import { BlogPost } from "@/context/AdminContext";
+import { isRentalProduct, isRentalCategory } from "@/utils/rental";
 import {
   LayoutDashboard,
   Package,
@@ -216,6 +217,7 @@ export default function AdminDashboardPage() {
   const [pInStock, setPInStock] = useState(true);
   const [pIsFeatured, setPIsFeatured] = useState(false);
   const [pIsOffer, setPIsOffer] = useState(false);
+  const [pPricingMode, setPPricingMode] = useState<"price" | "rental">("price");
   const [pFeaturesText, setPFeaturesText] = useState("");
   const [pSpecsText, setPSpecsText] = useState("");
   const [pBoxContentsText, setPBoxContentsText] = useState("");
@@ -287,6 +289,7 @@ export default function AdminDashboardPage() {
       setPInStock(prod.inStock !== false);
       setPIsFeatured(Boolean(prod.isFeatured));
       setPIsOffer(Boolean(prod.isOffer));
+      setPPricingMode(isRentalProduct(prod) ? "rental" : "price");
       setPFeaturesText((prod.features || []).join("\n"));
       setPSpecsText(
         (prod.specifications || [])
@@ -312,6 +315,7 @@ export default function AdminDashboardPage() {
       setPInStock(true);
       setPIsFeatured(true);
       setPIsOffer(false);
+      setPPricingMode(isRentalCategory("Ventilation & Sleep") ? "rental" : "price");
       setPFeaturesText("High-performance clinical ventilation\nGerman precision engineering\nUltra-quiet operation (<26 dB)\nIntegrated humidification option");
       setPSpecsText("Operating Noise: 26 dB(A)\nPressure Range: 4 - 20 hPa\nWeight: 1.4 kg\nDimensions: 170 x 135 x 180 mm\nPower Supply: 100 - 240V AC");
       setPBoxContentsText("Main Device Unit\nPower Cord & Adapter\nAir Filter\nUser Manual (EN/DE)\nCarrying Bag");
@@ -359,6 +363,7 @@ export default function AdminDashboardPage() {
       inStock: pInStock,
       isFeatured: pIsFeatured,
       isOffer: pIsOffer,
+      isRental: pPricingMode === "rental",
       description: pDescription,
       badge: pBadge,
       brand: pBrand,
@@ -1158,7 +1163,15 @@ export default function AdminDashboardPage() {
                           </div>
                         </td>
                         <td className="py-3 px-4 text-[#64748B] font-medium">{p.category}</td>
-                        <td className="py-3 px-4 font-bold text-[#182a41]">₹{p.price.toLocaleString("en-IN")}</td>
+                        <td className="py-3 px-4 font-bold text-[#182a41]">
+                          {isRentalProduct(p) ? (
+                            <span className="bg-[#EBF5FF] text-[#2a6ecb] px-2 py-0.5 rounded-full text-[10px] font-bold">
+                              Rental — Contact
+                            </span>
+                          ) : (
+                            <>₹{p.price.toLocaleString("en-IN")}</>
+                          )}
+                        </td>
                         <td className="py-3 px-4">
                           <span className="bg-[#e0f3ec] text-[#1fb37a] px-2 py-0.5 rounded-full text-[10px] font-bold">
                             In Stock
@@ -1795,7 +1808,12 @@ export default function AdminDashboardPage() {
                   <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Category *</label>
                   <select
                     value={pCategory}
-                    onChange={(e) => setPCategory(e.target.value)}
+                    onChange={(e) => {
+                      setPCategory(e.target.value);
+                      // Pre-select the listing type this category normally uses;
+                      // the admin can still override it below.
+                      setPPricingMode(isRentalCategory(e.target.value) ? "rental" : "price");
+                    }}
                     className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] font-semibold focus:border-[#2a6ecb]"
                   >
                     {categories && categories.length > 0 ? (
@@ -1848,29 +1866,81 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* Pricing: Selling Price & Original Price */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-[#f7f6fb] p-4 rounded-2xl border border-[#e9edf4]">
+              {/* Pricing: Sale vs Rental mode, then Selling Price & Original Price */}
+              <div className="space-y-4 bg-[#f7f6fb] p-4 rounded-2xl border border-[#e9edf4]">
                 <div>
-                  <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">Selling Price (₹) *</label>
-                  <input
-                    type="number"
-                    required
-                    value={pPrice}
-                    onChange={(e) => setPPrice(e.target.value)}
-                    placeholder="e.g. 45990"
-                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-bold text-[#0a1f3c] focus:border-[#2a6ecb]"
-                  />
+                  <label className="block font-archivo font-bold text-[#182a41] uppercase mb-2">
+                    Listing Type *
+                  </label>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setPPricingMode("price")}
+                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                        pPricingMode === "price"
+                          ? "bg-white border-[#2a6ecb] ring-2 ring-[#2a6ecb]/25"
+                          : "bg-white/60 border-[#e9edf4] hover:border-[#7fb0ee]"
+                      }`}
+                    >
+                      <span className="font-archivo font-bold text-xs text-[#182a41] block">
+                        Price Based (Sell Online)
+                      </span>
+                      <span className="text-[11px] text-[#64748B] leading-snug block mt-0.5">
+                        Shows the price with Add to Cart &amp; Buy Now.
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPPricingMode("rental")}
+                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                        pPricingMode === "rental"
+                          ? "bg-white border-[#2a6ecb] ring-2 ring-[#2a6ecb]/25"
+                          : "bg-white/60 border-[#e9edf4] hover:border-[#7fb0ee]"
+                      }`}
+                    >
+                      <span className="font-archivo font-bold text-xs text-[#182a41] block">
+                        Rental (Contact for Price)
+                      </span>
+                      <span className="text-[11px] text-[#64748B] leading-snug block mt-0.5">
+                        Hides the price and shows &ldquo;available for rental &mdash; please contact&rdquo;.
+                      </span>
+                    </button>
+                  </div>
+
+                  {pPricingMode === "rental" && (
+                    <p className="text-[11px] text-[#2a6ecb] font-semibold mt-2">
+                      Price fields below stay saved for your records but are not shown on the storefront.
+                    </p>
+                  )}
                 </div>
 
-                <div>
-                  <label className="block font-archivo font-bold text-[#64748b] uppercase mb-1">Original Price / MSRP (₹)</label>
-                  <input
-                    type="number"
-                    value={pOriginalPrice}
-                    onChange={(e) => setPOriginalPrice(e.target.value)}
-                    placeholder="e.g. 65000"
-                    className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-semibold text-[#64748b] focus:border-[#2a6ecb]"
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
+                      Selling Price (₹) {pPricingMode === "price" ? "*" : "(optional)"}
+                    </label>
+                    <input
+                      type="number"
+                      required={pPricingMode === "price"}
+                      value={pPrice}
+                      onChange={(e) => setPPrice(e.target.value)}
+                      placeholder="e.g. 45990"
+                      className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-bold text-[#0a1f3c] focus:border-[#2a6ecb]"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block font-archivo font-bold text-[#64748b] uppercase mb-1">Original Price / MSRP (₹)</label>
+                    <input
+                      type="number"
+                      value={pOriginalPrice}
+                      onChange={(e) => setPOriginalPrice(e.target.value)}
+                      placeholder="e.g. 65000"
+                      className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-semibold text-[#64748b] focus:border-[#2a6ecb]"
+                    />
+                  </div>
                 </div>
               </div>
 

@@ -6,8 +6,9 @@ import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useToast } from "@/context/ToastContext";
-import { ShoppingBag, Heart, Eye, Star } from "lucide-react";
+import { ShoppingBag, Heart, Eye, Star, Phone } from "lucide-react";
 import { motion } from "motion/react";
+import { isRentalProduct, RENTAL_SHORT_MESSAGE, RENTAL_PHONE } from "@/utils/rental";
 
 interface ProductCardProps {
   product: Product;
@@ -20,6 +21,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
   const { addToast } = useToast();
 
   const favorite = isFavorite(product.id);
+  const rentalOnly = isRentalProduct(product);
 
   return (
     <motion.div
@@ -82,36 +84,52 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         </h4>
       </div>
 
-      {/* Rating & Price */}
+      {/* Rating & Price (or rental notice) */}
       <div className="price flex items-center justify-between pt-1">
-        <div className="flex items-baseline gap-2">
-          <span className="now">
-            ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+        {rentalOnly ? (
+          <span className="text-[13px] font-archivo font-semibold text-[#2a6ecb] leading-snug">
+            {RENTAL_SHORT_MESSAGE}
           </span>
-          {product.originalPrice && (
-            <s className="was">
-              ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </s>
-          )}
-        </div>
+        ) : (
+          <div className="flex items-baseline gap-2">
+            <span className="now">
+              ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            {product.originalPrice && (
+              <s className="was">
+                ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </s>
+            )}
+          </div>
+        )}
 
-        <div className="flex items-center gap-1 text-[#f2b134] text-xs font-bold font-archivo">
+        <div className="flex items-center gap-1 text-[#f2b134] text-xs font-bold font-archivo shrink-0">
           <Star className="w-3 h-3 fill-[#f2b134]" />
           <span>{product.rating}</span>
         </div>
       </div>
 
-      {/* Add to Cart CTA */}
-      <button
-        onClick={() => {
-          addToCart(product);
-          addToast("Added to Cart", `${product.name} added to your cart.`);
-        }}
-        className="btn btn-primary add w-full mt-1 !py-3 !px-4 !text-[13px] active:scale-[0.98]"
-      >
-        <ShoppingBag className="w-3.5 h-3.5" />
-        <span>Add to cart</span>
-      </button>
+      {/* Add to Cart CTA — rental products contact us instead */}
+      {rentalOnly ? (
+        <a
+          href={`tel:${RENTAL_PHONE}`}
+          className="btn btn-primary add w-full mt-1 !py-3 !px-4 !text-[13px] active:scale-[0.98]"
+        >
+          <Phone className="w-3.5 h-3.5" />
+          <span>Contact for Rental</span>
+        </a>
+      ) : (
+        <button
+          onClick={() => {
+            addToCart(product);
+            addToast("Added to Cart", `${product.name} added to your cart.`);
+          }}
+          className="btn btn-primary add w-full mt-1 !py-3 !px-4 !text-[13px] active:scale-[0.98]"
+        >
+          <ShoppingBag className="w-3.5 h-3.5" />
+          <span>Add to cart</span>
+        </button>
+      )}
     </motion.div>
   );
 };

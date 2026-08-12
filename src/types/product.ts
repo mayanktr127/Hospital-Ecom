@@ -25,6 +25,12 @@ export interface Product {
   inStock: boolean;
   isFeatured?: boolean;
   isOffer?: boolean;
+  /**
+   * true  = rental only, shows "available for rental — please contact"
+   * false = sold at the listed price
+   * undefined = fall back to the category default (see utils/rental.ts)
+   */
+  isRental?: boolean;
   description: string;
   features?: string[];
   specifications: ProductSpecification[];

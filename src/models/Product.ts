@@ -12,6 +12,7 @@ export interface IProduct extends Document {
   inStock: boolean;
   isFeatured?: boolean;
   isOffer?: boolean;
+  isRental?: boolean;
   description: string;
   specifications: { label?: string; key?: string; value: string }[];
   badge?: string;
@@ -36,6 +37,9 @@ const ProductSchema: Schema = new Schema(
     inStock: { type: Boolean, default: true },
     isFeatured: { type: Boolean, default: false },
     isOffer: { type: Boolean, default: false },
+    // Left without a default on purpose — an unset value means "use the
+    // category default" rather than "sold at a price".
+    isRental: { type: Boolean },
     description: { type: String, required: true },
     features: [{ type: String }],
     specifications: [
