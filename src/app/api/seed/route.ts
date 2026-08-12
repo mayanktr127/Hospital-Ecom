@@ -46,7 +46,7 @@ const SEED_CATEGORIES = [
     name: "Humidifiers",
     slug: "humidifiers",
     image: "/images/pulmocare/pulmocare_prisma-aqua.png",
-    count: "1 Model",
+    count: "2 Models",
     desc: "Heated humidification for patient comfort.",
   },
   {
@@ -80,7 +80,7 @@ const SEED_CATEGORIES = [
     name: "Masks",
     slug: "masks",
     image: "/images/pulmocare/pulmo_l-wenstein-lena.png",
-    count: "4 Models",
+    count: "5 Models",
     badge: "Ergonomic Seal",
     desc: "Nasal and full face ventilation patient masks.",
   },
@@ -125,41 +125,47 @@ export async function GET() {
 
     const results: Record<string, any> = {};
 
-    // === Seed Products (only if empty) ===
-    const productCount = await Product.countDocuments();
-    if (productCount === 0) {
-      const productList: any[] = [];
-      if (pulmocareProductsData && typeof pulmocareProductsData === "object") {
-        Object.values(pulmocareProductsData as Record<string, any>).forEach((catObj: any) => {
-          if (catObj && catObj.products && Array.isArray(catObj.products)) {
-            catObj.products.forEach((p: any, idx: number) => {
-              productList.push({
-                id: p.slug || `prod-${idx}-${Date.now()}`,
-                name: p.title || "Medical Device",
-                category: catObj.name || "Ventilation & Sleep",
-                price: p.price || 45990,
-                originalPrice: p.originalPrice || (p.price ? Math.round(p.price * 1.35) : 65000),
-                image: p.image || "/images/pulmocare/pulmocare_prisma-smart.png",
-                rating: 5,
-                reviewsCount: 4,
-                inStock: true,
-                description: p.tagline || p.introParagraph || "High-performance medical equipment.",
-                features: p.features || [],
-                specifications: p.specifications || [],
-                badge: p.badge || "",
-                brand: "Löwenstein Medical",
-                sku: p.slug ? `SKU-${p.slug.toUpperCase()}` : undefined,
-                warranty: "2 Years German Manufacturer Warranty",
-              });
+    // === Seed Products (upsert missing or new products from JSON) ===
+    const productList: any[] = [];
+    if (pulmocareProductsData && typeof pulmocareProductsData === "object") {
+      Object.values(pulmocareProductsData as Record<string, any>).forEach((catObj: any) => {
+        if (catObj && catObj.products && Array.isArray(catObj.products)) {
+          catObj.products.forEach((p: any, idx: number) => {
+            productList.push({
+              id: p.slug || `prod-${idx}-${Date.now()}`,
+              name: p.title || "Medical Device",
+              category: catObj.name || "Ventilation & Sleep",
+              price: p.price || 45990,
+              originalPrice: p.originalPrice || (p.price ? Math.round(p.price * 1.35) : 65000),
+              image: p.image || "/images/pulmocare/pulmocare_prisma-smart.png",
+              rating: 5,
+              reviewsCount: 4,
+              inStock: true,
+              description: p.tagline || p.introParagraph || "High-performance medical equipment.",
+              features: p.features || [],
+              specifications: p.specifications || [],
+              badge: p.badge || "",
+              brand: (p.title || p.slug || p.id || "").toLowerCase().includes("inogen")
+                ? "Inogen"
+                : (p.title || p.slug || p.id || "").toLowerCase().includes("nidek")
+                ? "Nidek Medical"
+                : p.brand && p.brand !== "Pulmo Care"
+                ? p.brand
+                : "Löwenstein Medical",
+              sku: p.slug ? `SKU-${p.slug.toUpperCase()}` : undefined,
+              warranty: "2 Years German Manufacturer Warranty",
             });
-          }
-        });
-      }
-      const seeded = await Product.insertMany(productList);
-      results.productsSeeded = seeded.length;
-    } else {
-      results.productsSkipped = `${productCount} products already exist`;
+          });
+        }
+      });
     }
+
+    let upsertedCount = 0;
+    for (const prodItem of productList) {
+      await Product.updateOne({ id: prodItem.id }, { $set: prodItem }, { upsert: true });
+      upsertedCount++;
+    }
+    results.productsSynced = `${upsertedCount} products verified/synced in DB`;
 
     // === Seed Categories (only if empty, but ensure CPAP Therapy name & image are updated) ===
     await Category.updateMany(

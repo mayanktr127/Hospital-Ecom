@@ -11,8 +11,9 @@ import { ProductSection } from "@/components/products/ProductSection";
 import { ContactSection } from "@/components/contact/ContactSection";
 import { ToastContainer } from "@/components/ui/Toast";
 import { useAdmin } from "@/context/AdminContext";
+import { SleepStudyRentalSection } from "@/components/sleep/SleepStudyRentalSection";
 import { ProductCategory, Product } from "@/types/product";
-import { Activity, ShieldCheck, ArrowRight, FileText, Flame, ShoppingCart, Headphones, Clock, BookOpen, Sparkles } from "lucide-react";
+import { ArrowRight, ShoppingCart, Headphones, Clock, BookOpen, Sparkles } from "lucide-react";
 
 export default function Home() {
   const { categories, products } = useAdmin();
@@ -178,6 +179,11 @@ export default function Home() {
             })}
           </div>
         </section>
+
+        {/* Home & Hospital Sleep Study Rental Section */}
+        <div className="w-full wrap max-w-[1240px] mx-auto px-4 md:px-6">
+          <SleepStudyRentalSection />
+        </div>
 
         {/* 3. Redesigned Premium Section: Flagship Device Spotlight Banner */}
         <section className="w-full wrap max-w-[1240px] mx-auto px-4 md:px-6 mb-24">

@@ -114,6 +114,26 @@
     }
   },
   {
+    "id": "l-wenstein-prisma-aqua-black",
+    "name": "Prisma AQUA (Black)",
+    "category": "Ventilation & Sleep",
+    "price": "Call for Price",
+    "rating": 4.9,
+    "reviewsCount": 24,
+    "image": "/images/pulmocare/pulmo_l-wenstein-prisma-aqua-black.png",
+    "originalUrl": "https://pulmocare.in/product/prisma-aqua-black/",
+    "description": "Official Löwenstein Prisma AQUA Black Edition from Pulmo Care. High-performance hospital & home healthcare medical equipment with German engineering precision.",
+    "inStock": true,
+    "isFeatured": true,
+    "specs": {
+      "Manufacturer": "Pulmo Care",
+      "Compliance": "CE / ISO 13485 Certified",
+      "Warranty": "2 Years Official Warranty",
+      "Origin": "Germany / India",
+      "Color": "Matte Black"
+    }
+  },
+  {
     "id": "l-wenstein-luisa-ventilator",
     "name": "Luisa -–- Ventilator",
     "category": "Ventilation & Sleep",

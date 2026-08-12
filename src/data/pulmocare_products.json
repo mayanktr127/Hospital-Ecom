@@ -171,8 +171,8 @@
         "categorySlug": "sleep-apnea-therapy",
         "url": "https://pulmocare.in/product/prisma-smart-plus/",
         "image": "/images/pulmocare/pulmocare_prisma-smart-plus.png",
-        "tagline": "Advanced auto-CPAP with integrated Bluetooth connectivity and mobile app telemetry.",
-        "introParagraph": "Prisma SMART Plus combines Löwenstein's precise auto-CPAP algorithm with integrated Bluetooth connectivity. Patients and clinicians can access sleep compliance data on smartphones via the Prisma APP, backed by German manufacturing precision.",
+        "tagline": "Advanced auto-CPAP with mobile app telemetry and intelligent pressure management.",
+        "introParagraph": "Prisma SMART Plus combines Löwenstein's precise auto-CPAP algorithm with intelligent pressure management. Patients and clinicians can access sleep compliance data via the Prisma APP, backed by German manufacturing precision.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -216,7 +216,7 @@
           },
           {
             "key": "Wireless",
-            "value": "Integrated Bluetooth Low Energy"
+            "value": "USB Data Export & Prisma APP"
           },
           {
             "key": "Noise Level",
@@ -228,7 +228,7 @@
           }
         ],
         "features": [
-          "Integrated Bluetooth connectivity for mobile app telemetry",
+          "Mobile app telemetry via Prisma APP for compliance tracking",
           "FOT central sleep apnea detection algorithm",
           "softPAP exhalation pressure reduction",
           "Compact white-fronted design with high-contrast screen",
@@ -678,6 +678,50 @@
           "Easy top-fill opening and dishwasher-safe tub",
           "Smart warm-up pre-heating option"
         ]
+      },
+      {
+        "id": "prisma-aqua-black",
+        "title": "Löwenstein Prisma AQUA Humidifier (Black)",
+        "slug": "prisma-aqua-black",
+        "categoryName": "Humidifiers",
+        "categorySlug": "humidifiers",
+        "url": "https://pulmocare.in/product/prisma-aqua-black/",
+        "image": "/images/pulmocare/pulmocare_prisma-aqua-black.png",
+        "tagline": "Heated humidifier for prismaLINE CPAP & BiLevel devices - Black Edition.",
+        "introParagraph": "Prisma AQUA heated humidifier in sleek matte black edition clicks seamlessly into any prismaLINE device. Eliminates nasal dryness, congestion, and cold airway irritation during sleep therapy.",
+        "specs": {
+          "Manufacturer": "Pulmo Care",
+          "Compliance": "CE / ISO 13485 Certified",
+          "Warranty": "2 Years Official Warranty",
+          "Origin": "Germany / India"
+        },
+        "price": 12180.0,
+        "originalPrice": 16500.0,
+        "specifications": [
+          {
+            "key": "Water Capacity",
+            "value": "400 ml"
+          },
+          {
+            "key": "Heating Output",
+            "value": "5 levels (100-240V)"
+          },
+          {
+            "key": "Weight",
+            "value": "0.4 kg"
+          },
+          {
+            "key": "Color",
+            "value": "Matte Black"
+          }
+        ],
+        "features": [
+          "400 ml transparent water chamber",
+          "5 adjustable heating levels with auto-shutoff safety",
+          "Easy top-fill opening and dishwasher-safe tub",
+          "Smart warm-up pre-heating option",
+          "Special Matte Black finish edition"
+        ]
       }
     ]
   },
@@ -1081,8 +1125,8 @@
         "categorySlug": "sleep-diagnostics",
         "url": "https://pulmocare.in/product/polygraphy-devices-samoa/",
         "image": "/images/site/sleep_diagnostics_csm_samoa_sleep_diagnostics_device_frontal_dba1194f3b.png",
-        "tagline": "Ultra-compact 10-channel home sleep apnea testing (HSAT) polygraphy system.",
-        "introParagraph": "Samoa is an ultra-compact sleep polygraphy recorder with 10 channels designed for effortless home sleep testing. Features built-in thorax/abdomen effort sensors, pulse oximetry, and automatic diagnostic reporting software.",
+        "tagline": "Ultra-compact 12-channel home sleep apnea testing (HSAT) polygraphy system.",
+        "introParagraph": "Samoa is an ultra-compact sleep polygraphy recorder with 12 channels designed for effortless home sleep testing. Features built-in thorax/abdomen effort sensors, pulse oximetry, and automatic diagnostic reporting software.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -1120,7 +1164,7 @@
         "price": 185000,
         "originalPrice": 235000,
         "features": [
-          "10 recording channels for home sleep apnea testing (HSAT)",
+          "12 recording channels for home sleep apnea testing (HSAT)",
           "Integrated thorax and abdomen effort recording",
           "OLED color display for sensor impedance check",
           "Automatic scoring via PrismaTS diagnostic software",
@@ -1129,7 +1173,7 @@
         "specifications": [
           {
             "key": "Channels",
-            "value": "10 recording channels"
+            "value": "12 recording channels"
           },
           {
             "key": "Sensors",
@@ -1153,8 +1197,8 @@
         "categorySlug": "sleep-diagnostics",
         "url": "https://pulmocare.in/product/polygraphy-devices-scala/",
         "image": "/images/pulmocare/pulmocare_polygraphy-devices-scala.png",
-        "tagline": "Expandable 16 to 28 channel polygraphy and polysomnography system.",
-        "introParagraph": "Scala is a flexible diagnostic system expandable from polygraphy to full polysomnography (PSG) with up to 28 channels. Supports wireless Bluetooth data transmission to sleep lab monitoring stations.",
+        "tagline": "Expandable polygraphy and polysomnography system with up to 24 recording channels.",
+        "introParagraph": "Scala is a flexible diagnostic system expandable from polygraphy to full polysomnography (PSG) with up to 24 recording channels, delivering sleep lab grade signal quality for both attended and unattended studies.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -1192,19 +1236,19 @@
         "price": 240000,
         "originalPrice": 310000,
         "features": [
-          "16 to 28 recording channels expandable to EEG/EOG/EMG",
-          "Wireless Bluetooth data transmission",
+          "Up to 24 recording channels expandable to EEG/EOG/EMG",
           "High-precision continuous SpO2 and pulse waveform",
-          "AASM compliant diagnostic report generation"
+          "AASM compliant diagnostic report generation",
+          "Wired data transfer to sleep lab analysis software"
         ],
         "specifications": [
           {
             "key": "Channel Capacity",
-            "value": "16 - 28 Channels"
+            "value": "Up to 24 Channels"
           },
           {
-            "key": "Wireless",
-            "value": "Bluetooth Class 1"
+            "key": "Data Transfer",
+            "value": "Wired (No Bluetooth)"
           },
           {
             "key": "Weight",
@@ -1220,8 +1264,8 @@
         "categorySlug": "sleep-diagnostics",
         "url": "https://pulmocare.in/product/polysomnography-devices-sonata/",
         "image": "/images/pulmocare/pulmocare_polysomnography-devices-sonata.png",
-        "tagline": "Premier 33-channel hospital sleep lab PSG diagnostic system with HD video.",
-        "introParagraph": "Sonata is Löwenstein's flagship 33-channel sleep lab polysomnography system. Complete with HD IP video synchronization, infrared night vision, and comprehensive neurological sleep analysis.",
+        "tagline": "Premier 65-channel hospital sleep lab PSG diagnostic system with HD video.",
+        "introParagraph": "Sonata is Löwenstein's flagship 65-channel sleep lab polysomnography system. Complete with HD IP video synchronization, infrared night vision, and comprehensive neurological sleep analysis.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -1259,15 +1303,15 @@
         "price": 450000,
         "originalPrice": 58000,
         "features": [
-          "33 high-resolution diagnostic channels",
+          "65 high-resolution diagnostic channels",
           "Full PSG EEG, EOG, EMG, ECG, and leg movement recording",
           "Synchronized HD IP video camera with infrared night vision",
-          "Automatic sleep staging & arousal scoring"
+          "AASM compliant manual scoring and reporting workflow"
         ],
         "specifications": [
           {
             "key": "Total Channels",
-            "value": "33 Channels"
+            "value": "65 Channels"
           },
           {
             "key": "Video Sync",
@@ -1493,6 +1537,63 @@
           "Whisper-quiet air dispersion system (13 dB)",
           "Soft, supple cushion with perfect facial adaptation",
           "OEKO-TEX Standard 100 skin-friendly headgear"
+        ]
+      },
+      {
+        "id": "joyceone-nasal",
+        "title": "Löwenstein JOYCEone Nasal Mask",
+        "slug": "joyceone-nasal",
+        "categoryName": "Masks",
+        "categorySlug": "masks",
+        "url": "https://pulmocare.in/product/joyceone-nasal/",
+        "image": "/images/site/masks_joyceone_full_face_csm_joyceone_mask_patient_interface_fullface_vented_right_9753e5619b.png",
+        "tagline": "Universal one-size nasal mask with SilkTec coating for effortless CPAP therapy.",
+        "introParagraph": "JOYCEone Nasal mask brings the same SilkTec smooth-coating technology and one-size-fits-all concept to a nasal design, offering compact coverage, quiet exhalation, and an intuitive magnetic headgear system for easy nightly use.",
+        "specs": {
+          "Manufacturer": "Pulmo Care",
+          "Type": "Nasal Mask",
+          "Coating": "SilkTec Soft Finish",
+          "Compliance": "CE / ISO 13485 Certified"
+        },
+        "accordion": [
+          {
+            "title": "Main Features & Benefits",
+            "content": "One universal size fits virtually all facial shapes with SilkTec cushion technology."
+          }
+        ],
+        "downloads": [
+          {
+            "title": "JOYCEone Nasal Brochure (PDF)",
+            "size": "1.9 MB",
+            "url": "/downloads"
+          }
+        ],
+        "price": 5990,
+        "originalPrice": 8200,
+        "specifications": [
+          {
+            "key": "Size",
+            "value": "Universal One Size"
+          },
+          {
+            "key": "Coating",
+            "value": "SilkTec Smooth Surface"
+          },
+          {
+            "key": "Weight",
+            "value": "68 grams"
+          },
+          {
+            "key": "Noise Level",
+            "value": "14 dB(A)"
+          }
+        ],
+        "features": [
+          "Universal one-size nasal cushion fits virtually all patient faces",
+          "SilkTec smooth silicone coating for superior skin comfort",
+          "Magnetic headgear clips for tool-free nightly fitting",
+          "Color-coded straps for quick adjustment",
+          "Diffuse quiet exhalation system at 14 dB(A)"
         ]
       }
     ]

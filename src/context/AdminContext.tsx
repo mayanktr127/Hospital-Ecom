@@ -179,16 +179,30 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const fetchAll = async () => {
       setIsLoading(true);
       try {
+        const mergeWithDefaultProducts = (fetchedProds: Product[]) => {
+          const defaults = getDefaultProducts();
+          const map = new Map<string, Product>();
+          defaults.forEach((p) => {
+            if (p && p.id) map.set(p.id.toLowerCase(), p);
+          });
+          fetchedProds.forEach((p) => {
+            if (p && p.id) map.set(p.id.toLowerCase(), p);
+          });
+          return Array.from(map.values());
+        };
+
         // Fetch products — if DB empty, auto-seed first
         const prodRes = await fetch("/api/products").then((r) => r.json()).catch(() => ({ success: false }));
         if (prodRes.success && prodRes.products && prodRes.products.length > 0) {
-          setProducts(prodRes.products);
+          setProducts(mergeWithDefaultProducts(prodRes.products));
         } else {
           // Trigger seed (idempotent — only seeds empty collections)
           await fetch("/api/seed").catch(() => {});
           const seededProds = await fetch("/api/products").then((r) => r.json()).catch(() => ({ success: false }));
           if (seededProds.success && seededProds.products) {
-            setProducts(seededProds.products);
+            setProducts(mergeWithDefaultProducts(seededProds.products));
+          } else {
+            setProducts(getDefaultProducts());
           }
         }
 

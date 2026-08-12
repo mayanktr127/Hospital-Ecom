@@ -36,6 +36,7 @@ import {
 import { getProductModes } from "@/utils/productModes";
 import siteContent from "@/data/site_content.json";
 import structuredProducts from "@/data/product_pages/structured_products.json";
+import pulmocareProducts from "@/data/pulmocare_products.json";
 
 interface ProductDetailPageProps {
   categoryTitle: string;
@@ -98,7 +99,14 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
   // Title & Subtitle
   const displayTitle = foundProd?.name || sData?.title || title || itemSlug.toUpperCase();
-  const brandName = foundProd?.brand || "Löwenstein Medical";
+  const brandName =
+    foundProd?.brand && foundProd.brand !== "Löwenstein Medical" && foundProd.brand !== "Pulmo Care"
+      ? foundProd.brand
+      : (displayTitle + " " + itemSlug).toLowerCase().includes("inogen")
+      ? "Inogen"
+      : (displayTitle + " " + itemSlug).toLowerCase().includes("nidek")
+      ? "Nidek Medical"
+      : "Löwenstein Medical";
   const skuNumber = foundProd?.sku || sData?.sku || `LS-RCD-${itemSlug.toUpperCase().replace(/[^A-Z0-9]/g, "")}-1000`;
 
   const rawPrice = foundProd?.price ?? 45990;
@@ -154,6 +162,24 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           { label: "Recommended max O₂ flow", value: "15 liters/minute" },
         ]),
   ];
+
+  // Derive the real category slug by searching all categories in pulmocare_products.json
+  // (the generic /product/[id] route always passes categorySlug="products" so we can't use the prop)
+  const realCategorySlug = (() => {
+    const allCats = pulmocareProducts as Record<string, { products?: Array<{ id?: string; slug?: string; categorySlug?: string }> }>;
+    for (const catData of Object.values(allCats)) {
+      if (!catData?.products) continue;
+      const match = catData.products.find(
+        (p) =>
+          p.id === itemSlug ||
+          p.slug === itemSlug ||
+          (p.id && p.id.toLowerCase() === itemSlug.toLowerCase())
+      );
+      if (match?.categorySlug) return match.categorySlug;
+    }
+    return categorySlug;
+  })();
+  const hideBoxContent = ['sleep-diagnostics', 'oxygen-therapy', 'humidifiers'].includes(realCategorySlug);
 
   // Box Content
   const boxContentsList =
@@ -504,7 +530,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
         </section>
 
         {/* SPECIFICATIONS & BOX CONTENT SECTION (Matching Screenshot 4) */}
-        <section className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
+        <section className={`grid grid-cols-1 gap-8 mb-16 ${hideBoxContent ? '' : 'lg:grid-cols-2'}`}>
           {/* Specifications */}
           <div className="glass rounded-[28px] !p-8 flex flex-col justify-between">
             <div>
@@ -523,7 +549,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             </div>
           </div>
 
-          {/* Box Content */}
+
+          {/* Box Content - hidden for sleep diagnostics and oxygen therapy */}
+          {!hideBoxContent && (
           <div className="bg-[#e0f3ec] rounded-[28px] border border-white p-8 shadow-[0_2px_8px_rgba(24,42,65,0.05)] flex flex-col justify-between">
             <div>
               <h3 className="font-archivo font-medium text-2xl tracking-[-0.03em] text-[#0a1f3c] mb-6 pb-3 border-b border-[#e9edf4]">
@@ -540,6 +568,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               </ul>
             </div>
           </div>
+          )}
         </section>
 
         {/* DOCUMENTATION & ADDITIONAL INFO SECTION */}

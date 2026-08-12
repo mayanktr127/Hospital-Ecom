@@ -151,6 +151,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
           title: "Respiratory Humidification",
           items: [
             { name: "Prisma AQUA", link: "/humidifiers/prisma-aqua" },
+            { name: "Prisma AQUA (Black)", link: "/humidifiers/prisma-aqua-black" },
           ],
         },
       ],
@@ -192,6 +193,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
             { name: "LENA Full Face Mask", link: "/masks/lena" },
             { name: "CARA Full Face Mask", link: "/masks/cara-full-face" },
             { name: "JOYCEone Full Face", link: "/masks/joyceone-full-face" },
+          ],
+        },
+        {
+          title: "Nasal Masks",
+          items: [
+            { name: "CARA Nasal Mask", link: "/masks/cara-nasal" },
+            { name: "JOYCEone Nasal Mask", link: "/masks/joyceone-nasal" },
           ],
         },
       ],

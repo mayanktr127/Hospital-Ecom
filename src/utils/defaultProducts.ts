@@ -60,7 +60,14 @@ export const getDefaultProducts = (): Product[] => {
                 ],
             specifications: specsList,
             badge: p.badge || (idx === 0 ? "Most Popular" : "German Engineering"),
-            brand: p.brand || "Löwenstein Medical",
+            brand:
+              (p.title || p.slug || p.name || p.id || "").toLowerCase().includes("inogen")
+                ? "Inogen"
+                : (p.title || p.slug || p.name || p.id || "").toLowerCase().includes("nidek")
+                ? "Nidek Medical"
+                : p.brand && p.brand !== "Pulmo Care"
+                ? p.brand
+                : "Löwenstein Medical",
             sku: p.sku || (p.slug ? `SKU-${p.slug.toUpperCase()}` : undefined),
             warranty: p.warranty || "2 Years German Manufacturer Warranty",
           });
