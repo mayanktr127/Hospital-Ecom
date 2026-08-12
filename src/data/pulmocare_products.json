@@ -1126,7 +1126,7 @@
         "url": "https://pulmocare.in/product/polygraphy-devices-samoa/",
         "image": "/images/site/sleep_diagnostics_csm_samoa_sleep_diagnostics_device_frontal_dba1194f3b.png",
         "tagline": "Ultra-compact 12-channel home sleep apnea testing (HSAT) polygraphy system.",
-        "introParagraph": "Samoa is an ultra-compact sleep polygraphy recorder with 12 channels designed for effortless home sleep testing. Features built-in thorax/abdomen effort sensors, pulse oximetry, and automatic diagnostic reporting software.",
+        "introParagraph": "Samoa is an ultra-compact sleep polygraphy recorder with 12 channels designed for effortless home sleep testing. Features built-in thorax/abdomen effort sensors, pulse oximetry, and Bluetooth support for therapy and titration operations.",
         "specs": {
           "Manufacturer": "Pulmo Care",
           "Compliance": "CE / ISO 13485 Certified",
@@ -1167,7 +1167,7 @@
           "12 recording channels for home sleep apnea testing (HSAT)",
           "Integrated thorax and abdomen effort recording",
           "OLED color display for sensor impedance check",
-          "Automatic scoring via PrismaTS diagnostic software",
+          "Bluetooth support for therapy and titration operations",
           "Compact 160g body-worn recorder"
         ],
         "specifications": [
@@ -1178,6 +1178,10 @@
           {
             "key": "Sensors",
             "value": "Flow, Snore, SpO2, Pulse, Thorax, Abdomen, Position, Actigraphy"
+          },
+          {
+            "key": "Connectivity",
+            "value": "Bluetooth — therapy and titration operations"
           },
           {
             "key": "Weight",
@@ -1546,7 +1550,7 @@
         "categoryName": "Masks",
         "categorySlug": "masks",
         "url": "https://pulmocare.in/product/joyceone-nasal/",
-        "image": "/images/site/masks_joyceone_full_face_csm_joyceone_mask_patient_interface_fullface_vented_right_9753e5619b.png",
+        "image": "/images/pulmocare/pulmo_l-wenstein-joyceone.png",
         "tagline": "Universal one-size nasal mask with SilkTec coating for effortless CPAP therapy.",
         "introParagraph": "JOYCEone Nasal mask brings the same SilkTec smooth-coating technology and one-size-fits-all concept to a nasal design, offering compact coverage, quiet exhalation, and an intuitive magnetic headgear system for easy nightly use.",
         "specs": {

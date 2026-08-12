@@ -24,7 +24,7 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
 
   if (!product) return null;
   const favorite = isFavorite(product.id);
-  const rentalOnly = isRentalProduct(product);
+  const alsoOnRental = isRentalProduct(product);
 
   return (
     <AnimatePresence>
@@ -95,26 +95,29 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                 </h2>
 
                 <div className="flex items-baseline gap-3 mt-3">
-                  {rentalOnly ? (
-                    <span className="font-archivo font-bold text-base text-[#2a6ecb] leading-snug">
-                      {RENTAL_MESSAGE}
-                    </span>
-                  ) : (
-                    <>
-                      <span className="font-archivo font-bold text-2xl text-[#0a1f3c]">
-                        ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                      </span>
-                      {product.originalPrice && (
-                        <s className="text-sm font-inter text-[#64748b] font-medium">
-                          ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                        </s>
-                      )}
-                    </>
+                  <span className="font-archivo font-bold text-2xl text-[#0a1f3c]">
+                    ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  </span>
+                  {product.originalPrice && (
+                    <s className="text-sm font-inter text-[#64748b] font-medium">
+                      ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </s>
                   )}
                   <span className="ml-auto text-xs font-semibold text-[#2a6ecb] bg-[#dcebfb] px-2.5 py-1 rounded-full shrink-0">
                     Löwenstein Certified
                   </span>
                 </div>
+
+                {/* Rental availability — shown alongside the price */}
+                {alsoOnRental && (
+                  <a
+                    href={`tel:${RENTAL_PHONE}`}
+                    className="mt-3 flex items-center gap-2 text-xs font-archivo font-bold text-[#2a6ecb] bg-[#EBF5FF] border border-[#2a6ecb]/20 rounded-2xl px-3 py-2 hover:bg-[#dcebfb] transition-colors"
+                  >
+                    <Phone className="w-3.5 h-3.5 shrink-0" />
+                    <span>{RENTAL_MESSAGE}</span>
+                  </a>
+                )}
 
                 {/* Available Modes in Modal */}
                 {(() => {
@@ -165,48 +168,36 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
               {/* Action buttons */}
               <div className="space-y-3 pt-2">
                 <div className="flex items-center gap-3">
-                  {!rentalOnly && (
-                    /* Quantity selector */
-                    <div className="flex items-center border border-[#e9edf4] rounded-full bg-white h-11 px-2">
-                      <button
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
-                      >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="w-8 text-center font-archivo font-bold text-sm text-[#0a1f3c]">
-                        {quantity}
-                      </span>
-                      <button
-                        onClick={() => setQuantity(quantity + 1)}
-                        className="w-7 h-7 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  )}
-
-                  {rentalOnly ? (
-                    <a
-                      href={`tel:${RENTAL_PHONE}`}
-                      className="btn btn-primary flex-1 active:scale-[0.98]"
-                    >
-                      <Phone className="w-4 h-4" />
-                      <span>Contact for Rental</span>
-                    </a>
-                  ) : (
+                  {/* Quantity selector */}
+                  <div className="flex items-center border border-[#e9edf4] rounded-full bg-white h-11 px-2">
                     <button
-                      onClick={() => {
-                        addToCart(product, quantity);
-                        addToast("Added to Cart", `${quantity}x ${product.name} added to your cart.`);
-                        onClose();
-                      }}
-                      className="btn btn-primary flex-1 active:scale-[0.98]"
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
                     >
-                      <ShoppingBag className="w-4 h-4" />
-                      <span>Add to Cart — ₹{(product.price * quantity).toLocaleString("en-IN")}.00</span>
+                      <Minus className="w-3.5 h-3.5" />
                     </button>
-                  )}
+                    <span className="w-8 text-center font-archivo font-bold text-sm text-[#0a1f3c]">
+                      {quantity}
+                    </span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="w-7 h-7 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      addToCart(product, quantity);
+                      addToast("Added to Cart", `${quantity}x ${product.name} added to your cart.`);
+                      onClose();
+                    }}
+                    className="btn btn-primary flex-1 active:scale-[0.98]"
+                  >
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Add to Cart — ₹{(product.price * quantity).toLocaleString("en-IN")}.00</span>
+                  </button>
 
                   <button
                     onClick={() => {

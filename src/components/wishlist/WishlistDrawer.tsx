@@ -85,38 +85,31 @@ export const WishlistDrawer: React.FC = () => {
                         <h4 className="font-archivo font-semibold text-xs text-[#182a41] line-clamp-1">
                           {product.name}
                         </h4>
-                        {isRentalProduct(product) ? (
-                          <span className="font-archivo font-bold text-[11px] text-[#2a6ecb] block mt-0.5">
-                            {RENTAL_SHORT_MESSAGE}
-                          </span>
-                        ) : (
-                          <span className="font-archivo font-bold text-sm text-[#0a1f3c] block mt-0.5">
-                            ₹{product.price.toLocaleString("en-IN")}.00
-                          </span>
+                        <span className="font-archivo font-bold text-sm text-[#0a1f3c] block mt-0.5">
+                          ₹{product.price.toLocaleString("en-IN")}.00
+                        </span>
+                        {isRentalProduct(product) && (
+                          <a
+                            href={`tel:${RENTAL_PHONE}`}
+                            className="flex items-center gap-1 text-[10px] font-archivo font-bold text-[#2a6ecb] mt-0.5 hover:underline"
+                          >
+                            <Phone className="w-2.5 h-2.5 shrink-0" />
+                            <span>{RENTAL_SHORT_MESSAGE}</span>
+                          </a>
                         )}
 
                         <div className="flex items-center gap-2 mt-2">
-                          {isRentalProduct(product) ? (
-                            <a
-                              href={`tel:${RENTAL_PHONE}`}
-                              className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
-                            >
-                              <Phone className="w-3 h-3" />
-                              <span>Contact for Rental</span>
-                            </a>
-                          ) : (
-                            <button
-                              onClick={() => {
-                                addToCart(product);
-                                removeFromWishlist(product.id);
-                                addToast("Moved to Cart", `${product.name} moved to your shopping cart.`);
-                              }}
-                              className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
-                            >
-                              <ShoppingBag className="w-3 h-3" />
-                              <span>Move to Cart</span>
-                            </button>
-                          )}
+                          <button
+                            onClick={() => {
+                              addToCart(product);
+                              removeFromWishlist(product.id);
+                              addToast("Moved to Cart", `${product.name} moved to your shopping cart.`);
+                            }}
+                            className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
+                          >
+                            <ShoppingBag className="w-3 h-3" />
+                            <span>Move to Cart</span>
+                          </button>
 
                           <button
                             onClick={() => removeFromWishlist(product.id)}

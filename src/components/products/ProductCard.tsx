@@ -21,7 +21,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
   const { addToast } = useToast();
 
   const favorite = isFavorite(product.id);
-  const rentalOnly = isRentalProduct(product);
+  const alsoOnRental = isRentalProduct(product);
 
   return (
     <motion.div
@@ -84,24 +84,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         </h4>
       </div>
 
-      {/* Rating & Price (or rental notice) */}
+      {/* Rating & Price */}
       <div className="price flex items-center justify-between pt-1">
-        {rentalOnly ? (
-          <span className="text-[13px] font-archivo font-semibold text-[#2a6ecb] leading-snug">
-            {RENTAL_SHORT_MESSAGE}
+        <div className="flex items-baseline gap-2">
+          <span className="now">
+            ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </span>
-        ) : (
-          <div className="flex items-baseline gap-2">
-            <span className="now">
-              ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </span>
-            {product.originalPrice && (
-              <s className="was">
-                ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-              </s>
-            )}
-          </div>
-        )}
+          {product.originalPrice && (
+            <s className="was">
+              ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </s>
+          )}
+        </div>
 
         <div className="flex items-center gap-1 text-[#f2b134] text-xs font-bold font-archivo shrink-0">
           <Star className="w-3 h-3 fill-[#f2b134]" />
@@ -109,27 +103,28 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         </div>
       </div>
 
-      {/* Add to Cart CTA — rental products contact us instead */}
-      {rentalOnly ? (
+      {/* Rental availability notice — shown alongside the price */}
+      {alsoOnRental && (
         <a
           href={`tel:${RENTAL_PHONE}`}
-          className="btn btn-primary add w-full mt-1 !py-3 !px-4 !text-[13px] active:scale-[0.98]"
+          className="flex items-center gap-1.5 text-[11px] font-archivo font-bold text-[#2a6ecb] bg-[#EBF5FF] border border-[#2a6ecb]/20 rounded-full px-2.5 py-1.5 hover:bg-[#dcebfb] transition-colors"
         >
-          <Phone className="w-3.5 h-3.5" />
-          <span>Contact for Rental</span>
+          <Phone className="w-3 h-3 shrink-0" />
+          <span>{RENTAL_SHORT_MESSAGE}</span>
         </a>
-      ) : (
-        <button
-          onClick={() => {
-            addToCart(product);
-            addToast("Added to Cart", `${product.name} added to your cart.`);
-          }}
-          className="btn btn-primary add w-full mt-1 !py-3 !px-4 !text-[13px] active:scale-[0.98]"
-        >
-          <ShoppingBag className="w-3.5 h-3.5" />
-          <span>Add to cart</span>
-        </button>
       )}
+
+      {/* Add to Cart CTA */}
+      <button
+        onClick={() => {
+          addToCart(product);
+          addToast("Added to Cart", `${product.name} added to your cart.`);
+        }}
+        className="btn btn-primary add w-full mt-1 !py-3 !px-4 !text-[13px] active:scale-[0.98]"
+      >
+        <ShoppingBag className="w-3.5 h-3.5" />
+        <span>Add to cart</span>
+      </button>
     </motion.div>
   );
 };

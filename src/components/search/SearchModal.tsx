@@ -7,7 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, X, ShoppingBag, Phone } from "lucide-react";
-import { isRentalProduct, RENTAL_SHORT_MESSAGE, RENTAL_PHONE } from "@/utils/rental";
+import { isRentalProduct, RENTAL_SHORT_MESSAGE } from "@/utils/rental";
 import Image from "next/image";
 
 interface SearchModalProps {
@@ -130,39 +130,29 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                           <h4 className="font-archivo font-semibold text-sm text-[#182a41] group-hover:text-[#0a1f3c] transition-colors leading-tight">
                             {product.name}
                           </h4>
-                          {isRentalProduct(product) ? (
-                            <span className="font-archivo font-bold text-xs text-[#2a6ecb] mt-0.5 block">
-                              {RENTAL_SHORT_MESSAGE}
-                            </span>
-                          ) : (
-                            <span className="font-archivo font-bold text-sm text-[#0a1f3c] mt-0.5 block">
-                              ₹{product.price.toLocaleString("en-IN")}.00
+                          <span className="font-archivo font-bold text-sm text-[#0a1f3c] mt-0.5 block">
+                            ₹{product.price.toLocaleString("en-IN")}.00
+                          </span>
+                          {isRentalProduct(product) && (
+                            <span className="flex items-center gap-1 text-[10px] font-archivo font-bold text-[#2a6ecb] mt-0.5">
+                              <Phone className="w-2.5 h-2.5 shrink-0" />
+                              <span>{RENTAL_SHORT_MESSAGE}</span>
                             </span>
                           )}
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        {isRentalProduct(product) ? (
-                          <a
-                            href={`tel:${RENTAL_PHONE}`}
-                            className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
-                          >
-                            <Phone className="w-3.5 h-3.5" />
-                            <span>Contact</span>
-                          </a>
-                        ) : (
-                          <button
-                            onClick={() => {
-                              addToCart(product);
-                              addToast("Added to Cart", `${product.name} added to your cart.`);
-                            }}
-                            className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
-                          >
-                            <ShoppingBag className="w-3.5 h-3.5" />
-                            <span>Add</span>
-                          </button>
-                        )}
+                        <button
+                          onClick={() => {
+                            addToCart(product);
+                            addToast("Added to Cart", `${product.name} added to your cart.`);
+                          }}
+                          className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
+                        >
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                          <span>Add</span>
+                        </button>
                       </div>
                     </div>
                   ))}

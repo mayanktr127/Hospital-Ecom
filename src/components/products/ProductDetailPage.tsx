@@ -122,7 +122,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
   // Sleep Diagnostics & Masks are sold at a listed price; every other
   // category is rental-only and shows a contact CTA instead.
-  const rentalOnly = isRentalProduct({
+  const alsoOnRental = isRentalProduct({
     category: foundProd?.category || sData?.categoryName || categoryTitle,
     isRental: foundProd?.isRental,
   });
@@ -194,7 +194,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     }
     return categorySlug;
   })();
-  const hideBoxContent = ['sleep-diagnostics', 'oxygen-therapy', 'humidifiers'].includes(realCategorySlug);
+  const hideBoxContent = ['sleep-diagnostics', 'oxygen-therapy', 'humidifiers', 'masks'].includes(realCategorySlug);
 
   // Box Content
   const boxContentsList =
@@ -378,10 +378,20 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 </div>
               )}
 
-              {rentalOnly ? (
-                /* Rental Notice — replaces price, EMI offers & quantity picker */
-                <div className="mb-6 p-5 rounded-2xl bg-gradient-to-r from-[#EBF5FF] to-white border border-[#2a6ecb]/25 space-y-1.5">
-                  <span className="font-archivo font-bold text-xl sm:text-2xl text-[#0a1f3c] block leading-snug">
+              {/* Price & Discounts Block */}
+              <div className="flex items-baseline gap-3 mb-6">
+                <span className="font-archivo font-bold text-3xl sm:text-4xl text-[#0a1f3c]">
+                  {priceValue}
+                </span>
+                <span className="text-base text-[#64748b] line-through font-inter">
+                  {originalPriceValue}
+                </span>
+              </div>
+
+              {/* Rental Availability Notice — shown in addition to the price */}
+              {alsoOnRental && (
+                <div className="mb-6 p-4 rounded-2xl bg-gradient-to-r from-[#EBF5FF] to-white border border-[#2a6ecb]/25 space-y-1">
+                  <span className="font-archivo font-bold text-sm sm:text-base text-[#0a1f3c] block leading-snug">
                     {RENTAL_MESSAGE}
                   </span>
                   <p className="text-xs text-[#64748b] font-inter">
@@ -389,102 +399,69 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     pricing and availability, or send us an enquiry.
                   </p>
                 </div>
-              ) : (
-                <>
-                  {/* Price & Discounts Block */}
-                  <div className="flex items-baseline gap-3 mb-6">
-                    <span className="font-archivo font-bold text-3xl sm:text-4xl text-[#0a1f3c]">
-                      {priceValue}
-                    </span>
-                    <span className="text-base text-[#64748b] line-through font-inter">
-                      {originalPriceValue}
-                    </span>
-                  </div>
-
-                  {/* EMI & Offers Cards (Matching Screenshot 1) */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                    <div className="p-4 bg-white rounded-[14px] border border-[#e9edf4] flex items-center justify-between text-xs">
-                      <div>
-                        <span className="font-bold text-[#0a1f3c] block">EMI from {emiMonthlyValue}</span>
-                        <span className="text-[#64748b] text-[10px]">Z &amp; more</span>
-                      </div>
-                      <span className="text-[#2a6ecb] font-bold text-[11px] hover:underline cursor-pointer">View plans</span>
-                    </div>
-
-                    <div className="p-4 bg-white rounded-[14px] border border-[#e9edf4] flex items-center justify-between text-xs">
-                      <div>
-                        <span className="font-bold text-[#0a1f3c] block">Save up to {discountSavings}</span>
-                        <span className="text-[#64748b] text-[10px]">💳 &amp; more</span>
-                      </div>
-                      <span className="text-[#2a6ecb] font-bold text-[11px] hover:underline cursor-pointer">View offers</span>
-                    </div>
-                  </div>
-
-                  {/* Razorpay Trust Badge */}
-                  <div className="flex items-center gap-2 text-xs text-[#64748b] mb-6 font-inter">
-                    <ShieldCheck className="w-4 h-4 text-[#2a6ecb]" />
-                    <span>Secured by <strong>Razorpay</strong> 256-bit SSL Encryption</span>
-                  </div>
-
-                  {/* Quantity Selector (Matching Screenshot 1) */}
-                  <div className="flex items-center gap-4 mb-6">
-                    <span className="text-xs font-bold text-[#0a1f3c] uppercase font-archivo">Quantity</span>
-                    <div className="flex items-center border border-[#e9edf4] rounded-full bg-white px-3 py-1.5">
-                      <button
-                        onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                        className="p-1 text-[#0a1f3c] hover:text-[#2a6ecb] transition-colors"
-                      >
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="px-4 font-archivo font-bold text-sm text-[#0a1f3c]">{quantity}</span>
-                      <button
-                        onClick={() => setQuantity(quantity + 1)}
-                        className="p-1 text-[#0a1f3c] hover:text-[#2a6ecb] transition-colors"
-                      >
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </>
               )}
 
-              {/* Action Buttons: Add to Cart / Buy Now — or rental contact CTAs */}
-              <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 mb-8">
-                {rentalOnly ? (
-                  <>
-                    <a
-                      href={`tel:${RENTAL_PHONE}`}
-                      className="btn btn-primary w-full sm:flex-1 cursor-pointer"
-                    >
-                      <Phone className="w-4 h-4" />
-                      <span>Call for Rental</span>
-                    </a>
+              {/* EMI & Offers Cards (Matching Screenshot 1) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                <div className="p-4 bg-white rounded-[14px] border border-[#e9edf4] flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-bold text-[#0a1f3c] block">EMI from {emiMonthlyValue}</span>
+                    <span className="text-[#64748b] text-[10px]">Z &amp; more</span>
+                  </div>
+                  <span className="text-[#2a6ecb] font-bold text-[11px] hover:underline cursor-pointer">View plans</span>
+                </div>
 
-                    <Link
-                      href={RENTAL_ENQUIRY_URL}
-                      className="btn btn-dark w-full sm:flex-1 cursor-pointer"
-                    >
-                      <span>Send Enquiry</span>
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={handleAddToCart}
-                      className="btn btn-primary w-full sm:flex-1 cursor-pointer"
-                    >
-                      <ShoppingBag className="w-4 h-4" />
-                      <span>Add to Cart</span>
-                    </button>
+                <div className="p-4 bg-white rounded-[14px] border border-[#e9edf4] flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-bold text-[#0a1f3c] block">Save up to {discountSavings}</span>
+                    <span className="text-[#64748b] text-[10px]">💳 &amp; more</span>
+                  </div>
+                  <span className="text-[#2a6ecb] font-bold text-[11px] hover:underline cursor-pointer">View offers</span>
+                </div>
+              </div>
 
-                    <button
-                      onClick={handleBuyNow}
-                      className="btn btn-dark w-full sm:flex-1 cursor-pointer"
-                    >
-                      <span>Buy Now</span>
-                    </button>
-                  </>
-                )}
+              {/* Razorpay Trust Badge */}
+              <div className="flex items-center gap-2 text-xs text-[#64748b] mb-6 font-inter">
+                <ShieldCheck className="w-4 h-4 text-[#2a6ecb]" />
+                <span>Secured by <strong>Razorpay</strong> 256-bit SSL Encryption</span>
+              </div>
+
+              {/* Quantity Selector (Matching Screenshot 1) */}
+              <div className="flex items-center gap-4 mb-6">
+                <span className="text-xs font-bold text-[#0a1f3c] uppercase font-archivo">Quantity</span>
+                <div className="flex items-center border border-[#e9edf4] rounded-full bg-white px-3 py-1.5">
+                  <button
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                    className="p-1 text-[#0a1f3c] hover:text-[#2a6ecb] transition-colors"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="px-4 font-archivo font-bold text-sm text-[#0a1f3c]">{quantity}</span>
+                  <button
+                    onClick={() => setQuantity(quantity + 1)}
+                    className="p-1 text-[#0a1f3c] hover:text-[#2a6ecb] transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Action Buttons: Add to Cart, Buy Now, Wishlist */}
+              <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 mb-4">
+                <button
+                  onClick={handleAddToCart}
+                  className="btn btn-primary w-full sm:flex-1 cursor-pointer"
+                >
+                  <ShoppingBag className="w-4 h-4" />
+                  <span>Add to Cart</span>
+                </button>
+
+                <button
+                  onClick={handleBuyNow}
+                  className="btn btn-dark w-full sm:flex-1 cursor-pointer"
+                >
+                  <span>Buy Now</span>
+                </button>
 
                 <button
                   onClick={() => toggleFavorite(currentProductObj)}
@@ -499,6 +476,26 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   <Heart className={`w-5 h-5 ${isInWishlist ? "fill-current" : ""}`} />
                 </button>
               </div>
+
+              {/* Rental Enquiry Actions — offered in addition to buying */}
+              {alsoOnRental && (
+                <div className="flex flex-col sm:flex-row items-center gap-3 mb-8">
+                  <a
+                    href={`tel:${RENTAL_PHONE}`}
+                    className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 py-3 px-4 rounded-full border border-[#2a6ecb] text-[#2a6ecb] font-archivo font-bold text-xs uppercase tracking-wider hover:bg-[#EBF5FF] transition-colors cursor-pointer"
+                  >
+                    <Phone className="w-4 h-4" />
+                    <span>Call for Rental</span>
+                  </a>
+
+                  <Link
+                    href={RENTAL_ENQUIRY_URL}
+                    className="w-full sm:flex-1 inline-flex items-center justify-center gap-2 py-3 px-4 rounded-full border border-[#e9edf4] text-[#0a1f3c] font-archivo font-bold text-xs uppercase tracking-wider hover:border-[#7fb0ee] hover:text-[#2a6ecb] transition-colors cursor-pointer"
+                  >
+                    <span>Send Rental Enquiry</span>
+                  </Link>
+                </div>
+              )}
 
               {/* Metadata Block (Matching Screenshot 2) */}
               <div className="pt-6 border-t border-[#e9edf4] space-y-2 text-xs text-[#64748b] font-inter">

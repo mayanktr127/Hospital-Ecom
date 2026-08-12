@@ -1164,12 +1164,11 @@ export default function AdminDashboardPage() {
                         </td>
                         <td className="py-3 px-4 text-[#64748B] font-medium">{p.category}</td>
                         <td className="py-3 px-4 font-bold text-[#182a41]">
-                          {isRentalProduct(p) ? (
-                            <span className="bg-[#EBF5FF] text-[#2a6ecb] px-2 py-0.5 rounded-full text-[10px] font-bold">
-                              Rental — Contact
+                          <span className="block">₹{p.price.toLocaleString("en-IN")}</span>
+                          {isRentalProduct(p) && (
+                            <span className="bg-[#EBF5FF] text-[#2a6ecb] px-2 py-0.5 rounded-full text-[10px] font-bold inline-block mt-1">
+                              + Rental
                             </span>
-                          ) : (
-                            <>₹{p.price.toLocaleString("en-IN")}</>
                           )}
                         </td>
                         <td className="py-3 px-4">
@@ -1870,7 +1869,7 @@ export default function AdminDashboardPage() {
               <div className="space-y-4 bg-[#f7f6fb] p-4 rounded-2xl border border-[#e9edf4]">
                 <div>
                   <label className="block font-archivo font-bold text-[#182a41] uppercase mb-2">
-                    Listing Type *
+                    Availability Type *
                   </label>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1884,10 +1883,10 @@ export default function AdminDashboardPage() {
                       }`}
                     >
                       <span className="font-archivo font-bold text-xs text-[#182a41] block">
-                        Price Based (Sell Online)
+                        Purchase Only
                       </span>
                       <span className="text-[11px] text-[#64748B] leading-snug block mt-0.5">
-                        Shows the price with Add to Cart &amp; Buy Now.
+                        Price with Add to Cart &amp; Buy Now. No rental notice.
                       </span>
                     </button>
 
@@ -1901,17 +1900,17 @@ export default function AdminDashboardPage() {
                       }`}
                     >
                       <span className="font-archivo font-bold text-xs text-[#182a41] block">
-                        Rental (Contact for Price)
+                        Purchase + Rental
                       </span>
                       <span className="text-[11px] text-[#64748B] leading-snug block mt-0.5">
-                        Hides the price and shows &ldquo;available for rental &mdash; please contact&rdquo;.
+                        Same price and buy flow, plus &ldquo;also available on rental &mdash; please contact&rdquo;.
                       </span>
                     </button>
                   </div>
 
                   {pPricingMode === "rental" && (
                     <p className="text-[11px] text-[#2a6ecb] font-semibold mt-2">
-                      Price fields below stay saved for your records but are not shown on the storefront.
+                      The price below still shows on the storefront — customers additionally get a rental contact option.
                     </p>
                   )}
                 </div>
@@ -1919,11 +1918,11 @@ export default function AdminDashboardPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
-                      Selling Price (₹) {pPricingMode === "price" ? "*" : "(optional)"}
+                      Selling Price (₹) *
                     </label>
                     <input
                       type="number"
-                      required={pPricingMode === "price"}
+                      required
                       value={pPrice}
                       onChange={(e) => setPPrice(e.target.value)}
                       placeholder="e.g. 45990"
