@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAdmin } from "@/context/AdminContext";
 import { useToast } from "@/context/ToastContext";
-import { ShieldCheck, Lock, Mail, Key, ArrowRight, Sparkles, AlertCircle } from "lucide-react";
+import { ShieldCheck, Lock, Mail, ArrowRight, AlertCircle } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -22,13 +22,6 @@ export default function AdminLoginPage() {
     }
   }, [isAdminAuthenticated, router]);
 
-  const handleFillDemo = () => {
-    setEmail("admin@pulmocare.in");
-    setPassword("admin123");
-    setErrorMsg(null);
-    addToast("Demo Credentials Populated", "Email: admin@pulmocare.in | Pass: admin123");
-  };
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
@@ -38,7 +31,7 @@ export default function AdminLoginPage() {
       addToast("Login Successful", "Welcome to Pulmo Care Admin Control Suite.");
       router.push("/admin");
     } else {
-      setErrorMsg("Invalid credentials. Click 'Fill Demo Credentials' to login automatically.");
+      setErrorMsg("Invalid email or password. Please try again.");
     }
   };
 
@@ -70,27 +63,6 @@ export default function AdminLoginPage() {
           </h1>
         </div>
 
-        {/* Demo Credentials Quick Fill Banner */}
-        <div className="mb-6 bg-[#dcebfb] rounded-[14px] border border-white p-4 text-xs text-[#0a1f3c] space-y-2">
-          <div className="flex items-center justify-between font-archivo font-bold">
-            <span className="flex items-center gap-1.5 text-[#2a6ecb]">
-              <Sparkles className="w-4 h-4" />
-              Demo Portal Credentials
-            </span>
-            <button
-              type="button"
-              onClick={handleFillDemo}
-              className="bg-[#2a6ecb] hover:bg-[#4b8ee6] text-white text-[10px] uppercase font-semibold px-3 py-1.5 rounded-full transition-all cursor-pointer"
-            >
-              Fill Demo Login
-            </button>
-          </div>
-          <div className="font-mono text-[11px] space-y-0.5 text-[#64748b]">
-            <p><strong>Email:</strong> admin@pulmocare.in</p>
-            <p><strong>Password:</strong> admin123</p>
-          </div>
-        </div>
-
         {/* Error Alert */}
         {errorMsg && (
           <div className="mb-6 bg-[#fbe6ee] text-[#dc4b56] border border-[#dc4b56]/30 rounded-2xl p-3.5 text-xs flex items-start gap-2">
@@ -112,7 +84,7 @@ export default function AdminLoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@pulmocare.in"
+                placeholder="Enter admin email"
                 className="field !pl-10 !text-sm transition-all"
               />
             </div>
