@@ -22,6 +22,10 @@ export interface IOrder extends Document {
   totalAmount: number;
   paymentMethod: string;
   orderStatus: string;
+  paymentStatus?: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
+  razorpaySignature?: string;
   prescriptionNote?: string;
   createdAt: Date;
 }
@@ -49,6 +53,10 @@ const OrderSchema: Schema = new Schema(
     totalAmount: { type: Number, required: true },
     paymentMethod: { type: String, default: "Cash on Delivery" },
     orderStatus: { type: String, default: "On Progress" },
+    paymentStatus: { type: String, default: "Pending" },
+    razorpayOrderId: { type: String },
+    razorpayPaymentId: { type: String },
+    razorpaySignature: { type: String },
     prescriptionNote: { type: String },
   },
   { timestamps: true }

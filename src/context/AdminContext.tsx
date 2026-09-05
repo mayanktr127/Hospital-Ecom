@@ -50,6 +50,9 @@ export interface OrderItem {
   totalAmount: number;
   paymentMethod: string;
   orderStatus: string;
+  paymentStatus?: string;
+  razorpayOrderId?: string;
+  razorpayPaymentId?: string;
   prescriptionNote?: string;
   createdAt?: string;
 }

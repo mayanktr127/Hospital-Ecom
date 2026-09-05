@@ -1063,7 +1063,21 @@ export default function AdminDashboardPage() {
                           </td>
                           <td className="py-3.5 px-4">
                             <span className="font-archivo font-semibold text-[#182a41] block">₹{ord.totalAmount.toLocaleString("en-IN")}.00</span>
-                            <span className="text-[10px] text-[#2a6ecb] font-bold block">{ord.paymentMethod}</span>
+                            <div className="flex items-center gap-1.5 mt-0.5">
+                              <span className="text-[10px] text-[#2a6ecb] font-bold block">{ord.paymentMethod}</span>
+                              <span className={`text-[9px] font-archivo font-extrabold uppercase px-1.5 py-0.5 rounded-full ${
+                                ord.paymentStatus === "Paid"
+                                  ? "bg-[#e0f3ec] text-[#1fb37a]"
+                                  : "bg-[#fdeadf] text-[#e8a33d]"
+                              }`}>
+                                {ord.paymentStatus || (ord.paymentMethod?.includes("Razorpay") ? "Paid" : "Pending")}
+                              </span>
+                            </div>
+                            {ord.razorpayPaymentId && (
+                              <span className="text-[9px] text-[#64748B] block font-mono mt-0.5">
+                                Txn: {ord.razorpayPaymentId}
+                              </span>
+                            )}
                           </td>
                           <td className="py-3.5 px-4 text-right">
                             <div className="flex items-center justify-end gap-1.5">
