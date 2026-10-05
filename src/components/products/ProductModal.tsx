@@ -5,11 +5,19 @@ import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useToast } from "@/context/ToastContext";
+import { useInquiry } from "@/context/InquiryContext";
 import { motion, AnimatePresence } from "motion/react";
 import { X, ShoppingBag, Heart, Star, Plus, Minus, ArrowRight, Phone } from "lucide-react";
 import Image from "next/image";
 import { getProductModes } from "@/utils/productModes";
 import { isRentalProduct, RENTAL_MESSAGE, RENTAL_PHONE } from "@/utils/rental";
+import { MaskOptionSelector } from "@/components/cart/MaskOptionSelector";
+import {
+  MaskOptionType,
+  getMaskAddonInfo,
+  getMaskAddonPrice,
+  isMaskEligible,
+} from "@/utils/maskAddon";
 
 interface ProductModalProps {
   product: Product | null;
@@ -18,9 +26,11 @@ interface ProductModalProps {
 
 export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
   const [quantity, setQuantity] = useState(1);
+  const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("nasal");
   const { addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useWishlist();
   const { addToast } = useToast();
+  const { openInquiryModal } = useInquiry();
 
   if (!product) return null;
   const favorite = isFavorite(product.id);
@@ -94,19 +104,30 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                   {product.name}
                 </h2>
 
-                <div className="flex items-baseline gap-3 mt-3">
-                  <span className="font-archivo font-bold text-2xl text-[#0a1f3c]">
-                    ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                  </span>
-                  {product.originalPrice && (
-                    <s className="text-sm font-inter text-[#64748b] font-medium">
-                      ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </s>
-                  )}
-                  <span className="ml-auto text-xs font-semibold text-[#2a6ecb] bg-[#dcebfb] px-2.5 py-1 rounded-full shrink-0">
-                    Löwenstein Certified
-                  </span>
-                </div>
+                {product.price && product.price > 0 ? (
+                  <div className="flex items-baseline gap-3 mt-3">
+                    <span className="font-archivo font-bold text-2xl text-[#0a1f3c]">
+                      ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    </span>
+                    {product.originalPrice && (
+                      <s className="text-sm font-inter text-[#64748b] font-medium">
+                        ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </s>
+                    )}
+                    <span className="ml-auto text-xs font-semibold text-[#2a6ecb] bg-[#dcebfb] px-2.5 py-1 rounded-full shrink-0">
+                      Löwenstein Certified
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="inline-block text-xs font-archivo font-bold text-[#2a6ecb] bg-[#EBF5FF] border border-[#2a6ecb]/20 px-3 py-1.5 rounded-full">
+                      Price on Request
+                    </span>
+                    <span className="text-xs font-semibold text-[#2a6ecb] bg-[#dcebfb] px-2.5 py-1 rounded-full shrink-0">
+                      Löwenstein Certified
+                    </span>
+                  </div>
+                )}
 
                 {/* Rental availability — shown alongside the price */}
                 {alsoOnRental && (
@@ -165,39 +186,90 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                 </div>
               </div>
 
+              {/* Mask Customization Option for Eligible Products */}
+              {product.price && product.price > 0 && isMaskEligible(product) && (
+                <div className="pt-2">
+                  <MaskOptionSelector
+                    product={product}
+                    selectedOption={selectedMaskOption}
+                    onChange={setSelectedMaskOption}
+                    variant="full"
+                  />
+                </div>
+              )}
+
               {/* Action buttons */}
               <div className="space-y-3 pt-2">
                 <div className="flex items-center gap-3">
-                  {/* Quantity selector */}
-                  <div className="flex items-center border border-[#e9edf4] rounded-full bg-white h-11 px-2">
-                    <button
-                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
-                    >
-                      <Minus className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="w-8 text-center font-archivo font-bold text-sm text-[#0a1f3c]">
-                      {quantity}
-                    </span>
-                    <button
-                      onClick={() => setQuantity(quantity + 1)}
-                      className="w-7 h-7 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
+                  {product.price && product.price > 0 ? (
+                    <>
+                      {/* Quantity selector */}
+                      <div className="flex items-center border border-[#e9edf4] rounded-full bg-white h-11 px-2">
+                        <button
+                          onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="w-8 text-center font-archivo font-bold text-sm text-[#0a1f3c]">
+                          {quantity}
+                        </span>
+                        <button
+                          onClick={() => setQuantity(quantity + 1)}
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
 
-                  <button
-                    onClick={() => {
-                      addToCart(product, quantity);
-                      addToast("Added to Cart", `${quantity}x ${product.name} added to your cart.`);
-                      onClose();
-                    }}
-                    className="btn btn-primary flex-1 active:scale-[0.98]"
-                  >
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Add to Cart — ₹{(product.price * quantity).toLocaleString("en-IN")}.00</span>
-                  </button>
+                      {(() => {
+                        const maskInfo = getMaskAddonInfo(product);
+                        const effectiveUnitPrice = maskInfo.isEligible
+                          ? (maskInfo.basePrice + getMaskAddonPrice(selectedMaskOption))
+                          : (product.price || 0);
+
+                        return (
+                          <button
+                            onClick={() => {
+                              addToCart(
+                                product,
+                                quantity,
+                                maskInfo.isEligible ? selectedMaskOption : undefined
+                              );
+                              const maskLabel = maskInfo.isEligible
+                                ? selectedMaskOption === "nasal"
+                                  ? " (with Nasal Mask [+₹3,000])"
+                                  : selectedMaskOption === "full-face"
+                                  ? " (with Full Face Mask [+₹4,500])"
+                                  : " (Device Only / No Mask)"
+                                : "";
+                              addToast(
+                                "Added to Cart",
+                                `${quantity}x ${product.name}${maskLabel} added to your cart.`
+                              );
+                              onClose();
+                            }}
+                            className="btn btn-primary flex-1 active:scale-[0.98]"
+                          >
+                            <ShoppingBag className="w-4 h-4" />
+                            <span>Add to Cart — ₹{(effectiveUnitPrice * quantity).toLocaleString("en-IN")}.00</span>
+                          </button>
+                        );
+                      })()}
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        onClose();
+                        openInquiryModal(product);
+                      }}
+                      className="btn btn-primary flex-1 active:scale-[0.98] inline-flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <Phone className="w-4 h-4" />
+                      <span>Request Quote / Send Enquiry</span>
+                    </button>
+                  )}
 
                   <button
                     onClick={() => {

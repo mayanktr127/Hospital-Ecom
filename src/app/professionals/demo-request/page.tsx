@@ -4,10 +4,12 @@ import React, { useState } from "react";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
 import { useToast } from "@/context/ToastContext";
+import { useAdmin } from "@/context/AdminContext";
 import { Stethoscope, CheckCircle2, Building2, Calendar, Phone, Mail, MapPin, Send, ShieldCheck, Clock, UserCheck, Flame } from "lucide-react";
 
 export default function DemoRequestPage() {
   const { addToast } = useToast();
+  const { addInquiry } = useAdmin();
   const [submitted, setSubmitted] = useState(false);
   const [formData, setFormData] = useState({
     doctorName: "",
@@ -22,11 +24,29 @@ export default function DemoRequestPage() {
     notes: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.doctorName || !formData.hospitalName || !formData.phone) {
       addToast("Required Fields Missing", "Please enter doctor name, hospital name, and contact phone number.");
       return;
+    }
+
+    try {
+      if (addInquiry) {
+        await addInquiry({
+          id: `demo-${Date.now()}`,
+          fullName: `Dr. ${formData.doctorName} (${formData.hospitalName})`,
+          phone: formData.phone.trim(),
+          email: formData.email?.trim() || "doctor@demo-request.com",
+          inquiryType: "Clinical Evaluation Demo",
+          device: formData.deviceType,
+          city: formData.city?.trim() || "Not Specified",
+          message: `Specialization: ${formData.specialization} | Demo Type: ${formData.demoType} | Preferred Date: ${formData.preferredDate || "Earliest"} | Notes: ${formData.notes || "None"}`,
+          status: "New Lead",
+        });
+      }
+    } catch (err) {
+      console.error("Failed to sync demo inquiry to Admin:", err);
     }
 
     setSubmitted(true);

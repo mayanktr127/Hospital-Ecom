@@ -5,6 +5,7 @@ import { PRODUCTS } from "@/data/products";
 import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
+import { useInquiry } from "@/context/InquiryContext";
 import { motion, AnimatePresence } from "motion/react";
 import { Search, X, ShoppingBag, Phone } from "lucide-react";
 import { isRentalProduct, RENTAL_SHORT_MESSAGE } from "@/utils/rental";
@@ -20,6 +21,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
   const [query, setQuery] = useState("");
   const { addToCart } = useCart();
   const { addToast } = useToast();
+  const { openInquiryModal } = useInquiry();
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -131,7 +133,7 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                             {product.name}
                           </h4>
                           <span className="font-archivo font-bold text-sm text-[#0a1f3c] mt-0.5 block">
-                            ₹{product.price.toLocaleString("en-IN")}.00
+                            {product.price && product.price > 0 ? `₹${product.price.toLocaleString("en-IN")}.00` : "Price on Request"}
                           </span>
                           {isRentalProduct(product) && (
                             <span className="flex items-center gap-1 text-[10px] font-archivo font-bold text-[#2a6ecb] mt-0.5">
@@ -143,16 +145,30 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            addToCart(product);
-                            addToast("Added to Cart", `${product.name} added to your cart.`);
-                          }}
-                          className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
-                        >
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>Add</span>
-                        </button>
+                        {product.price && product.price > 0 ? (
+                          <button
+                            onClick={() => {
+                              addToCart(product);
+                              addToast("Added to Cart", `${product.name} added to your cart.`);
+                            }}
+                            className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
+                          >
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <span>Add</span>
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onClose();
+                              openInquiryModal(product);
+                            }}
+                            className="btn btn-outline !px-3.5 !py-2 !text-xs border border-[#2a6ecb] text-[#2a6ecb] hover:bg-[#EBF5FF] rounded-full inline-flex items-center gap-1 font-archivo font-bold cursor-pointer"
+                          >
+                            <Phone className="w-3 h-3" />
+                            <span>Enquire</span>
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}

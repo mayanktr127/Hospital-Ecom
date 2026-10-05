@@ -48,7 +48,7 @@
             "url": "/downloads"
           }
         ],
-        "price": 65000,
+        "price": 70000,
         "originalPrice": 85000,
         "specifications": [
           {
@@ -130,8 +130,8 @@
             "url": "/downloads"
           }
         ],
-        "price": 45990,
-        "originalPrice": 65000,
+        "price": 53000,
+        "originalPrice": 68000,
         "specifications": [
           {
             "key": "Pressure Range",
@@ -207,8 +207,8 @@
             "url": "/downloads"
           }
         ],
-        "price": 52500,
-        "originalPrice": 72000,
+        "price": 63000,
+        "originalPrice": 78000,
         "specifications": [
           {
             "key": "Pressure Range",
@@ -286,7 +286,7 @@
             "url": "/downloads"
           }
         ],
-        "price": 70300,
+        "price": 76000,
         "originalPrice": 95000,
         "specifications": [
           {
@@ -431,7 +431,7 @@
             "url": "/downloads"
           }
         ],
-        "price": 79690,
+        "price": 89250,
         "originalPrice": 110000,
         "specifications": [
           {
@@ -510,8 +510,6 @@
             "url": "/downloads"
           }
         ],
-        "price": 165000,
-        "originalPrice": 210000,
         "features": [
           "Adaptive Servo-Ventilation (ASV) breath-by-breath algorithm",
           "Target minute ventilation auto-regulation",
@@ -582,8 +580,6 @@
             "url": "/downloads"
           }
         ],
-        "price": 180000,
-        "originalPrice": 240000,
         "specifications": [
           {
             "key": "Operating Modes",
@@ -656,8 +652,6 @@
             "url": "/downloads"
           }
         ],
-        "price": 12180,
-        "originalPrice": 16500,
         "specifications": [
           {
             "key": "Water Capacity",
@@ -695,8 +689,6 @@
           "Warranty": "2 Years Official Warranty",
           "Origin": "Germany / India"
         },
-        "price": 12180.0,
-        "originalPrice": 16500.0,
         "specifications": [
           {
             "key": "Water Capacity",
@@ -774,8 +766,6 @@
             "url": "/downloads"
           }
         ],
-        "price": 485000,
-        "originalPrice": 620000,
         "features": [
           "Life support ventilation for invasive and non-invasive applications",
           "Pediatric and adult ventilation (30 mL to 2000 mL tidal volume)",
@@ -851,8 +841,8 @@
             "url": "/downloads"
           }
         ],
-        "price": 245000,
-        "originalPrice": 310000,
+        "price": 276000,
+        "originalPrice": 330000,
         "features": [
           "Pressure support up to 40 hPa",
           "airTrap Control prevents dynamic hyperinflation",
@@ -923,8 +913,6 @@
             "url": "/downloads"
           }
         ],
-        "price": 315000,
-        "originalPrice": 410000,
         "features": [
           "High inspiratory pressure up to 50 hPa",
           "Integrated High Flow Oxygen (HFO) up to 60 L/min",
@@ -1002,8 +990,6 @@
             "url": "/downloads"
           }
         ],
-        "price": 195000,
-        "originalPrice": 245000,
         "specifications": [
           {
             "key": "Oxygen Flow",
@@ -1078,7 +1064,7 @@
             "url": "/downloads"
           }
         ],
-        "price": 42000,
+        "price": 47250,
         "originalPrice": 58000,
         "specifications": [
           {
@@ -1161,8 +1147,6 @@
             "url": "/downloads"
           }
         ],
-        "price": 185000,
-        "originalPrice": 235000,
         "features": [
           "12 recording channels for home sleep apnea testing (HSAT)",
           "Integrated thorax and abdomen effort recording",
@@ -1237,8 +1221,6 @@
             "url": "/downloads"
           }
         ],
-        "price": 240000,
-        "originalPrice": 310000,
         "features": [
           "Up to 24 recording channels expandable to EEG/EOG/EMG",
           "High-precision continuous SpO2 and pulse waveform",
@@ -1304,8 +1286,6 @@
             "url": "/downloads"
           }
         ],
-        "price": 450000,
-        "originalPrice": 58000,
         "features": [
           "65 high-resolution diagnostic channels",
           "Full PSG EEG, EOG, EMG, ECG, and leg movement recording",
@@ -1363,8 +1343,8 @@
             "url": "/downloads"
           }
         ],
-        "price": 5800,
-        "originalPrice": 8200,
+        "price": 7500,
+        "originalPrice": 9500,
         "specifications": [
           {
             "key": "Noise Level",
@@ -1416,8 +1396,8 @@
             "url": "/downloads"
           }
         ],
-        "price": 6500,
-        "originalPrice": 9000,
+        "price": 7500,
+        "originalPrice": 9500,
         "features": [
           "Universal one-size cushion fits virtually all patient faces",
           "SilkTec smooth silicone coating for skin comfort",
@@ -1468,8 +1448,6 @@
             "url": "/downloads"
           }
         ],
-        "price": 7200,
-        "originalPrice": 9800,
         "features": [
           "Certified for high-pressure ventilation up to 40 hPa",
           "Double-lip silicone seal prevents high-pressure leaks",
@@ -1520,8 +1498,8 @@
             "url": "/downloads"
           }
         ],
-        "price": 5620,
-        "originalPrice": 7800,
+        "price": 6000,
+        "originalPrice": 8000,
         "specifications": [
           {
             "key": "Weight",
@@ -1572,7 +1550,7 @@
             "url": "/downloads"
           }
         ],
-        "price": 5990,
+        "price": 6000,
         "originalPrice": 8200,
         "specifications": [
           {

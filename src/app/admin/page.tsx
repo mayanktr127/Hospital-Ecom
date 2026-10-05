@@ -279,8 +279,8 @@ export default function AdminDashboardPage() {
       setPId(prod.id);
       setPName(prod.name);
       setPCategory(prod.category);
-      setPPrice(prod.price.toString());
-      setPOriginalPrice((prod.originalPrice || Math.round(prod.price * 1.35)).toString());
+      setPPrice(prod.price ? prod.price.toString() : "");
+      setPOriginalPrice(prod.originalPrice ? prod.originalPrice.toString() : prod.price ? Math.round(prod.price * 1.35).toString() : "");
       setPImage(prod.image);
       setPDescription(prod.description || "");
       setPBadge(prod.badge || "");
@@ -1164,7 +1164,7 @@ export default function AdminDashboardPage() {
                         </td>
                         <td className="py-3 px-4 text-[#64748B] font-medium">{p.category}</td>
                         <td className="py-3 px-4 font-bold text-[#182a41]">
-                          <span className="block">₹{p.price.toLocaleString("en-IN")}</span>
+                          <span className="block">{p.price ? `₹${p.price.toLocaleString("en-IN")}` : "On Request"}</span>
                           {isRentalProduct(p) && (
                             <span className="bg-[#EBF5FF] text-[#2a6ecb] px-2 py-0.5 rounded-full text-[10px] font-bold inline-block mt-1">
                               + Rental

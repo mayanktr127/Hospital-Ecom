@@ -65,13 +65,23 @@ export default function CheckoutPage() {
       state,
       pincode,
       landmark: landmark || undefined,
-      items: cart.map((ci) => ({
-        productId: ci.product.id,
-        name: ci.product.name,
-        price: ci.product.price,
-        quantity: ci.quantity,
-        image: ci.product.image,
-      })),
+      items: cart.map((ci) => {
+        const maskLabel = ci.maskOption === "nasal"
+          ? " (with Nasal Mask [+₹3,000])"
+          : ci.maskOption === "full-face"
+          ? " (with Full Face Mask [+₹4,500])"
+          : ci.maskOption === "none"
+          ? " (Device Only / No Mask)"
+          : "";
+
+        return {
+          productId: ci.product.id,
+          name: `${ci.product.name}${maskLabel}`,
+          price: ci.unitPrice ?? ci.product.price ?? 0,
+          quantity: ci.quantity,
+          image: ci.product.image,
+        };
+      }),
       totalAmount,
       paymentMethod,
       orderStatus: "On Progress",
@@ -403,26 +413,42 @@ export default function CheckoutPage() {
                   <>
                     {/* Itemized List */}
                     <div className="space-y-4 max-h-64 overflow-y-auto pr-1">
-                      {cart.map((ci) => (
-                        <div key={ci.product.id} className="flex items-center gap-3">
-                          <img
-                            src={ci.product.image}
-                            alt={ci.product.name}
-                            className="w-14 h-14 object-contain bg-[#F8FAFC] rounded-xl p-1.5 border border-[#E2E8F0] shrink-0"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <span className="font-archivo font-bold text-xs text-[#0A192F] block truncate">
-                              {ci.product.name}
-                            </span>
-                            <span className="text-[11px] text-[#64748B] block">
-                              Qty: {ci.quantity} × ₹{ci.product.price.toLocaleString("en-IN")}
+                      {cart.map((ci) => {
+                        const effectivePrice = ci.unitPrice ?? ci.product.price ?? 0;
+                        const maskLabel = ci.maskOption === "nasal"
+                          ? "Nasal Mask (+₹3,000)"
+                          : ci.maskOption === "full-face"
+                          ? "Full Face Mask (+₹4,500)"
+                          : ci.maskOption === "none"
+                          ? "Device Only (No Mask)"
+                          : null;
+
+                        return (
+                          <div key={ci.product.id} className="flex items-center gap-3">
+                            <img
+                              src={ci.product.image}
+                              alt={ci.product.name}
+                              className="w-14 h-14 object-contain bg-[#F8FAFC] rounded-xl p-1.5 border border-[#E2E8F0] shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <span className="font-archivo font-bold text-xs text-[#0A192F] block truncate">
+                                {ci.product.name}
+                              </span>
+                              {maskLabel && (
+                                <span className="text-[10px] font-semibold text-[#0066FF] block">
+                                  {maskLabel}
+                                </span>
+                              )}
+                              <span className="text-[11px] text-[#64748B] block">
+                                Qty: {ci.quantity} × ₹{effectivePrice.toLocaleString("en-IN")}.00
+                              </span>
+                            </div>
+                            <span className="font-archivo font-bold text-xs text-[#0A192F]">
+                              ₹{(effectivePrice * ci.quantity).toLocaleString("en-IN")}.00
                             </span>
                           </div>
-                          <span className="font-archivo font-bold text-xs text-[#0A192F]">
-                            ₹{(ci.product.price * ci.quantity).toLocaleString("en-IN")}
-                          </span>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     {/* Price Breakdown */}

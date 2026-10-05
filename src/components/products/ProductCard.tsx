@@ -6,9 +6,11 @@ import { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useToast } from "@/context/ToastContext";
+import { useInquiry } from "@/context/InquiryContext";
 import { ShoppingBag, Heart, Eye, Star, Phone } from "lucide-react";
 import { motion } from "motion/react";
 import { isRentalProduct, RENTAL_SHORT_MESSAGE, RENTAL_PHONE } from "@/utils/rental";
+import { isMaskEligible } from "@/utils/maskAddon";
 
 interface ProductCardProps {
   product: Product;
@@ -19,6 +21,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
   const { addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useWishlist();
   const { addToast } = useToast();
+  const { openInquiryModal } = useInquiry();
 
   const favorite = isFavorite(product.id);
   const alsoOnRental = isRentalProduct(product);
@@ -86,16 +89,41 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
 
       {/* Rating & Price */}
       <div className="price flex items-center justify-between pt-1">
-        <div className="flex items-baseline gap-2">
-          <span className="now">
-            ₹{product.price.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </span>
-          {product.originalPrice && (
-            <s className="was">
-              ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </s>
-          )}
-        </div>
+        {product.price && product.price > 0 ? (
+          <div className="flex flex-col">
+            <div className="flex items-baseline gap-2">
+              <span className="now">
+                ₹{(isMaskEligible(product) ? product.price + 3000 : product.price).toLocaleString("en-IN", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })}
+              </span>
+              {product.originalPrice && !isMaskEligible(product) && (
+                <s className="was">
+                  ₹{product.originalPrice.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </s>
+              )}
+            </div>
+            {isMaskEligible(product) && (
+              <span className="text-[10px] text-[#2a6ecb] font-semibold">
+                Incl. Nasal Mask (+₹3k)
+              </span>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 py-1">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                openInquiryModal(product);
+              }}
+              className="text-xs font-archivo font-bold text-[#2a6ecb] bg-[#EBF5FF] hover:bg-[#dcebfb] border border-[#2a6ecb]/20 px-2.5 py-1 rounded-full transition-colors cursor-pointer"
+            >
+              Price on Request
+            </button>
+          </div>
+        )}
 
         <div className="flex items-center gap-1 text-[#f2b134] text-xs font-bold font-archivo shrink-0">
           <Star className="w-3 h-3 fill-[#f2b134]" />
@@ -114,17 +142,34 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
         </a>
       )}
 
-      {/* Add to Cart CTA */}
-      <button
-        onClick={() => {
-          addToCart(product);
-          addToast("Added to Cart", `${product.name} added to your cart.`);
-        }}
-        className="btn btn-primary add w-full mt-1 !py-3 !px-4 !text-[13px] active:scale-[0.98]"
-      >
-        <ShoppingBag className="w-3.5 h-3.5" />
-        <span>Add to cart</span>
-      </button>
+      {/* Add to Cart or Enquire CTA */}
+      {product.price && product.price > 0 ? (
+        <button
+          onClick={() => {
+            const isEligible = isMaskEligible(product);
+            addToCart(product, 1, isEligible ? "nasal" : undefined);
+            addToast(
+              "Added to Cart",
+              isEligible
+                ? `${product.name} (with default Nasal Mask [+₹3,000]) added to your cart.`
+                : `${product.name} added to your cart.`
+            );
+          }}
+          className="btn btn-primary add w-full mt-1 !py-3 !px-4 !text-[13px] active:scale-[0.98]"
+        >
+          <ShoppingBag className="w-3.5 h-3.5" />
+          <span>Add to cart</span>
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={() => openInquiryModal(product)}
+          className="btn w-full mt-1 !py-3 !px-4 !text-[13px] active:scale-[0.98] inline-flex items-center justify-center gap-1.5 border border-[#2a6ecb] text-[#2a6ecb] hover:bg-[#EBF5FF] rounded-full font-archivo font-bold transition-colors cursor-pointer"
+        >
+          <Phone className="w-3.5 h-3.5" />
+          <span>Enquire Now</span>
+        </button>
+      )}
     </motion.div>
   );
 };
