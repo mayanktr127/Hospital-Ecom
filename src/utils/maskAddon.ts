@@ -5,33 +5,101 @@ export type MaskOptionType = "nasal" | "full-face" | "none";
 export interface MaskAddonConfig {
   id: MaskOptionType;
   name: string;
+  shortName: string;
   addonPrice: number;
   description: string;
   badge?: string;
+  image?: string;
 }
 
 export const MASK_OPTIONS: MaskAddonConfig[] = [
   {
     id: "nasal",
-    name: "Nasal Mask",
+    name: "Löwenstein CARA Nasal Mask",
+    shortName: "Nasal Mask",
     addonPrice: 3000,
     description: "Compact & lightweight nasal cushion for standard nocturnal breathing",
     badge: "Recommended Default",
+    image: "/images/site/masks_cara_csm_cara_mask_patient_interface_nasal_right_eb6a30efad.png",
   },
   {
     id: "full-face",
-    name: "Full Face Mask",
+    name: "Löwenstein CARA Full Face Mask",
+    shortName: "Full Face Mask",
     addonPrice: 4500,
     description: "Full oronasal seal, optimal for mouth breathers or higher BiLevel pressures",
     badge: "High Performance",
+    image: "/images/site/masks_cara_full_face_csm_cara_mask_patient_interface_fullface_right_3bfbc3e771.png",
   },
   {
     id: "none",
-    name: "Device Only (No Mask)",
+    name: "Device Only (Without Mask)",
+    shortName: "No Mask",
     addonPrice: 0,
     description: "Exclude mask if you already own a compatible Löwenstein or CPAP mask",
   },
 ];
+
+export function getMaskOptionDetails(option?: MaskOptionType): MaskAddonConfig {
+  return (
+    MASK_OPTIONS.find((m) => m.id === option) ||
+    MASK_OPTIONS[0]
+  );
+}
+
+export const NASAL_MASK_PRODUCT: Product = {
+  id: "addon-cara-nasal-mask",
+  name: "Löwenstein CARA Nasal Mask",
+  category: "Ventilation & Sleep",
+  price: 3000,
+  originalPrice: 6000,
+  image: "/images/site/masks_cara_csm_cara_mask_patient_interface_nasal_right_eb6a30efad.png",
+  rating: 4.9,
+  reviewsCount: 24,
+  inStock: true,
+  description: "Official Löwenstein CARA Nasal Mask. German-engineered lightweight patient interface with ultra-quiet exhalation system.",
+  badge: "Mask Add-on",
+  brand: "Löwenstein Medical",
+  specifications: [
+    { label: "Type", value: "Nasal Mask" },
+    { label: "Brand", value: "Löwenstein Medical" },
+    { label: "Origin", value: "Germany" },
+    { label: "Warranty", value: "Official Clinical Warranty" },
+  ],
+};
+
+export const FULL_FACE_MASK_PRODUCT: Product = {
+  id: "addon-cara-full-face-mask",
+  name: "Löwenstein CARA Full Face Mask",
+  category: "Ventilation & Sleep",
+  price: 4500,
+  originalPrice: 7500,
+  image: "/images/site/masks_cara_full_face_csm_cara_mask_patient_interface_fullface_right_3bfbc3e771.png",
+  rating: 4.9,
+  reviewsCount: 28,
+  inStock: true,
+  description: "Official Löwenstein CARA Full Face Mask. Complete oronasal seal for high pressures and mouth breathers with ball-and-socket joint.",
+  badge: "Mask Add-on",
+  brand: "Löwenstein Medical",
+  specifications: [
+    { label: "Type", value: "Full Face Mask" },
+    { label: "Brand", value: "Löwenstein Medical" },
+    { label: "Origin", value: "Germany" },
+    { label: "Warranty", value: "Official Clinical Warranty" },
+  ],
+};
+
+export function getMaskProduct(option?: MaskOptionType): Product | null {
+  if (option === "nasal") return NASAL_MASK_PRODUCT;
+  if (option === "full-face") return FULL_FACE_MASK_PRODUCT;
+  return null;
+}
+
+export function isMaskAddonProduct(productOrId?: Product | string): boolean {
+  if (!productOrId) return false;
+  const id = typeof productOrId === "string" ? productOrId : productOrId.id;
+  return id === "addon-cara-nasal-mask" || id === "addon-cara-full-face-mask";
+}
 
 export const NASAL_MASK_ADDON = 3000;
 export const FULL_FACE_MASK_ADDON = 4500;

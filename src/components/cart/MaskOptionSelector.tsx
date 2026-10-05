@@ -6,9 +6,10 @@ import {
   MASK_OPTIONS,
   getMaskAddonInfo,
   getMaskAddonPrice,
+  getMaskOptionDetails,
 } from "@/utils/maskAddon";
 import { Product } from "@/types/product";
-import { Check, ShieldCheck, Sparkles, XCircle } from "lucide-react";
+import { Check, ShieldCheck, Sparkles, XCircle, SlidersHorizontal } from "lucide-react";
 
 interface MaskOptionSelectorProps {
   product: Product;
@@ -30,62 +31,68 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
   }
 
   const basePrice = maskInfo.basePrice;
+  const currentMaskDetail = getMaskOptionDetails(selectedOption);
 
   if (variant === "compact") {
     return (
-      <div className="mt-2.5 pt-2 border-t border-[#f1f5f9]">
-        <div className="flex items-center justify-between gap-1 mb-1.5">
-          <span className="text-[10px] font-semibold tracking-wider uppercase text-[#64748b]">
-            Mask Add-on:
+      <div className="mt-3 pt-2.5 border-t border-[#f1f5f9]">
+        <div className="flex items-center justify-between mb-2 px-0.5">
+          <span className="text-[10px] font-bold tracking-wider uppercase text-[#64748b]">
+            Mask Interface:
           </span>
-          <span className="text-[10px] font-bold text-[#2a6ecb]">
-            {selectedOption === "nasal" && "+₹3,000 (Nasal)"}
-            {selectedOption === "full-face" && "+₹4,500 (Full Face)"}
-            {selectedOption === "none" && "No Mask (₹0)"}
+          <span className="text-[10px] font-semibold">
+            {selectedOption === "nasal" && (
+              <span className="text-[#2a6ecb] font-bold">Nasal Mask (+₹3,000 in cart)</span>
+            )}
+            {selectedOption === "full-face" && (
+              <span className="text-[#2a6ecb] font-bold">Full Face Mask (+₹4,500 in cart)</span>
+            )}
+            {selectedOption === "none" && (
+              <span className="text-[#64748b]">Device Only (No Mask)</span>
+            )}
           </span>
         </div>
 
-        <div className="grid grid-cols-3 gap-1">
+        <div className="grid grid-cols-3 gap-1.5">
           {/* Option 1: Nasal Mask */}
           <button
             type="button"
             onClick={() => onChange("nasal")}
-            className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all text-center flex items-center justify-center gap-1 border ${
+            className={`px-2 py-1.5 rounded-lg text-[11px] font-bold transition-all text-center flex items-center justify-center gap-1 border cursor-pointer ${
               selectedOption === "nasal"
                 ? "bg-[#2a6ecb] text-white border-[#2a6ecb] shadow-xs"
-                : "bg-[#f8fafc] text-[#334155] border-[#e2e8f0] hover:bg-[#edf4fc]"
+                : "bg-[#f8fafc] text-[#334155] border-[#e2e8f0] hover:bg-[#edf4fc] hover:border-[#2a6ecb]/40"
             }`}
           >
-            {selectedOption === "nasal" && <Check className="w-2.5 h-2.5" />}
-            <span>Nasal (+3k)</span>
+            {selectedOption === "nasal" && <Check className="w-3 h-3 stroke-[2.5]" />}
+            <span>Nasal (+₹3k)</span>
           </button>
 
           {/* Option 2: Full Face Mask */}
           <button
             type="button"
             onClick={() => onChange("full-face")}
-            className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all text-center flex items-center justify-center gap-1 border ${
+            className={`px-2 py-1.5 rounded-lg text-[11px] font-bold transition-all text-center flex items-center justify-center gap-1 border cursor-pointer ${
               selectedOption === "full-face"
                 ? "bg-[#2a6ecb] text-white border-[#2a6ecb] shadow-xs"
-                : "bg-[#f8fafc] text-[#334155] border-[#e2e8f0] hover:bg-[#edf4fc]"
+                : "bg-[#f8fafc] text-[#334155] border-[#e2e8f0] hover:bg-[#edf4fc] hover:border-[#2a6ecb]/40"
             }`}
           >
-            {selectedOption === "full-face" && <Check className="w-2.5 h-2.5" />}
-            <span>Full Face (+4.5k)</span>
+            {selectedOption === "full-face" && <Check className="w-3 h-3 stroke-[2.5]" />}
+            <span>Full Face (+₹4.5k)</span>
           </button>
 
           {/* Option 3: No Mask / Toggle Off */}
           <button
             type="button"
             onClick={() => onChange("none")}
-            className={`px-2 py-1 rounded-lg text-[10px] font-bold transition-all text-center flex items-center justify-center gap-1 border ${
+            className={`px-2 py-1.5 rounded-lg text-[11px] font-bold transition-all text-center flex items-center justify-center gap-1 border cursor-pointer ${
               selectedOption === "none"
                 ? "bg-[#0a1f3c] text-white border-[#0a1f3c] shadow-xs"
                 : "bg-[#f8fafc] text-[#64748b] border-[#e2e8f0] hover:bg-[#f1f5f9]"
             }`}
-            title="Toggle off mask purchase"
           >
-            {selectedOption === "none" && <Check className="w-2.5 h-2.5" />}
+            {selectedOption === "none" && <Check className="w-3 h-3 stroke-[2.5]" />}
             <span>No Mask</span>
           </button>
         </div>
@@ -106,7 +113,11 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
               Mask Customization
             </span>
             <span className="text-xs text-[#64748b] font-medium hidden sm:inline">
-              Pre-configured with Nasal Mask
+              {selectedOption === "none"
+                ? "Device Only (No mask added)"
+                : selectedOption === "nasal"
+                ? "Nasal Mask selected (+₹3,000)"
+                : "Full Face Mask selected (+₹4,500)"}
             </span>
           </div>
           <h4 className="font-archivo font-bold text-base text-[#0a1f3c] mt-1">
@@ -129,15 +140,15 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
         {/* Option 1: Nasal Mask */}
         <div
           onClick={() => onChange("nasal")}
-          className={`cursor-pointer rounded-xl p-3.5 border transition-all flex items-start justify-between gap-3 ${
+          className={`cursor-pointer rounded-xl p-3.5 border transition-all flex items-center justify-between gap-3 ${
             selectedOption === "nasal"
               ? "bg-white border-[#2a6ecb] ring-2 ring-[#2a6ecb]/20 shadow-xs"
               : "bg-white/60 border-[#e2e8f0] hover:bg-white hover:border-[#cbd5e1]"
           }`}
         >
-          <div className="flex items-start gap-3">
+          <div className="flex items-center gap-3">
             <div
-              className={`w-5 h-5 rounded-full border mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+              className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                 selectedOption === "nasal"
                   ? "bg-[#2a6ecb] border-[#2a6ecb] text-white"
                   : "border-[#cbd5e1] bg-white"
@@ -145,13 +156,23 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
             >
               {selectedOption === "nasal" && <Check className="w-3 h-3 stroke-[3]" />}
             </div>
+
+            {/* Mask Photo */}
+            <div className="w-12 h-12 rounded-xl bg-white p-1 border border-[#e2e8f0] flex items-center justify-center shrink-0 shadow-2xs">
+              <img
+                src="/images/site/masks_cara_csm_cara_mask_patient_interface_nasal_right_eb6a30efad.png"
+                alt="Löwenstein CARA Nasal Mask"
+                className="w-full h-full object-contain"
+              />
+            </div>
+
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-archivo font-bold text-sm text-[#0a1f3c]">
-                  Nasal Mask
+                  Löwenstein CARA Nasal Mask
                 </span>
                 <span className="text-[10px] font-bold bg-[#1fb37a]/15 text-[#138054] px-2 py-0.5 rounded-full uppercase tracking-wider">
-                  Default Option
+                  Clinical Standard
                 </span>
               </div>
               <p className="text-xs text-[#64748b] mt-0.5">
@@ -172,15 +193,15 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
         {/* Option 2: Full Face Mask */}
         <div
           onClick={() => onChange("full-face")}
-          className={`cursor-pointer rounded-xl p-3.5 border transition-all flex items-start justify-between gap-3 ${
+          className={`cursor-pointer rounded-xl p-3.5 border transition-all flex items-center justify-between gap-3 ${
             selectedOption === "full-face"
               ? "bg-white border-[#2a6ecb] ring-2 ring-[#2a6ecb]/20 shadow-xs"
               : "bg-white/60 border-[#e2e8f0] hover:bg-white hover:border-[#cbd5e1]"
           }`}
         >
-          <div className="flex items-start gap-3">
+          <div className="flex items-center gap-3">
             <div
-              className={`w-5 h-5 rounded-full border mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+              className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                 selectedOption === "full-face"
                   ? "bg-[#2a6ecb] border-[#2a6ecb] text-white"
                   : "border-[#cbd5e1] bg-white"
@@ -188,17 +209,27 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
             >
               {selectedOption === "full-face" && <Check className="w-3 h-3 stroke-[3]" />}
             </div>
+
+            {/* Mask Photo */}
+            <div className="w-12 h-12 rounded-xl bg-white p-1 border border-[#e2e8f0] flex items-center justify-center shrink-0 shadow-2xs">
+              <img
+                src="/images/site/masks_cara_full_face_csm_cara_mask_patient_interface_fullface_right_3bfbc3e771.png"
+                alt="Löwenstein CARA Full Face Mask"
+                className="w-full h-full object-contain"
+              />
+            </div>
+
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-archivo font-bold text-sm text-[#0a1f3c]">
-                  Full Face Mask
+                  Löwenstein CARA Full Face Mask
                 </span>
                 <span className="text-[10px] font-bold bg-[#2a6ecb]/15 text-[#2a6ecb] px-2 py-0.5 rounded-full uppercase tracking-wider">
                   BiLevel / Mouth Breather
                 </span>
               </div>
               <p className="text-xs text-[#64748b] mt-0.5">
-                Complete nose and mouth seal. Ideal for mouth breathing or elevated CPAP pressures.
+                Complete nose and mouth seal. Ideal for mouth breathing or elevated pressures.
               </p>
             </div>
           </div>
@@ -215,15 +246,15 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
         {/* Option 3: Without Mask / Toggle Off */}
         <div
           onClick={() => onChange("none")}
-          className={`cursor-pointer rounded-xl p-3.5 border transition-all flex items-start justify-between gap-3 ${
+          className={`cursor-pointer rounded-xl p-3.5 border transition-all flex items-center justify-between gap-3 ${
             selectedOption === "none"
               ? "bg-white border-[#0a1f3c] ring-2 ring-[#0a1f3c]/20 shadow-xs"
               : "bg-white/60 border-[#e2e8f0] hover:bg-white hover:border-[#cbd5e1]"
           }`}
         >
-          <div className="flex items-start gap-3">
+          <div className="flex items-center gap-3">
             <div
-              className={`w-5 h-5 rounded-full border mt-0.5 flex items-center justify-center shrink-0 transition-colors ${
+              className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                 selectedOption === "none"
                   ? "bg-[#0a1f3c] border-[#0a1f3c] text-white"
                   : "border-[#cbd5e1] bg-white"
@@ -231,6 +262,16 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
             >
               {selectedOption === "none" && <Check className="w-3 h-3 stroke-[3]" />}
             </div>
+
+            {/* Device Icon / Photo */}
+            <div className="w-12 h-12 rounded-xl bg-white p-1 border border-[#e2e8f0] flex items-center justify-center shrink-0 shadow-2xs">
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-full object-contain"
+              />
+            </div>
+
             <div>
               <div className="flex items-center gap-2">
                 <span className="font-archivo font-bold text-sm text-[#0a1f3c]">

@@ -26,7 +26,7 @@ interface ProductModalProps {
 
 export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("nasal");
+  const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("none");
   const { addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useWishlist();
   const { addToast } = useToast();
@@ -234,14 +234,14 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                               addToCart(
                                 product,
                                 quantity,
-                                maskInfo.isEligible ? selectedMaskOption : undefined
+                                maskInfo.isEligible ? selectedMaskOption : "none"
                               );
                               const maskLabel = maskInfo.isEligible
                                 ? selectedMaskOption === "nasal"
-                                  ? " (with Nasal Mask [+₹3,000])"
+                                  ? " (with CARA Nasal Mask [+₹3,000])"
                                   : selectedMaskOption === "full-face"
-                                  ? " (with Full Face Mask [+₹4,500])"
-                                  : " (Device Only / No Mask)"
+                                  ? " (with CARA Full Face Mask [+₹4,500])"
+                                  : ""
                                 : "";
                               addToast(
                                 "Added to Cart",

@@ -8,7 +8,7 @@ import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, Truck } f
 import Image from "next/image";
 import Link from "next/link";
 import { MaskOptionSelector } from "@/components/cart/MaskOptionSelector";
-import { isMaskEligible } from "@/utils/maskAddon";
+import { isMaskEligible, isMaskAddonProduct } from "@/utils/maskAddon";
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -80,13 +80,18 @@ export const CartDrawer: React.FC = () => {
                   </div>
                 ) : (
                   cart.map(({ product, quantity, maskOption, unitPrice }) => {
-                    const effectivePrice = unitPrice ?? product.price ?? 0;
-                    const isEligible = isMaskEligible(product);
+                    const isMaskItem = isMaskAddonProduct(product);
+                    const effectivePrice = isMaskItem ? (product.price || 0) : (unitPrice ?? product.price ?? 0);
+                    const isEligible = !isMaskItem && isMaskEligible(product);
 
                     return (
                       <div
                         key={product.id}
-                        className="p-3 bg-white border border-[#e9edf4] rounded-[16px] shadow-[0_2px_8px_rgba(24,42,65,0.05)]"
+                        className={`p-3.5 bg-white border rounded-[16px] shadow-[0_2px_8px_rgba(24,42,65,0.05)] transition-all ${
+                          isMaskItem
+                            ? "border-[#dcebfb] bg-gradient-to-r from-[#f8fbff] to-white"
+                            : "border-[#e9edf4]"
+                        }`}
                       >
                         <div className="flex items-start gap-4">
                           <div className="w-16 h-16 rounded-[14px] bg-gradient-to-br from-[#e9e6fb] to-white flex items-center justify-center p-2 shrink-0 border border-[#e9edf4]">
@@ -100,9 +105,17 @@ export const CartDrawer: React.FC = () => {
                           </div>
 
                           <div className="flex-1 min-w-0">
-                            <h4 className="font-archivo font-semibold text-xs text-[#182a41] line-clamp-1">
-                              {product.name}
-                            </h4>
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <h4 className="font-archivo font-semibold text-xs text-[#182a41] line-clamp-1">
+                                {product.name}
+                              </h4>
+                              {isMaskItem && (
+                                <span className="text-[9px] font-bold uppercase tracking-wider bg-[#dcebfb] text-[#2a6ecb] px-1.5 py-0.5 rounded font-archivo">
+                                  Mask Add-on
+                                </span>
+                              )}
+                            </div>
+
                             <span className="font-archivo font-bold text-sm text-[#0a1f3c] block mt-0.5">
                               ₹{(effectivePrice * quantity).toLocaleString("en-IN")}.00
                             </span>
@@ -111,7 +124,8 @@ export const CartDrawer: React.FC = () => {
                               <div className="flex items-center border border-[#e9edf4] rounded-full bg-white h-7 px-1">
                                 <button
                                   onClick={() => updateQuantity(product.id, quantity - 1)}
-                                  className="w-5 h-5 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
+                                  className="w-5 h-5 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors cursor-pointer"
+                                  aria-label="Decrease quantity"
                                 >
                                   <Minus className="w-3 h-3" />
                                 </button>
@@ -120,7 +134,8 @@ export const CartDrawer: React.FC = () => {
                                 </span>
                                 <button
                                   onClick={() => updateQuantity(product.id, quantity + 1)}
-                                  className="w-5 h-5 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
+                                  className="w-5 h-5 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors cursor-pointer"
+                                  aria-label="Increase quantity"
                                 >
                                   <Plus className="w-3 h-3" />
                                 </button>
@@ -128,7 +143,7 @@ export const CartDrawer: React.FC = () => {
 
                               <button
                                 onClick={() => removeFromCart(product.id)}
-                                className="p-1 text-[#64748b] hover:text-[#dc4b56] transition-colors ml-auto"
+                                className="p-1 text-[#64748b] hover:text-[#dc4b56] transition-colors ml-auto cursor-pointer"
                                 aria-label="Remove item"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -141,7 +156,7 @@ export const CartDrawer: React.FC = () => {
                         {isEligible && (
                           <MaskOptionSelector
                             product={product}
-                            selectedOption={maskOption || "nasal"}
+                            selectedOption={maskOption || "none"}
                             onChange={(newOpt) => updateMaskOption(product.id, newOpt)}
                             variant="compact"
                           />

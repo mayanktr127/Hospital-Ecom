@@ -75,7 +75,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const { openInquiryModal } = useInquiry();
 
   const [quantity, setQuantity] = useState<number>(1);
-  const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("nasal");
+  const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("none");
   const [activeVideoModal, setActiveVideoModal] = useState<string | null>(null);
 
   // Dynamic Lookup Keys
@@ -301,18 +301,18 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
   const handleAddToCart = () => {
     const maskInfo = getMaskAddonInfo(currentProductObj);
-    const effectiveOption = maskInfo.isEligible ? selectedMaskOption : undefined;
+    const effectiveOption: MaskOptionType = maskInfo.isEligible ? selectedMaskOption : "none";
     addToCart(currentProductObj, quantity, effectiveOption);
 
     const maskLabel = effectiveOption === "nasal"
-      ? " (with Nasal Mask [+₹3,000])"
+      ? " (with CARA Nasal Mask [+₹3,000])"
       : effectiveOption === "full-face"
-      ? " (with Full Face Mask [+₹4,500])"
-      : " (Device Only / No Mask)";
+      ? " (with CARA Full Face Mask [+₹4,500])"
+      : "";
 
     addToast(
       "Added to Cart",
-      `${quantity}x ${displayTitle}${maskInfo.isEligible ? maskLabel : ""} added to your procurement cart.`
+      `${quantity}x ${displayTitle}${maskLabel} added to your procurement cart.`
     );
   };
 

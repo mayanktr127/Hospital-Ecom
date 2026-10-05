@@ -146,13 +146,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
       {product.price && product.price > 0 ? (
         <button
           onClick={() => {
-            const isEligible = isMaskEligible(product);
-            addToCart(product, 1, isEligible ? "nasal" : undefined);
+            addToCart(product, 1, "none");
             addToast(
               "Added to Cart",
-              isEligible
-                ? `${product.name} (with default Nasal Mask [+₹3,000]) added to your cart.`
-                : `${product.name} added to your cart.`
+              `${product.name} added to your cart.`
             );
           }}
           className="btn btn-primary add w-full mt-1 !py-3 !px-4 !text-[13px] active:scale-[0.98]"

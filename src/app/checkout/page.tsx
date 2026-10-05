@@ -5,8 +5,9 @@ import Link from "next/link";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
 import { useCart } from "@/context/CartContext";
-import { useAdmin, OrderItem } from "@/context/AdminContext";
+import { useAdmin, OrderItem, OrderProductItem } from "@/context/AdminContext";
 import { useToast } from "@/context/ToastContext";
+import { getMaskOptionDetails, isMaskAddonProduct } from "@/utils/maskAddon";
 import {
   ShieldCheck,
   Truck,
@@ -55,6 +56,14 @@ export default function CheckoutPage() {
 
     const generatedOrderId = `ORD-${Date.now().toString().slice(-6)}`;
 
+    const orderItems: OrderProductItem[] = cart.map((ci) => ({
+      productId: ci.product.id,
+      name: ci.product.name,
+      price: ci.product.price || 0,
+      quantity: ci.quantity,
+      image: ci.product.image,
+    }));
+
     const newOrder: OrderItem = {
       orderId: generatedOrderId,
       customerName,
@@ -65,23 +74,7 @@ export default function CheckoutPage() {
       state,
       pincode,
       landmark: landmark || undefined,
-      items: cart.map((ci) => {
-        const maskLabel = ci.maskOption === "nasal"
-          ? " (with Nasal Mask [+₹3,000])"
-          : ci.maskOption === "full-face"
-          ? " (with Full Face Mask [+₹4,500])"
-          : ci.maskOption === "none"
-          ? " (Device Only / No Mask)"
-          : "";
-
-        return {
-          productId: ci.product.id,
-          name: `${ci.product.name}${maskLabel}`,
-          price: ci.unitPrice ?? ci.product.price ?? 0,
-          quantity: ci.quantity,
-          image: ci.product.image,
-        };
-      }),
+      items: orderItems,
       totalAmount,
       paymentMethod,
       orderStatus: "On Progress",
@@ -159,9 +152,19 @@ export default function CheckoutPage() {
                 <span className="text-xs font-bold text-[#64748B] uppercase block mb-2">Ordered Items ({placedOrder.items.length})</span>
                 <div className="space-y-2">
                   {placedOrder.items.map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-xs py-1 border-b border-[#F1F5F9] last:border-none">
-                      <span className="font-semibold text-[#0A192F]">{item.name} × {item.quantity}</span>
-                      <span className="font-bold text-[#0A192F]">₹{(item.price * item.quantity).toLocaleString("en-IN")}.00</span>
+                    <div key={idx} className="flex items-center gap-3 py-2 border-b border-[#F1F5F9] last:border-none">
+                      {item.image && (
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-12 h-12 object-contain bg-white rounded-lg p-1 border border-[#E2E8F0] shrink-0 shadow-2xs"
+                        />
+                      )}
+                      <div className="flex-1 min-w-0">
+                        <span className="font-semibold text-xs text-[#0A192F] block truncate">{item.name}</span>
+                        <span className="text-[10px] text-[#64748B]">Qty: {item.quantity} × ₹{item.price.toLocaleString("en-IN")}.00</span>
+                      </div>
+                      <span className="font-bold text-xs text-[#0A192F]">₹{(item.price * item.quantity).toLocaleString("en-IN")}.00</span>
                     </div>
                   ))}
                 </div>
@@ -412,19 +415,12 @@ export default function CheckoutPage() {
                 ) : (
                   <>
                     {/* Itemized List */}
-                    <div className="space-y-4 max-h-64 overflow-y-auto pr-1">
+                    <div className="space-y-4 max-h-72 overflow-y-auto pr-1">
                       {cart.map((ci) => {
-                        const effectivePrice = ci.unitPrice ?? ci.product.price ?? 0;
-                        const maskLabel = ci.maskOption === "nasal"
-                          ? "Nasal Mask (+₹3,000)"
-                          : ci.maskOption === "full-face"
-                          ? "Full Face Mask (+₹4,500)"
-                          : ci.maskOption === "none"
-                          ? "Device Only (No Mask)"
-                          : null;
+                        const isMask = isMaskAddonProduct(ci.product);
 
                         return (
-                          <div key={ci.product.id} className="flex items-center gap-3">
+                          <div key={ci.product.id} className="flex items-center gap-3 pb-3 border-b border-[#F1F5F9] last:border-none last:pb-0">
                             <img
                               src={ci.product.image}
                               alt={ci.product.name}
@@ -434,17 +430,19 @@ export default function CheckoutPage() {
                               <span className="font-archivo font-bold text-xs text-[#0A192F] block truncate">
                                 {ci.product.name}
                               </span>
-                              {maskLabel && (
-                                <span className="text-[10px] font-semibold text-[#0066FF] block">
-                                  {maskLabel}
+                              <div className="flex items-center gap-1.5 mt-0.5">
+                                {isMask && (
+                                  <span className="text-[9px] font-bold uppercase tracking-wider bg-[#dcebfb] text-[#0066FF] px-1.5 py-0.5 rounded font-archivo">
+                                    Mask Add-on
+                                  </span>
+                                )}
+                                <span className="text-[11px] text-[#64748B]">
+                                  Qty: {ci.quantity} × ₹{(ci.product.price || 0).toLocaleString("en-IN")}.00
                                 </span>
-                              )}
-                              <span className="text-[11px] text-[#64748B] block">
-                                Qty: {ci.quantity} × ₹{effectivePrice.toLocaleString("en-IN")}.00
-                              </span>
+                              </div>
                             </div>
                             <span className="font-archivo font-bold text-xs text-[#0A192F]">
-                              ₹{(effectivePrice * ci.quantity).toLocaleString("en-IN")}.00
+                              ₹{((ci.product.price || 0) * ci.quantity).toLocaleString("en-IN")}.00
                             </span>
                           </div>
                         );

@@ -309,13 +309,10 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
                       {prod.price && prod.price > 0 ? (
                         <button
                           onClick={() => {
-                            const isEligible = isMaskEligible(prod);
-                            addToCart(prod, 1, isEligible ? "nasal" : undefined);
+                            addToCart(prod, 1, "none");
                             addToast(
                               "Added to Cart",
-                              isEligible
-                                ? `${prod.name} (with default Nasal Mask [+₹3,000]) added to your cart.`
-                                : `${prod.name} has been added to your cart.`
+                              `${prod.name} has been added to your cart.`
                             );
                           }}
                           className="flex-1 py-2.5 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer"
