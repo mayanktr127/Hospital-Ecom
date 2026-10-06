@@ -270,8 +270,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
 
         // Fetch categories — if DB empty, auto-seed covered by /api/seed above
-        const normalizeCategories = (cats: CategoryItem[]) =>
-          cats.map((c) => {
+        const normalizeCategories = (cats: CategoryItem[]) => {
+          const mapped = cats.map((c) => {
             if (c.slug === "sleep-apnea-therapy" || c.id === "cat-1" || c.name === "Sleep Apnea Therapy" || c.name === "Sleep Therapy") {
               return {
                 ...c,
@@ -281,6 +281,23 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             }
             return c;
           });
+
+          // Merge with local backup categories so custom categories never disappear
+          if (typeof window !== "undefined") {
+            try {
+              const localCustom = localStorage.getItem("pulmocare_custom_categories");
+              if (localCustom) {
+                const parsed: CategoryItem[] = JSON.parse(localCustom);
+                const map = new Map<string, CategoryItem>();
+                mapped.forEach((c) => map.set((c.id || c.name).toLowerCase(), c));
+                parsed.forEach((c) => map.set((c.id || c.name).toLowerCase(), c));
+                return Array.from(map.values());
+              }
+            } catch {}
+          }
+
+          return mapped;
+        };
 
         const catRes = await fetch("/api/categories").then((r) => r.json()).catch(() => ({ success: false }));
         if (catRes.success && catRes.categories && catRes.categories.length > 0) {
@@ -433,6 +450,17 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Categories CRUD Handlers
   const addCategory = async (newCategory: CategoryItem) => {
+    // 1. Immediately cache in localStorage so category is NEVER lost
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_categories");
+        const list: CategoryItem[] = stored ? JSON.parse(stored) : [];
+        const filtered = list.filter((c) => (c.id || c.name).toLowerCase() !== (newCategory.id || newCategory.name).toLowerCase());
+        localStorage.setItem("pulmocare_custom_categories", JSON.stringify([...filtered, newCategory]));
+      } catch {}
+    }
+
+    // 2. Persist to MongoDB Atlas
     try {
       const res = await fetch("/api/categories", {
         method: "POST",
@@ -441,18 +469,28 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
       const data = await res.json();
       if (data.success && data.category) {
-        setCategories((prev) => [...prev, data.category]);
+        setCategories((prev) => [...prev.filter((c) => (c.id || c.name).toLowerCase() !== (data.category.id || data.category.name).toLowerCase()), data.category]);
       } else {
-        setCategories((prev) => [...prev, newCategory]);
+        setCategories((prev) => [...prev.filter((c) => (c.id || c.name).toLowerCase() !== (newCategory.id || newCategory.name).toLowerCase()), newCategory]);
       }
     } catch (err) {
       console.error("Error adding category to MongoDB Atlas", err);
-      setCategories((prev) => [...prev, newCategory]);
+      setCategories((prev) => [...prev.filter((c) => (c.id || c.name).toLowerCase() !== (newCategory.id || newCategory.name).toLowerCase()), newCategory]);
     }
   };
 
   const updateCategory = async (updatedCategory: CategoryItem) => {
     setCategories((prev) => prev.map((c) => (c.id === updatedCategory.id ? updatedCategory : c)));
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_categories");
+        if (stored) {
+          const list: CategoryItem[] = JSON.parse(stored);
+          const nextList = list.map((c) => (c.id === updatedCategory.id ? updatedCategory : c));
+          localStorage.setItem("pulmocare_custom_categories", JSON.stringify(nextList));
+        }
+      } catch {}
+    }
     try {
       await fetch("/api/categories", {
         method: "PUT",
@@ -466,6 +504,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const deleteCategory = async (id: string) => {
     setCategories((prev) => prev.filter((c) => c.id !== id));
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_categories");
+        if (stored) {
+          const list: CategoryItem[] = JSON.parse(stored);
+          localStorage.setItem("pulmocare_custom_categories", JSON.stringify(list.filter((c) => c.id !== id)));
+        }
+      } catch {}
+    }
     try {
       await fetch(`/api/categories?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     } catch (err) {

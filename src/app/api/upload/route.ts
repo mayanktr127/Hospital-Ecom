@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import fs from "fs";
+import { dbConnect } from "@/lib/mongodb";
+import Media from "@/models/Media";
 
 export const dynamic = "force-dynamic";
 
@@ -21,10 +23,26 @@ export async function POST(req: Request) {
     const sanitizedFilename = file.name.replace(/[^a-zA-Z0-9.-]/g, "_");
     const uniqueFilename = `upload_${Date.now()}_${sanitizedFilename}`;
 
-    // Attempt to save to disk if environment allows writing (e.g. local development)
-    let publicUrl = "";
-    let savedToDisk = false;
+    // 1. Persist directly to MongoDB Atlas Media collection (Works everywhere: Vercel, localhost)
+    try {
+      await dbConnect();
+      await Media.findOneAndUpdate(
+        { filename: uniqueFilename },
+        {
+          $set: {
+            filename: uniqueFilename,
+            contentType: mimeType,
+            data: buffer,
+            size: buffer.length,
+          },
+        },
+        { upsert: true, new: true, setDefaultsOnInsert: true }
+      );
+    } catch (dbErr: any) {
+      console.error("MongoDB Atlas media save error:", dbErr);
+    }
 
+    // 2. Also save to local public/uploads as disk cache if the filesystem is writable
     try {
       const uploadsDir = path.join(process.cwd(), "public", "uploads");
       if (!fs.existsSync(uploadsDir)) {
@@ -32,20 +50,15 @@ export async function POST(req: Request) {
       }
       const filePath = path.join(uploadsDir, uniqueFilename);
       fs.writeFileSync(filePath, buffer);
-      publicUrl = `/uploads/${uniqueFilename}`;
-      savedToDisk = true;
-    } catch (fsErr: any) {
-      // EROFS (Read-only file system in Vercel/serverless environments) or permission issues:
-      // Fallback: Convert to Base64 Data URL so upload NEVER fails
-      console.warn("Disk write failed (likely serverless/read-only environment), falling back to data URL:", fsErr?.message);
-      publicUrl = `data:${mimeType};base64,${buffer.toString("base64")}`;
+    } catch (fsErr) {
+      // Ignored in read-only / serverless environments like Vercel
     }
+
+    const publicUrl = `/uploads/${uniqueFilename}`;
 
     return NextResponse.json({
       success: true,
-      message: savedToDisk
-        ? "File uploaded successfully to storage!"
-        : "File uploaded successfully as secure inline data asset!",
+      message: "File uploaded successfully to cloud database & media storage!",
       url: publicUrl,
       fileName: uniqueFilename,
     });

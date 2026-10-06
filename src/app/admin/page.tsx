@@ -3227,11 +3227,16 @@ export default function AdminDashboardPage() {
                     className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] font-semibold focus:border-[#2a6ecb]"
                   >
                     {categories && categories.length > 0 ? (
-                      categories.map((c) => (
-                        <option key={c.id || c.name} value={c.name}>
-                          {c.name}
-                        </option>
-                      ))
+                      <>
+                        {pCategory && !categories.some((c) => c.name.toLowerCase() === pCategory.toLowerCase()) && (
+                          <option value={pCategory}>{pCategory} (Custom)</option>
+                        )}
+                        {categories.map((c) => (
+                          <option key={c.id || c.name} value={c.name}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </>
                     ) : (
                       <>
                         <option value="Ventilation & Sleep">Ventilation &amp; Sleep</option>
