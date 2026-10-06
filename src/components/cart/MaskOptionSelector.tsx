@@ -140,13 +140,13 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
         {/* Option 1: Nasal Mask */}
         <div
           onClick={() => onChange("nasal")}
-          className={`cursor-pointer rounded-xl p-3.5 border transition-all flex items-center justify-between gap-3 ${
+          className={`cursor-pointer rounded-2xl p-3 sm:p-3.5 border transition-all flex items-center justify-between gap-3 ${
             selectedOption === "nasal"
               ? "bg-white border-[#2a6ecb] ring-2 ring-[#2a6ecb]/20 shadow-xs"
               : "bg-white/60 border-[#e2e8f0] hover:bg-white hover:border-[#cbd5e1]"
           }`}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <div
               className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                 selectedOption === "nasal"
@@ -166,25 +166,25 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
               />
             </div>
 
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-archivo font-bold text-sm text-[#0a1f3c]">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="font-archivo font-bold text-xs sm:text-sm text-[#0a1f3c] truncate">
                   Löwenstein CARA Nasal Mask
                 </span>
-                <span className="text-[10px] font-bold bg-[#1fb37a]/15 text-[#138054] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="text-[9px] font-bold bg-[#1fb37a]/15 text-[#138054] px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">
                   Clinical Standard
                 </span>
               </div>
-              <p className="text-xs text-[#64748b] mt-0.5">
+              <p className="text-[11px] text-[#64748b] mt-0.5 line-clamp-1 sm:line-clamp-2">
                 Standard comfortable nasal cushion. Recommended for natural nose breathers.
               </p>
             </div>
           </div>
           <div className="text-right shrink-0">
-            <span className="font-archivo font-bold text-sm text-[#2a6ecb] block">
+            <span className="font-archivo font-bold text-xs sm:text-sm text-[#2a6ecb] block whitespace-nowrap">
               +₹3,000
             </span>
-            <span className="text-[10px] text-[#64748b] font-mono">
+            <span className="text-[10px] text-[#64748b] font-mono whitespace-nowrap">
               ₹{(basePrice + 3000).toLocaleString("en-IN")}
             </span>
           </div>
@@ -193,13 +193,13 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
         {/* Option 2: Full Face Mask */}
         <div
           onClick={() => onChange("full-face")}
-          className={`cursor-pointer rounded-xl p-3.5 border transition-all flex items-center justify-between gap-3 ${
+          className={`cursor-pointer rounded-2xl p-3 sm:p-3.5 border transition-all flex items-center justify-between gap-3 ${
             selectedOption === "full-face"
               ? "bg-white border-[#2a6ecb] ring-2 ring-[#2a6ecb]/20 shadow-xs"
               : "bg-white/60 border-[#e2e8f0] hover:bg-white hover:border-[#cbd5e1]"
           }`}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <div
               className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                 selectedOption === "full-face"
@@ -219,25 +219,25 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
               />
             </div>
 
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-archivo font-bold text-sm text-[#0a1f3c]">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="font-archivo font-bold text-xs sm:text-sm text-[#0a1f3c] truncate">
                   Löwenstein CARA Full Face Mask
                 </span>
-                <span className="text-[10px] font-bold bg-[#2a6ecb]/15 text-[#2a6ecb] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="text-[9px] font-bold bg-[#2a6ecb]/15 text-[#2a6ecb] px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">
                   BiLevel / Mouth Breather
                 </span>
               </div>
-              <p className="text-xs text-[#64748b] mt-0.5">
+              <p className="text-[11px] text-[#64748b] mt-0.5 line-clamp-1 sm:line-clamp-2">
                 Complete nose and mouth seal. Ideal for mouth breathing or elevated pressures.
               </p>
             </div>
           </div>
           <div className="text-right shrink-0">
-            <span className="font-archivo font-bold text-sm text-[#2a6ecb] block">
+            <span className="font-archivo font-bold text-xs sm:text-sm text-[#2a6ecb] block whitespace-nowrap">
               +₹4,500
             </span>
-            <span className="text-[10px] text-[#64748b] font-mono">
+            <span className="text-[10px] text-[#64748b] font-mono whitespace-nowrap">
               ₹{(basePrice + 4500).toLocaleString("en-IN")}
             </span>
           </div>
@@ -246,13 +246,13 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
         {/* Option 3: Without Mask / Toggle Off */}
         <div
           onClick={() => onChange("none")}
-          className={`cursor-pointer rounded-xl p-3.5 border transition-all flex items-center justify-between gap-3 ${
+          className={`cursor-pointer rounded-2xl p-3 sm:p-3.5 border transition-all flex items-center justify-between gap-3 ${
             selectedOption === "none"
               ? "bg-white border-[#0a1f3c] ring-2 ring-[#0a1f3c]/20 shadow-xs"
               : "bg-white/60 border-[#e2e8f0] hover:bg-white hover:border-[#cbd5e1]"
           }`}
         >
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
             <div
               className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-colors ${
                 selectedOption === "none"
@@ -272,25 +272,25 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
               />
             </div>
 
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="font-archivo font-bold text-sm text-[#0a1f3c]">
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="font-archivo font-bold text-xs sm:text-sm text-[#0a1f3c] truncate">
                   Device Only (Without Mask)
                 </span>
-                <span className="text-[10px] font-bold bg-[#64748b]/15 text-[#64748b] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="text-[9px] font-bold bg-[#64748b]/15 text-[#64748b] px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">
                   Mask Toggled Off
                 </span>
               </div>
-              <p className="text-xs text-[#64748b] mt-0.5">
+              <p className="text-[11px] text-[#64748b] mt-0.5 line-clamp-1 sm:line-clamp-2">
                 Toggle off if you already own a compatible Löwenstein or CPAP mask.
               </p>
             </div>
           </div>
           <div className="text-right shrink-0">
-            <span className="font-archivo font-bold text-sm text-[#64748b] block">
+            <span className="font-archivo font-bold text-xs sm:text-sm text-[#64748b] block whitespace-nowrap">
               +₹0
             </span>
-            <span className="text-[10px] text-[#64748b] font-mono">
+            <span className="text-[10px] text-[#64748b] font-mono whitespace-nowrap">
               ₹{basePrice.toLocaleString("en-IN")}
             </span>
           </div>
