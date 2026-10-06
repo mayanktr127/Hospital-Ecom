@@ -8,6 +8,9 @@ try {
 import { dbConnect } from "@/lib/mongodb";
 import Bundle from "@/models/Bundle";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -39,7 +42,16 @@ export async function GET(
       return NextResponse.json({ success: false, error: "Bundle not found" }, { status: 404 });
     }
 
-    return NextResponse.json({ success: true, bundle });
+    return NextResponse.json(
+      { success: true, bundle },
+      {
+        headers: {
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+          Pragma: "no-cache",
+          Expires: "0",
+        },
+      }
+    );
   } catch (error: any) {
     console.error("Error retrieving bundle by ID:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

@@ -668,11 +668,17 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       prev.map((b) => (b.bundleId === bundleData.bundleId ? ({ ...b, ...bundleData } as BundleItem) : b))
     );
     try {
-      await fetch("/api/bundles", {
+      const res = await fetch("/api/bundles", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(bundleData),
       });
+      const data = await res.json();
+      if (data.success && data.bundle) {
+        setBundles((prev) =>
+          prev.map((b) => (b.bundleId === data.bundle.bundleId ? data.bundle : b))
+        );
+      }
     } catch (err) {
       console.error("Error updating bundle", err);
     }

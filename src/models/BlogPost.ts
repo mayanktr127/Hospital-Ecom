@@ -22,7 +22,7 @@ const BlogPostSchema: Schema = new Schema(
     readTime: { type: String, required: true },
     image: { type: String, required: true },
     excerpt: { type: String, required: true },
-    content: [{ type: String, required: true }],
+    content: { type: Schema.Types.Mixed, required: true },
   },
   { timestamps: true }
 );

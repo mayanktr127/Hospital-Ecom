@@ -94,18 +94,8 @@ export default function BundlePaymentPage() {
   const [landmark, setLandmark] = useState("");
   const [gstin, setGstin] = useState("");
 
-  // Payment Options Tab
-  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "upi" | "card">("razorpay");
-
-  // Card Form State
-  const [cardNumber, setCardNumber] = useState("");
-  const [cardName, setCardName] = useState("");
-  const [cardExpiry, setCardExpiry] = useState("");
-  const [cardCvv, setCardCvv] = useState("");
-
-  // UPI Form State
-  const [upiId, setUpiId] = useState("");
-  const [upiUtr, setUpiUtr] = useState("");
+  // Payment Method: Razorpay exclusive
+  const [paymentMethod] = useState<"razorpay">("razorpay");
 
   // Submission & Confirmation State
   const [isProcessing, setIsProcessing] = useState(false);
@@ -120,19 +110,28 @@ export default function BundlePaymentPage() {
 
     let isSubscribed = true;
 
-    const fetchBundle = async () => {
-      setIsLoading(true);
-      setFetchError(null);
+    const fetchBundle = async (silent = false) => {
+      if (!silent) {
+        setIsLoading(true);
+        setFetchError(null);
+      }
       try {
         const cleanId = decodeURIComponent(bundleId).trim();
-        // 1. Direct fetch with clean decoded ID
-        let res = await fetch(`/api/bundles/${encodeURIComponent(cleanId)}`);
+        const timestamp = Date.now();
+        // 1. Direct fetch with clean decoded ID and cache-busting
+        let res = await fetch(`/api/bundles/${encodeURIComponent(cleanId)}?_t=${timestamp}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        });
         let data = await res.json();
 
         // 2. Cross-browser fallback: If not found via direct ID route, query /api/bundles
         if ((!data.success || !data.bundle) && isSubscribed) {
           try {
-            const listRes = await fetch("/api/bundles");
+            const listRes = await fetch(`/api/bundles?_t=${timestamp}`, {
+              cache: "no-store",
+              headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+            });
             const listData = await listRes.json();
             if (listData.success && Array.isArray(listData.bundles)) {
               const matched = listData.bundles.find(
@@ -153,9 +152,9 @@ export default function BundlePaymentPage() {
 
         if (data.success && data.bundle) {
           setBundle(data.bundle);
-          if (data.bundle.clientName) setCustomerName(data.bundle.clientName);
-          if (data.bundle.clientPhone) setPhone(data.bundle.clientPhone);
-          if (data.bundle.clientEmail) setEmail(data.bundle.clientEmail);
+          if (data.bundle.clientName && !customerName) setCustomerName(data.bundle.clientName);
+          if (data.bundle.clientPhone && !phone) setPhone(data.bundle.clientPhone);
+          if (data.bundle.clientEmail && !email) setEmail(data.bundle.clientEmail);
           if (data.bundle.status === "paid") {
             setConfirmedOrder({
               orderId: data.bundle.paymentDetails?.orderId || `ORD-${data.bundle.bundleId}`,
@@ -163,24 +162,44 @@ export default function BundlePaymentPage() {
               paymentDetails: data.bundle.paymentDetails,
             });
           }
-        } else {
+        } else if (!silent) {
           setFetchError(data.error || "Bundle quotation not found or has expired.");
         }
       } catch (err: any) {
-        if (isSubscribed) {
+        if (isSubscribed && !silent) {
           setFetchError("Failed to connect to procurement server. Please refresh.");
         }
       } finally {
-        if (isSubscribed) {
+        if (isSubscribed && !silent) {
           setIsLoading(false);
         }
       }
     };
 
-    fetchBundle();
+    fetchBundle(false);
+
+    // Real-time synchronization:
+    // If the admin modifies bundle items, prices, or status, sync changes when user refocuses or every 5s
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === "visible") {
+        fetchBundle(true);
+      }
+    };
+
+    window.addEventListener("focus", handleVisibilityOrFocus);
+    document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+
+    const intervalTimer = setInterval(() => {
+      if (document.visibilityState === "visible") {
+        fetchBundle(true);
+      }
+    }, 6000);
 
     return () => {
       isSubscribed = false;
+      window.removeEventListener("focus", handleVisibilityOrFocus);
+      document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+      clearInterval(intervalTimer);
     };
   }, [bundleId]);
 
@@ -193,126 +212,77 @@ export default function BundlePaymentPage() {
       return;
     }
 
-    if (paymentMethod === "card") {
-      if (cardNumber.replace(/\s/g, "").length < 15 || !cardExpiry || !cardCvv) {
-        addToast("Invalid Card Details", "Please verify your card number, expiry, and CVV.", "warning");
-        return;
-      }
-    }
-
     setIsProcessing(true);
 
-    // 1. If Razorpay is selected, launch live Razorpay standard checkout modal
-    if (paymentMethod === "razorpay") {
-      try {
-        await openRazorpayModal({
-          amount: bundle.totalAmount,
-          name: "Pulmo Care Medical",
-          description: `Quotation: ${bundle.title}`,
-          receipt: bundle.bundleId,
-          prefill: {
-            name: customerName,
-            email: email,
-            contact: phone,
-          },
-          notes: {
-            bundleId: bundle.bundleId,
-            clientName: customerName,
-            city,
-          },
-          onSuccess: async (response) => {
-            try {
-              const verifyRes = await fetch("/api/razorpay/verify-payment", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  type: "bundle",
-                  bundleId: bundle.bundleId,
-                  customerDetails: {
-                    name: customerName,
-                    phone,
-                    email,
-                    address: street,
-                    city,
-                    state,
-                    pincode,
-                  },
-                }),
-              });
-
-              const verifyData = await verifyRes.json();
-              if (verifyData.success) {
-                setConfirmedOrder({
-                  orderId: verifyData.orderId,
-                  bundle: verifyData.bundle,
-                  paymentDetails: verifyData.bundle.paymentDetails,
-                });
-                setBundle(verifyData.bundle);
-                addToast("Payment Verified!", "Your custom procurement order has been officially registered.");
-              } else {
-                addToast("Verification Issue", verifyData.error || "Please contact support.", "warning");
-              }
-            } catch (err) {
-              console.error("Bundle verification error:", err);
-            } finally {
-              setIsProcessing(false);
-            }
-          },
-          onDismiss: () => {
-            setIsProcessing(false);
-            addToast("Payment Cancelled", "Razorpay checkout modal was closed.", "info");
-          },
-          onError: (err) => {
-            setIsProcessing(false);
-            addToast("Payment Failed", err?.description || "Razorpay transaction was not completed.", "error");
-          },
-        });
-      } catch (err: any) {
-        setIsProcessing(false);
-        addToast("Gateway Error", err?.message || "Failed to initialize Razorpay.", "error");
-      }
-      return;
-    }
-
-    const generatedTxId =
-      paymentMethod === "upi"
-        ? upiUtr.trim() || `UPI-UTR-${Date.now().toString().slice(-8)}`
-        : `CARD-AUTH-${Date.now().toString().slice(-8)}`;
-
     try {
-      const res = await fetch(`/api/bundles/${encodeURIComponent(bundle.bundleId)}/pay`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          customerName,
-          phone,
-          email,
-          street,
+      await openRazorpayModal({
+        amount: bundle.totalAmount,
+        name: "Pulmo Care Medical",
+        description: `Quotation: ${bundle.title}`,
+        receipt: bundle.bundleId,
+        prefill: {
+          name: customerName,
+          email: email,
+          contact: phone,
+        },
+        notes: {
+          bundleId: bundle.bundleId,
+          clientName: customerName,
           city,
-          state,
-          pincode,
-          landmark,
-          paymentMethod,
-          transactionId: generatedTxId,
-        }),
+        },
+        onSuccess: async (response) => {
+          try {
+            const verifyRes = await fetch("/api/razorpay/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                type: "bundle",
+                bundleId: bundle.bundleId,
+                customerDetails: {
+                  name: customerName,
+                  phone,
+                  email,
+                  address: street,
+                  city,
+                  state,
+                  pincode,
+                },
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              setConfirmedOrder({
+                orderId: verifyData.orderId,
+                bundle: verifyData.bundle,
+                paymentDetails: verifyData.bundle.paymentDetails,
+              });
+              setBundle(verifyData.bundle);
+              addToast("Payment Verified!", "Your custom procurement order has been officially registered.");
+            } else {
+              addToast("Verification Issue", verifyData.error || "Please contact support.", "warning");
+            }
+          } catch (err) {
+            console.error("Bundle verification error:", err);
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        onDismiss: () => {
+          setIsProcessing(false);
+          addToast("Payment Cancelled", "Razorpay checkout modal was closed.", "info");
+        },
+        onError: (err) => {
+          setIsProcessing(false);
+          addToast("Payment Failed", err?.description || "Razorpay transaction was not completed.", "error");
+        },
       });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setConfirmedOrder(data);
-        setBundle(data.bundle);
-        addToast("Payment Confirmed!", "Your order has been officially registered in the clinical system.");
-      } else {
-        addToast("Payment Error", data.error || "Failed to finalize payment. Please try again.", "error");
-      }
-    } catch (err) {
-      addToast("Network Error", "Unable to reach server. Please check your internet connection.", "error");
-    } finally {
+    } catch (err: any) {
       setIsProcessing(false);
+      addToast("Gateway Error", err?.message || "Failed to initialize Razorpay.", "error");
     }
   };
 
@@ -809,174 +779,71 @@ export default function BundlePaymentPage() {
                   </div>
                 </div>
 
-                {/* 2. Payment Method Selector */}
+                {/* 2. Integrated Razorpay Payment Gateway */}
                 <div className="space-y-3 pt-3 border-t border-[#F1F5F9]">
-                  <span className="text-[11px] font-archivo font-bold text-[#0A192F] uppercase tracking-wider block">
-                    2. Select Payment Option
-                  </span>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("razorpay")}
-                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-2.5 sm:col-span-3 ${
-                        paymentMethod === "razorpay"
-                          ? "border-[#0066FF] bg-[#EBF5FF] text-[#0066FF] shadow-xs ring-2 ring-[#0066FF]/20"
-                          : "border-[#E2E8F0] bg-white text-[#64748B] hover:border-[#CBD5E1]"
-                      }`}
-                    >
-                      <div className="w-8 h-8 rounded-xl bg-[#0066FF] text-white flex items-center justify-center font-bold text-xs shrink-0">
-                        ⚡
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-archivo font-bold text-xs text-[#0A192F] block">Razorpay Live Gateway</span>
-                          <span className="px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-bold uppercase">Instant</span>
-                        </div>
-                        <span className="text-[10px] text-[#64748B] block">All-in-one: GPay, PhonePe, Cards, NetBanking</span>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("upi")}
-                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-2.5 sm:col-span-1.5 ${
-                        paymentMethod === "upi"
-                          ? "border-[#0066FF] bg-[#EBF5FF] text-[#0066FF] shadow-xs"
-                          : "border-[#E2E8F0] bg-white text-[#64748B] hover:border-[#CBD5E1]"
-                      }`}
-                    >
-                      <QrCode className="w-5 h-5 shrink-0" />
-                      <div>
-                        <span className="font-archivo font-bold text-xs block">Direct QR</span>
-                        <span className="text-[10px] text-[#64748B] block">Scan &amp; UTR</span>
-                      </div>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setPaymentMethod("card")}
-                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer flex items-center gap-2.5 sm:col-span-1.5 ${
-                        paymentMethod === "card"
-                          ? "border-[#0066FF] bg-[#EBF5FF] text-[#0066FF] shadow-xs"
-                          : "border-[#E2E8F0] bg-white text-[#64748B] hover:border-[#CBD5E1]"
-                      }`}
-                    >
-                      <CreditCard className="w-5 h-5 shrink-0" />
-                      <div>
-                        <span className="font-archivo font-bold text-xs block">Card Entry</span>
-                        <span className="text-[10px] text-[#64748B] block">Visa, MC</span>
-                      </div>
-                    </button>
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-archivo font-bold text-[#0A192F] uppercase tracking-wider block">
+                      2. Secure Payment Gateway
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-bold">
+                      <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                      <span>Razorpay Verified</span>
+                    </span>
                   </div>
 
-                  {/* Payment Details Container */}
-                  {paymentMethod === "razorpay" ? (
-                    <div className="bg-[#EBF5FF]/50 p-4 rounded-2xl border border-[#0066FF]/20 space-y-2 text-xs">
-                      <div className="flex items-center gap-2 text-[#0066FF] font-bold">
-                        <Lock className="w-4 h-4" />
-                        <span>Razorpay 256-bit Secure Gateway</span>
-                      </div>
-                      <p className="text-[#334155] text-[11px] leading-relaxed">
-                        Clicking the button below will open the official Razorpay checkout modal supporting <strong>UPI (GPay / PhonePe / Paytm / BHIM)</strong>, <strong>Credit &amp; Debit Cards</strong>, and <strong>NetBanking (50+ banks)</strong>.
-                      </p>
-                      <div className="flex items-center gap-2 pt-1 text-[10px] text-[#64748B]">
-                        <span className="px-2 py-0.5 rounded bg-white border border-[#CBD5E1] font-mono">Instant Receipt</span>
-                        <span className="px-2 py-0.5 rounded bg-white border border-[#CBD5E1] font-mono">Automated UTR Match</span>
-                      </div>
-                    </div>
-                  ) : paymentMethod === "upi" ? (
-                    <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-[#E2E8F0] space-y-3">
-                      <div className="flex items-center justify-between text-xs">
-                        <span className="font-bold text-[#0A192F]">Scan UPI QR Code</span>
-                        <span className="text-[10px] text-[#0066FF] font-mono">pulmocare@icici</span>
-                      </div>
-
-                      <div className="flex items-center justify-center p-3 bg-white rounded-xl border border-[#E2E8F0]">
-                        <img
-                          src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(
-                            `upi://pay?pa=pulmocare@icici&pn=PulmoCareMedical&am=${bundle.totalAmount}&cu=INR&tn=${bundle.bundleId}`
-                          )}`}
-                          alt="Pulmo Care UPI QR Code"
-                          className="w-36 h-36 object-contain"
-                        />
-                      </div>
-
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-[#64748B] uppercase block">
-                          Enter 12-Digit UPI Ref / UTR (Optional for instant log)
-                        </label>
-                        <input
-                          type="text"
-                          value={upiUtr}
-                          onChange={(e) => setUpiUtr(e.target.value)}
-                          placeholder="e.g. 423456789012"
-                          className="w-full px-3 py-2 rounded-xl border border-[#E2E8F0] bg-white text-xs text-[#0A192F] focus:outline-none focus:border-[#0066FF]"
-                        />
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="bg-[#F8FAFC] p-4 rounded-2xl border border-[#E2E8F0] space-y-2.5">
-                      <div>
-                        <label className="text-[10px] font-bold text-[#64748B] uppercase block mb-1">
-                          Cardholder Full Name
-                        </label>
-                        <input
-                          type="text"
-                          value={cardName}
-                          onChange={(e) => setCardName(e.target.value)}
-                          placeholder="Name as printed on card"
-                          className="w-full px-3 py-2 rounded-xl border border-[#E2E8F0] bg-white text-xs text-[#0A192F] focus:outline-none focus:border-[#0066FF]"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="text-[10px] font-bold text-[#64748B] uppercase block mb-1">
-                          Card Number
-                        </label>
-                        <input
-                          type="text"
-                          maxLength={19}
-                          value={cardNumber}
-                          onChange={(e) => {
-                            const val = e.target.value.replace(/\D/g, "").replace(/(.{4})/g, "$1 ").trim();
-                            setCardNumber(val);
-                          }}
-                          placeholder="4111 2222 3333 4444"
-                          className="w-full px-3 py-2 rounded-xl border border-[#E2E8F0] bg-white text-xs font-mono text-[#0A192F] focus:outline-none focus:border-[#0066FF]"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className="text-[10px] font-bold text-[#64748B] uppercase block mb-1">
-                            Expiry (MM/YY)
-                          </label>
-                          <input
-                            type="text"
-                            maxLength={5}
-                            value={cardExpiry}
-                            onChange={(e) => setCardExpiry(e.target.value)}
-                            placeholder="MM/YY"
-                            className="w-full px-3 py-2 rounded-xl border border-[#E2E8F0] bg-white text-xs text-[#0A192F] focus:outline-none focus:border-[#0066FF]"
-                          />
+                  <div className="bg-[#EBF5FF]/60 p-4 sm:p-5 rounded-2xl border-2 border-[#0066FF]/40 space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-[#0066FF] text-white flex items-center justify-center font-bold text-base shrink-0 shadow-xs">
+                          ⚡
                         </div>
                         <div>
-                          <label className="text-[10px] font-bold text-[#64748B] uppercase block mb-1">
-                            CVV
-                          </label>
-                          <input
-                            type="password"
-                            maxLength={4}
-                            value={cardCvv}
-                            onChange={(e) => setCardCvv(e.target.value)}
-                            placeholder="•••"
-                            className="w-full px-3 py-2 rounded-xl border border-[#E2E8F0] bg-white text-xs text-[#0A192F] focus:outline-none focus:border-[#0066FF]"
-                          />
+                          <div className="flex items-center gap-2">
+                            <span className="font-archivo font-bold text-sm text-[#0A192F]">
+                              Razorpay Live Checkout
+                            </span>
+                            <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[9px] font-extrabold uppercase">
+                              Active
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-[#64748B]">
+                            Instant settlement &amp; official clinical procurement receipt
+                          </span>
                         </div>
                       </div>
+                      <Lock className="w-4 h-4 text-[#0066FF]" />
                     </div>
-                  )}
+
+                    <p className="text-[#334155] text-xs leading-relaxed bg-white/90 p-3 rounded-xl border border-[#CBD5E1]/60">
+                      Click the button below to launch the official <strong>Razorpay Standard Checkout</strong>. All digital payment modes are supported securely:
+                    </p>
+
+                    <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                      <div className="bg-white p-2.5 rounded-xl border border-[#CBD5E1]/70 shadow-2xs">
+                        <span className="font-archivo font-bold text-[#0A192F] block text-xs">Instant UPI</span>
+                        <span className="text-[10px] text-[#64748B] block mt-0.5">GPay • PhonePe • Paytm</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-xl border border-[#CBD5E1]/70 shadow-2xs">
+                        <span className="font-archivo font-bold text-[#0A192F] block text-xs">All Cards</span>
+                        <span className="text-[10px] text-[#64748B] block mt-0.5">Visa • Mastercard • RuPay</span>
+                      </div>
+                      <div className="bg-white p-2.5 rounded-xl border border-[#CBD5E1]/70 shadow-2xs">
+                        <span className="font-archivo font-bold text-[#0A192F] block text-xs">NetBanking</span>
+                        <span className="text-[10px] text-[#64748B] block mt-0.5">50+ Indian Banks</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-1 text-[10px] text-[#64748B]">
+                      <span className="flex items-center gap-1 font-mono">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        256-Bit SSL Encrypted
+                      </span>
+                      <span className="flex items-center gap-1 font-mono">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        Instant Hospital GST Invoice
+                      </span>
+                    </div>
+                  </div>
                 </div>
 
                 {/* 3. Price Breakdown & Action */}

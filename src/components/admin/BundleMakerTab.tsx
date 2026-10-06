@@ -38,6 +38,7 @@ import {
   MapPin,
   CreditCard,
   FileText,
+  Edit3,
 } from "lucide-react";
 
 interface SelectedDraftItem {
@@ -47,10 +48,11 @@ interface SelectedDraftItem {
 }
 
 export const BundleMakerTab: React.FC = () => {
-  const { products, bundles, addBundle, deleteBundle, refreshBundles } = useAdmin();
+  const { products, bundles, addBundle, updateBundle, deleteBundle, refreshBundles } = useAdmin();
   const { addToast } = useToast();
 
   const [isCreating, setIsCreating] = useState(false);
+  const [editingBundle, setEditingBundle] = useState<BundleItem | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Search & Filter for Product Selection
@@ -200,6 +202,73 @@ export const BundleMakerTab: React.FC = () => {
     setSelectedItems((prev) => prev.filter((it) => it.product.id !== productId));
   };
 
+  const handleOpenCreateModal = () => {
+    setEditingBundle(null);
+    setSelectedItems([]);
+    setBundleTitle("");
+    setBundleDescription("");
+    setClientName("");
+    setClientEmail("");
+    setClientPhone("");
+    setDiscountAmount(0);
+    setCustomDiscountedPrice(null);
+    setExpiryDays(15);
+    setRecentlyCreatedBundle(null);
+    setIsCreating(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsCreating(false);
+    setEditingBundle(null);
+    setSelectedItems([]);
+    setBundleTitle("");
+    setBundleDescription("");
+    setClientName("");
+    setClientEmail("");
+    setClientPhone("");
+    setDiscountAmount(0);
+    setCustomDiscountedPrice(null);
+  };
+
+  const handleOpenEditBundle = (b: BundleItem) => {
+    setEditingBundle(b);
+    setBundleTitle(b.title || "");
+    setBundleDescription(b.description || "");
+    setClientName(b.clientName || "");
+    setClientEmail(b.clientEmail || "");
+    setClientPhone(b.clientPhone || "");
+    setDiscountAmount(b.discountAmount || 0);
+    setCustomDiscountedPrice(null);
+    setRecentlyCreatedBundle(null);
+
+    // Map existing bundle items back to selectedItems draft
+    const draft: SelectedDraftItem[] = (b.items || []).map((it) => {
+      const matched = allAvailableProducts.find(
+        (p) => p.id === it.productId || p.name.toLowerCase() === it.name.toLowerCase()
+      );
+      const fallbackProd: Product = {
+        id: it.productId,
+        name: it.name,
+        category: (it.category as any) || "Ventilation & Sleep",
+        price: it.catalogPrice ?? it.customPrice,
+        image: it.image || "/images/pulmocare/pulmocare_prisma-smart.png",
+        description: "",
+        rating: 5,
+        reviewsCount: 1,
+        specifications: [],
+        features: [],
+        inStock: true,
+      };
+      return {
+        product: matched || fallbackProd,
+        quantity: it.quantity || 1,
+        customPrice: it.customPrice,
+      };
+    });
+    setSelectedItems(draft);
+    setIsCreating(true);
+  };
+
   const handleCreateBundle = async (e: React.FormEvent) => {
     e.preventDefault();
     if (selectedItems.length === 0) {
@@ -226,6 +295,28 @@ export const BundleMakerTab: React.FC = () => {
 
     const expiresAt = expiryDays > 0 ? new Date(Date.now() + expiryDays * 24 * 60 * 60 * 1000).toISOString() : undefined;
 
+    // Handle Edit existing bundle
+    if (editingBundle) {
+      await updateBundle({
+        bundleId: editingBundle.bundleId,
+        title: bundleTitle,
+        description: bundleDescription,
+        clientName: clientName || undefined,
+        clientEmail: clientEmail || undefined,
+        clientPhone: clientPhone || undefined,
+        items,
+        totalAmount: draftFinalTotal,
+        discountAmount: effectiveDiscount,
+        expiresAt,
+      });
+
+      setIsSubmitting(false);
+      addToast("Bundle Updated!", `Quotation ${editingBundle.bundleId} has been successfully updated.`);
+      handleCloseModal();
+      return;
+    }
+
+    // Handle Create brand new bundle
     const newBundle = await addBundle({
       title: bundleTitle,
       description: bundleDescription,
@@ -243,16 +334,7 @@ export const BundleMakerTab: React.FC = () => {
     if (newBundle) {
       setRecentlyCreatedBundle(newBundle);
       addToast("Bundle Created!", `Custom link generated for ${newBundle.bundleId}`);
-      // Reset form
-      setSelectedItems([]);
-      setBundleTitle("");
-      setBundleDescription("");
-      setClientName("");
-      setClientEmail("");
-      setClientPhone("");
-      setDiscountAmount(0);
-      setCustomDiscountedPrice(null);
-      setIsCreating(false);
+      handleCloseModal();
     } else {
       addToast("Creation Failed", "Failed to save bundle. Please check your connection.", "error");
     }
@@ -433,28 +515,41 @@ export const BundleMakerTab: React.FC = () => {
         </div>
       )}
 
-      {/* 2. POPUP MODAL: INTERACTIVE BUNDLE BUILDER */}
+      {/* 2. POPUP MODAL: INTERACTIVE BUNDLE BUILDER / EDITOR */}
       {isCreating && (
         <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-200">
           <div className="bg-white rounded-3xl border border-[#e9edf4] shadow-2xl w-full max-w-6xl max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-[#F1F5F9] flex items-center justify-between bg-white shrink-0">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-[#0066FF] text-white flex items-center justify-center shadow-md shrink-0">
-                  <PackagePlus className="w-5 h-5" />
+                <div
+                  className={`w-10 h-10 rounded-2xl ${
+                    editingBundle ? "bg-amber-500" : "bg-[#0066FF]"
+                  } text-white flex items-center justify-center shadow-md shrink-0`}
+                >
+                  {editingBundle ? <Edit3 className="w-5 h-5" /> : <PackagePlus className="w-5 h-5" />}
                 </div>
                 <div>
-                  <h3 className="font-archivo font-extrabold text-lg sm:text-xl text-[#0A192F]">
-                    Assemble Custom Product Bundle
-                  </h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-archivo font-extrabold text-lg sm:text-xl text-[#0A192F]">
+                      {editingBundle ? "Edit Custom Product Bundle" : "Assemble Custom Product Bundle"}
+                    </h3>
+                    {editingBundle && (
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                        {editingBundle.bundleId}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-[#64748B]">
-                    Select products from the catalog, configure custom prices, and generate a client payment link.
+                    {editingBundle
+                      ? "Modify included products, custom prices, client details, or discount concession."
+                      : "Select products from the catalog, configure custom prices, and generate a client payment link."}
                   </p>
                 </div>
               </div>
               <button
                 type="button"
-                onClick={() => setIsCreating(false)}
+                onClick={handleCloseModal}
                 className="w-9 h-9 rounded-xl bg-[#F8FAFC] hover:bg-[#F1F5F9] text-[#64748B] hover:text-[#0A192F] flex items-center justify-center transition-colors cursor-pointer"
                 title="Close"
               >
@@ -955,10 +1050,20 @@ export const BundleMakerTab: React.FC = () => {
                       <button
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full btn btn-primary !py-3.5 !text-sm flex items-center justify-center gap-2 cursor-pointer shadow-lg mt-2"
+                        className={`w-full btn ${
+                          editingBundle ? "!bg-amber-600 hover:!bg-amber-700 !text-white" : "btn-primary"
+                        } !py-3.5 !text-sm flex items-center justify-center gap-2 cursor-pointer shadow-lg mt-2`}
                       >
-                        <Send className="w-4 h-4" />
-                        <span>{isSubmitting ? "Generating Link..." : "Generate Custom Payment Link"}</span>
+                        {editingBundle ? <Check className="w-4 h-4" /> : <Send className="w-4 h-4" />}
+                        <span>
+                          {isSubmitting
+                            ? editingBundle
+                              ? "Saving Updates..."
+                              : "Generating Link..."
+                            : editingBundle
+                            ? "Save Changes & Update Bundle"
+                            : "Generate Custom Payment Link"}
+                        </span>
                       </button>
                     </div>
                   )}
@@ -1167,9 +1272,21 @@ export const BundleMakerTab: React.FC = () => {
                           </div>
                         </td>
 
-                        {/* Actions: Detailed View Button (Feature: Image 5) & Delete */}
-                        <td className="py-3.5 px-3 text-right min-w-[160px] whitespace-nowrap">
+                        {/* Actions: Edit (Only if unpaid), Detailed View & Delete */}
+                        <td className="py-3.5 px-3 text-right min-w-[210px] whitespace-nowrap">
                           <div className="flex items-center justify-end gap-2">
+                            {b.status !== "paid" && (
+                              <button
+                                type="button"
+                                onClick={() => handleOpenEditBundle(b)}
+                                className="px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-50 hover:bg-amber-500 text-amber-700 hover:text-white transition-all font-archivo font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-2xs"
+                                title="Edit this bundle's equipment, pricing, or client details"
+                              >
+                                <Edit3 className="w-3.5 h-3.5" />
+                                <span>Edit</span>
+                              </button>
+                            )}
+
                             <button
                               type="button"
                               onClick={() => setDetailedViewBundle(b)}
@@ -1218,6 +1335,17 @@ export const BundleMakerTab: React.FC = () => {
                                 </div>
 
                                 <div className="flex items-center gap-2">
+                                  {b.status !== "paid" && (
+                                    <button
+                                      type="button"
+                                      onClick={() => handleOpenEditBundle(b)}
+                                      className="px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-50 hover:bg-amber-500 text-amber-700 hover:text-white font-archivo font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs"
+                                      title="Edit this bundle"
+                                    >
+                                      <Edit3 className="w-3.5 h-3.5" />
+                                      <span>Edit</span>
+                                    </button>
+                                  )}
                                   <button
                                     type="button"
                                     onClick={() => setDetailedViewBundle(b)}
@@ -1673,7 +1801,23 @@ export const BundleMakerTab: React.FC = () => {
 
             {/* Modal Bottom Actions Footer */}
             <div className="px-6 py-4 bg-[#F8FAFC] border-t border-[#F1F5F9] flex flex-wrap items-center justify-between gap-3 shrink-0">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                {detailedViewBundle.status !== "paid" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const target = detailedViewBundle;
+                      setDetailedViewBundle(null);
+                      handleOpenEditBundle(target);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-archivo font-bold text-xs flex items-center gap-2 transition-colors shadow-xs cursor-pointer"
+                    title="Modify this bundle's equipment, prices, or client details"
+                  >
+                    <Edit3 className="w-4 h-4" />
+                    <span>Edit Quotation</span>
+                  </button>
+                )}
+
                 <button
                   type="button"
                   onClick={() => handleCopyLink(detailedViewBundle.bundleId)}

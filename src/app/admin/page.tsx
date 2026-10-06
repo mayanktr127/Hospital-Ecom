@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAdmin, ReviewItem, CategoryItem } from "@/context/AdminContext";
+import { useAdmin, ReviewItem, CategoryItem, OrderItem } from "@/context/AdminContext";
 import { useToast } from "@/context/ToastContext";
 import { Product } from "@/types/product";
 import { BlogPost } from "@/context/AdminContext";
@@ -49,6 +49,8 @@ import {
   Users,
   Star,
   ThumbsUp,
+  Eye,
+  Printer,
 } from "lucide-react";
 import { BundleMakerTab } from "@/components/admin/BundleMakerTab";
 
@@ -107,6 +109,9 @@ export default function AdminDashboardPage() {
   const [reviewSearch, setReviewSearch] = useState("");
   const [inquirySearch, setInquirySearch] = useState("");
   const [ssSearch, setSsSearch] = useState("");
+  const [orderSearch, setOrderSearch] = useState("");
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>("all");
+  const [viewingOrder, setViewingOrder] = useState<OrderItem | null>(null);
 
   // Product Modal State
   const [productModalOpen, setProductModalOpen] = useState(false);
@@ -237,6 +242,7 @@ export default function AdminDashboardPage() {
   const [pWarranty, setPWarranty] = useState("2 Years Warranty");
   const [pBrochureUrl, setPBrochureUrl] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
 
   const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -255,15 +261,49 @@ export default function AdminDashboardPage() {
       const data = await res.json();
       if (data.success && data.url) {
         setPImage(data.url);
-        addToast("Multer Upload Success", "Image uploaded and stored in /uploads directory.");
+        addToast("Upload Success", "Product image uploaded successfully.");
       } else {
         addToast("Upload Failed", data.error || "Could not upload image.", "error");
       }
     } catch (err) {
-      console.error("Multer upload error", err);
+      console.error("Image upload error", err);
       addToast("Upload Error", "Failed to upload image file.", "error");
     } finally {
       setIsUploadingImage(false);
+    }
+  };
+
+  const handlePdfFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      addToast("Invalid File Type", "Please choose a valid .pdf brochure document.", "warning");
+      return;
+    }
+
+    setIsUploadingPdf(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        setPBrochureUrl(data.url);
+        addToast("Brochure Uploaded", "Product PDF brochure attached successfully.");
+      } else {
+        addToast("Upload Failed", data.error || "Could not upload brochure PDF.", "error");
+      }
+    } catch (err) {
+      console.error("PDF upload error", err);
+      addToast("Upload Error", "Failed to upload brochure file.", "error");
+    } finally {
+      setIsUploadingPdf(false);
     }
   };
 
@@ -276,6 +316,36 @@ export default function AdminDashboardPage() {
   const [bImage, setBImage] = useState("");
   const [bExcerpt, setBExcerpt] = useState("");
   const [bContentText, setBContentText] = useState("");
+  const [isUploadingBlogImage, setIsUploadingBlogImage] = useState(false);
+
+  const handleBlogImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingBlogImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        setBImage(data.url);
+        addToast("Image Uploaded", "Article image attached successfully.");
+      } else {
+        addToast("Upload Failed", data.error || "Could not upload image.", "error");
+      }
+    } catch (err) {
+      console.error("Blog image upload error", err);
+      addToast("Upload Error", "Failed to upload article image.", "error");
+    } finally {
+      setIsUploadingBlogImage(false);
+    }
+  };
 
   useEffect(() => {
     if (!isAdminAuthenticated) {
@@ -414,9 +484,15 @@ export default function AdminDashboardPage() {
       setBCategory(blog.category);
       setBAuthor(blog.author);
       setBReadTime(blog.readTime);
-      setBImage(blog.image);
+      setBImage(blog.image || "/images/pulmocare/pulmocare_prisma-smart.png");
       setBExcerpt(blog.excerpt);
-      setBContentText(blog.content ?? "");
+      setBContentText(
+        Array.isArray(blog.content)
+          ? blog.content.join("\n\n")
+          : typeof blog.content === "string"
+            ? blog.content
+            : ""
+      );
     } else {
       setEditingBlog(null);
       setBSlug(`clinical-guide-${Date.now()}`);
@@ -433,7 +509,13 @@ export default function AdminDashboardPage() {
 
   const handleSaveBlog = (e: React.FormEvent) => {
     e.preventDefault();
-    const blogObj: BlogPost = {
+    const parsedContent = bContentText
+      .split("\n\n")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    const finalContent = parsedContent.length > 0 ? parsedContent : [bContentText.trim()];
+
+    const blogObj: any = {
       slug: bSlug.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
       title: bTitle,
       category: bCategory,
@@ -442,7 +524,7 @@ export default function AdminDashboardPage() {
       readTime: bReadTime || "5 min read",
       image: bImage || "/images/pulmocare/pulmocare_prisma-smart.png",
       excerpt: bExcerpt,
-      content: bContentText,
+      content: finalContent,
     };
 
     if (editingBlog) {
@@ -605,10 +687,17 @@ export default function AdminDashboardPage() {
                 </button>
                 <button
                   onClick={() => { setActiveTab("tracking"); setMobileSidebarOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "tracking" ? "bg-[#dcebfb] text-[#2a6ecb]" : "text-[#64748B]"}`}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "tracking" ? "bg-[#dcebfb] text-[#2a6ecb]" : "text-[#64748B]"}`}
                 >
-                  <Truck className="w-4 h-4" />
-                  <span>Tracking &amp; Orders</span>
+                  <div className="flex items-center gap-3">
+                    <Truck className="w-4 h-4" />
+                    <span>Tracking &amp; Orders</span>
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
+                    activeTab === "tracking" ? "bg-[#2a6ecb] text-white" : "bg-[#f6f4fb] text-[#2a6ecb]"
+                  }`}>
+                    {orders.length}
+                  </span>
                 </button>
                 <button
                   onClick={() => { setActiveTab("messages"); setMobileSidebarOpen(false); }}
@@ -771,14 +860,21 @@ export default function AdminDashboardPage() {
 
             <button
               onClick={() => setActiveTab("tracking")}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs transition-all cursor-pointer ${
                 activeTab === "tracking"
                   ? "bg-[#dcebfb] text-[#2a6ecb] shadow-xs"
                   : "text-[#64748B] hover:bg-[#f7f6fb] hover:text-[#2a6ecb]"
               }`}
             >
-              <Truck className="w-4 h-4" />
-              <span>Tracking &amp; Orders</span>
+              <div className="flex items-center gap-3">
+                <Truck className="w-4 h-4" />
+                <span>Tracking &amp; Orders</span>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
+                activeTab === "tracking" ? "bg-[#2a6ecb] text-white" : "bg-[#f6f4fb] text-[#2a6ecb]"
+              }`}>
+                {orders.length}
+              </span>
             </button>
 
             <button
@@ -1513,6 +1609,513 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
+          {/* TAB: TRACKING & ORDER MANAGEMENT */}
+          {activeTab === "tracking" && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              {/* Header */}
+              <div className="bg-white rounded-[20px] border border-[#e9edf4] p-6 md:p-8 shadow-[0_2px_8px_rgba(24,42,65,0.05)] space-y-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#f6f4fb]">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="bg-[#dcebfb] text-[#2a6ecb] font-archivo font-bold text-xs uppercase px-3 py-1 rounded-full flex items-center gap-1.5">
+                        <Truck className="w-3.5 h-3.5" />
+                        <span>Fulfillment &amp; Logistics</span>
+                      </span>
+                    </div>
+                    <h2 className="font-archivo font-semibold text-2xl md:text-3xl text-[#182a41] tracking-tight">
+                      Tracking &amp; Orders Fulfillment
+                    </h2>
+                    <p className="text-xs text-[#64748B]">
+                      Real-time customer storefront orders, hospital equipment dispatch, and delivery progression stored in MongoDB Atlas.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="bg-[#dcebfb] text-[#2a6ecb] font-archivo font-semibold text-xs px-3.5 py-1.5 rounded-full border border-[#2a6ecb]/20">
+                      {orders.length} Orders Logged
+                    </span>
+                  </div>
+                </div>
+
+                {/* 4 Overview Metric Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-[#f7f6fb] p-4.5 rounded-2xl border border-[#e9edf4]">
+                    <div className="flex items-center justify-between text-xs text-[#64748B]">
+                      <span className="font-bold uppercase text-[10px] tracking-wider">Total Orders</span>
+                      <Package className="w-4 h-4 text-[#2a6ecb]" />
+                    </div>
+                    <h3 className="font-archivo font-bold text-2xl text-[#182a41] mt-1.5">
+                      {orders.length}
+                    </h3>
+                    <p className="text-[10px] text-[#64748B]">All registered purchases</p>
+                  </div>
+
+                  <div className="bg-[#f7f6fb] p-4.5 rounded-2xl border border-[#e9edf4]">
+                    <div className="flex items-center justify-between text-xs text-[#64748B]">
+                      <span className="font-bold uppercase text-[10px] tracking-wider">Pending Action</span>
+                      <Clock className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <h3 className="font-archivo font-bold text-2xl text-amber-600 mt-1.5">
+                      {orders.filter((o) => o.orderStatus === "Pending").length}
+                    </h3>
+                    <p className="text-[10px] text-amber-700">Awaiting dispatch</p>
+                  </div>
+
+                  <div className="bg-[#f7f6fb] p-4.5 rounded-2xl border border-[#e9edf4]">
+                    <div className="flex items-center justify-between text-xs text-[#64748B]">
+                      <span className="font-bold uppercase text-[10px] tracking-wider">In Transit</span>
+                      <Truck className="w-4 h-4 text-[#2a6ecb]" />
+                    </div>
+                    <h3 className="font-archivo font-bold text-2xl text-[#2a6ecb] mt-1.5">
+                      {orders.filter((o) => o.orderStatus === "On Progress" || o.orderStatus === "On Delivery" || o.orderStatus === "Dispatched").length}
+                    </h3>
+                    <p className="text-[10px] text-[#2a6ecb]">Out for delivery</p>
+                  </div>
+
+                  <div className="bg-[#f7f6fb] p-4.5 rounded-2xl border border-[#e9edf4]">
+                    <div className="flex items-center justify-between text-xs text-[#64748B]">
+                      <span className="font-bold uppercase text-[10px] tracking-wider">Delivered</span>
+                      <CheckCircle className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <h3 className="font-archivo font-bold text-2xl text-emerald-600 mt-1.5">
+                      {orders.filter((o) => o.orderStatus === "Delivered").length}
+                    </h3>
+                    <p className="text-[10px] text-emerald-700">Completed shipments</p>
+                  </div>
+                </div>
+
+                {/* Filter Tabs & Search Bar */}
+                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-2">
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                    {[
+                      { key: "all", label: "All Orders", count: orders.length },
+                      { key: "Pending", label: "Pending", count: orders.filter((o) => o.orderStatus === "Pending").length },
+                      { key: "On Progress", label: "In Transit", count: orders.filter((o) => o.orderStatus === "On Progress" || o.orderStatus === "On Delivery" || o.orderStatus === "Dispatched").length },
+                      { key: "Delivered", label: "Delivered", count: orders.filter((o) => o.orderStatus === "Delivered").length },
+                      { key: "Cancelled", label: "Cancelled", count: orders.filter((o) => o.orderStatus === "Cancelled").length },
+                    ].map((tab) => (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        onClick={() => setOrderStatusFilter(tab.key)}
+                        className={`px-3 py-1.5 rounded-xl font-archivo font-bold text-xs transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                          orderStatusFilter === tab.key
+                            ? "bg-[#2a6ecb] text-white shadow-xs"
+                            : "bg-[#f7f6fb] text-[#64748B] hover:bg-[#e9edf4] hover:text-[#182a41]"
+                        }`}
+                      >
+                        <span>{tab.label}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                          orderStatusFilter === tab.key ? "bg-white/25 text-white" : "bg-[#e2e8f0] text-[#64748B]"
+                        }`}>
+                          {tab.count}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="w-full md:w-72 relative">
+                    <Search className="w-4 h-4 text-[#64748b] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={orderSearch}
+                      onChange={(e) => setOrderSearch(e.target.value)}
+                      placeholder="Search order ID, client, city..."
+                      className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#f7f6fb] border border-[#e9edf4] text-xs text-[#182a41] focus:outline-none focus:border-[#2a6ecb]"
+                    />
+                  </div>
+                </div>
+
+                {/* Orders Table */}
+                {(() => {
+                  const filtered = orders.filter((o) => {
+                    const q = orderSearch.toLowerCase();
+                    const matchesSearch =
+                      !q ||
+                      o.orderId.toLowerCase().includes(q) ||
+                      o.customerName.toLowerCase().includes(q) ||
+                      o.phone.toLowerCase().includes(q) ||
+                      o.email.toLowerCase().includes(q) ||
+                      o.city.toLowerCase().includes(q) ||
+                      (o.items && o.items.some((it) => it.name.toLowerCase().includes(q)));
+
+                    const matchesStatus =
+                      orderStatusFilter === "all" ||
+                      (orderStatusFilter === "On Progress" && (o.orderStatus === "On Progress" || o.orderStatus === "On Delivery" || o.orderStatus === "Dispatched")) ||
+                      o.orderStatus.toLowerCase() === orderStatusFilter.toLowerCase();
+
+                    return matchesSearch && matchesStatus;
+                  });
+
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="py-16 text-center text-[#64748b] space-y-2">
+                        <Truck className="w-10 h-10 mx-auto text-[#cbd5e1]" />
+                        <p className="font-archivo font-bold text-sm text-[#182a41]">No Orders Found</p>
+                        <p className="text-xs">No customer orders matching the current filter or search criteria.</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs font-inter border-collapse">
+                        <thead>
+                          <tr className="bg-[#f7f6fb] text-[#64748B] font-archivo font-bold uppercase tracking-wider border-b border-[#e9edf4]">
+                            <th className="py-3 px-4">Order ID &amp; Customer</th>
+                            <th className="py-3 px-4">Destination &amp; Contact</th>
+                            <th className="py-3 px-4">Purchased Equipment</th>
+                            <th className="py-3 px-4">Total Amount &amp; Payment</th>
+                            <th className="py-3 px-4">Fulfillment Status</th>
+                            <th className="py-3 px-4 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#f6f4fb]">
+                          {filtered.map((ord) => (
+                            <tr key={ord.orderId} className="hover:bg-[#f7f6fb]/60 transition-colors">
+                              {/* Order ID & Customer */}
+                              <td className="py-3.5 px-4">
+                                <span className="font-mono font-bold text-[#2a6ecb] block">{ord.orderId}</span>
+                                <span className="font-archivo font-bold text-[#182a41] block text-xs mt-0.5">{ord.customerName}</span>
+                                <span className="text-[10px] text-[#64748B] block">
+                                  {ord.createdAt ? new Date(ord.createdAt).toLocaleDateString("en-IN") : "Recent Order"}
+                                </span>
+                              </td>
+
+                              {/* Destination & Contact */}
+                              <td className="py-3.5 px-4 max-w-xs">
+                                <a href={`tel:${ord.phone}`} className="text-[#2a6ecb] font-mono text-[11px] hover:underline font-bold block">
+                                  {ord.phone}
+                                </a>
+                                <span className="text-[10px] text-[#64748B] block truncate">{ord.email}</span>
+                                <span className="text-[11px] font-semibold text-[#182a41] block mt-1">
+                                  {ord.city}, {ord.state} ({ord.pincode})
+                                </span>
+                                <span className="text-[10px] text-[#64748B] block line-clamp-1">{ord.street}</span>
+                              </td>
+
+                              {/* Purchased Equipment */}
+                              <td className="py-3.5 px-4 min-w-[200px]">
+                                <div className="space-y-1.5">
+                                  {ord.items.map((it, idx) => (
+                                    <div key={idx} className="flex items-center gap-2">
+                                      <img
+                                        src={it.image || "/images/pulmocare/pulmocare_prisma-smart.png"}
+                                        alt={it.name}
+                                        className="w-7 h-7 object-contain rounded bg-white p-0.5 border border-[#e9edf4] shrink-0"
+                                      />
+                                      <div className="min-w-0">
+                                        <span className="font-semibold text-[#182a41] text-[11px] block truncate max-w-[180px]" title={it.name}>
+                                          {it.name}
+                                        </span>
+                                        <span className="text-[10px] text-[#64748B]">
+                                          Qty: {it.quantity} • ₹{it.price.toLocaleString("en-IN")}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </td>
+
+                              {/* Total & Payment */}
+                              <td className="py-3.5 px-4">
+                                <span className="font-archivo font-bold text-sm text-[#182a41] block">
+                                  ₹{ord.totalAmount.toLocaleString("en-IN")}.00
+                                </span>
+                                <span className="inline-block mt-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#EBF5FF] text-[#0066FF] border border-[#0066FF]/20">
+                                  {ord.paymentMethod || "Online"}
+                                </span>
+                              </td>
+
+                              {/* Fulfillment Status & Dropdown */}
+                              <td className="py-3.5 px-4">
+                                <div className="space-y-1.5">
+                                  <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-archivo font-bold uppercase tracking-wide ${
+                                    ord.orderStatus === "Delivered"
+                                      ? "bg-[#e0f3ec] text-[#1fb37a]"
+                                      : ord.orderStatus === "Cancelled"
+                                      ? "bg-[#fbe6ee] text-[#dc4b56]"
+                                      : ord.orderStatus === "On Progress" || ord.orderStatus === "On Delivery" || ord.orderStatus === "Dispatched"
+                                      ? "bg-[#dcebfb] text-[#2a6ecb]"
+                                      : "bg-[#fdeadf] text-[#e8a33d]"
+                                  }`}>
+                                    {ord.orderStatus}
+                                  </span>
+
+                                  {/* Quick Status Select */}
+                                  <select
+                                    value={ord.orderStatus}
+                                    onChange={async (e) => {
+                                      const nextStatus = e.target.value;
+                                      await updateOrderStatus(ord.orderId, nextStatus);
+                                      addToast("Status Updated", `Order ${ord.orderId} updated to ${nextStatus}.`);
+                                    }}
+                                    className="block w-full text-[10px] font-archivo font-semibold bg-white border border-[#e2e8f0] rounded-lg px-2 py-1 text-[#182a41] focus:outline-none focus:border-[#2a6ecb] cursor-pointer"
+                                  >
+                                    <option value="Pending">Pending</option>
+                                    <option value="On Progress">On Progress (Dispatched)</option>
+                                    <option value="Delivered">Delivered</option>
+                                    <option value="Cancelled">Cancelled</option>
+                                  </select>
+                                </div>
+                              </td>
+
+                              {/* Actions */}
+                              <td className="py-3.5 px-4 text-right">
+                                <div className="flex items-center justify-end gap-1.5">
+                                  <button
+                                    type="button"
+                                    onClick={() => setViewingOrder(ord)}
+                                    className="px-2.5 py-1.5 rounded-xl border border-[#2a6ecb]/30 bg-[#dcebfb]/50 hover:bg-[#2a6ecb] text-[#2a6ecb] hover:text-white transition-all font-archivo font-bold text-xs flex items-center gap-1 cursor-pointer"
+                                    title="View full order dossier"
+                                  >
+                                    <Eye className="w-3.5 h-3.5" />
+                                    <span>Details</span>
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    onClick={async () => {
+                                      if (confirm(`Are you sure you want to delete order ${ord.orderId}?`)) {
+                                        await deleteOrder(ord.orderId);
+                                        addToast("Order Deleted", `Order ${ord.orderId} removed from database.`);
+                                      }
+                                    }}
+                                    className="p-1.5 rounded-lg bg-[#fbe6ee] text-[#dc4b56] hover:bg-[#dc4b56] hover:text-white transition-colors cursor-pointer"
+                                    title="Delete Order"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Order Dossier Modal */}
+              {viewingOrder && (
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-200">
+                  <div className="bg-white rounded-3xl border border-[#e9edf4] shadow-2xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+                    {/* Header */}
+                    <div className="px-6 py-4 border-b border-[#F1F5F9] flex items-center justify-between bg-white shrink-0">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-[#2a6ecb] text-white flex items-center justify-center shadow-md shrink-0">
+                          <Truck className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-archivo font-extrabold text-lg text-[#182a41]">
+                              Order Shipment Dossier
+                            </h3>
+                            <span className="font-mono text-xs font-bold text-[#2a6ecb] bg-[#dcebfb] px-2.5 py-0.5 rounded-full">
+                              {viewingOrder.orderId}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#64748B]">
+                            Customer: {viewingOrder.customerName} • Placed {viewingOrder.createdAt ? new Date(viewingOrder.createdAt).toLocaleString("en-IN") : "Recently"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => window.print()}
+                          className="w-9 h-9 rounded-xl bg-[#F8FAFC] hover:bg-[#F1F5F9] text-[#64748B] hover:text-[#182a41] flex items-center justify-center transition-colors cursor-pointer"
+                          title="Print Packing Slip"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setViewingOrder(null)}
+                          className="w-9 h-9 rounded-xl bg-[#F8FAFC] hover:bg-[#F1F5F9] text-[#64748B] hover:text-[#182a41] flex items-center justify-center transition-colors cursor-pointer"
+                          title="Close"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Modal Body */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                      {/* Status Pipeline Visualizer */}
+                      <div className="bg-[#f7f6fb] p-4 rounded-2xl border border-[#e9edf4] space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-archivo font-bold text-[#182a41] uppercase tracking-wider">
+                            Fulfillment Progression
+                          </span>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                            viewingOrder.orderStatus === "Delivered"
+                              ? "bg-[#e0f3ec] text-[#1fb37a]"
+                              : viewingOrder.orderStatus === "Cancelled"
+                              ? "bg-[#fbe6ee] text-[#dc4b56]"
+                              : "bg-[#fdeadf] text-[#e8a33d]"
+                          }`}>
+                            Current: {viewingOrder.orderStatus}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                          <div className={`p-2.5 rounded-xl border ${
+                            viewingOrder.orderStatus !== "Cancelled"
+                              ? "bg-white border-[#2a6ecb] text-[#2a6ecb] font-bold"
+                              : "bg-white/50 border-[#e2e8f0] text-[#94a3b8]"
+                          }`}>
+                            <span className="block text-xs">1. Order Placed</span>
+                            <span className="text-[10px] text-[#64748b] block font-normal">Registered in DB</span>
+                          </div>
+                          <div className={`p-2.5 rounded-xl border ${
+                            viewingOrder.orderStatus === "On Progress" || viewingOrder.orderStatus === "Delivered"
+                              ? "bg-white border-[#2a6ecb] text-[#2a6ecb] font-bold"
+                              : "bg-white/50 border-[#e2e8f0] text-[#94a3b8]"
+                          }`}>
+                            <span className="block text-xs">2. Dispatched</span>
+                            <span className="text-[10px] text-[#64748b] block font-normal">Courier In Transit</span>
+                          </div>
+                          <div className={`p-2.5 rounded-xl border ${
+                            viewingOrder.orderStatus === "Delivered"
+                              ? "bg-[#e0f3ec] border-emerald-500 text-[#1fb37a] font-bold"
+                              : "bg-white/50 border-[#e2e8f0] text-[#94a3b8]"
+                          }`}>
+                            <span className="block text-xs">3. Delivered</span>
+                            <span className="text-[10px] text-[#64748b] block font-normal">Handed to Client</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Customer & Delivery Address Dossier */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div className="bg-white p-4 rounded-2xl border border-[#e9edf4] space-y-2">
+                          <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block">
+                            Customer Details
+                          </span>
+                          <span className="font-archivo font-bold text-sm text-[#182a41] block">{viewingOrder.customerName}</span>
+                          <div className="space-y-1 text-[#64748B]">
+                            <p className="flex items-center gap-1.5">
+                              <Phone className="w-3.5 h-3.5 text-[#2a6ecb]" />
+                              <a href={`tel:${viewingOrder.phone}`} className="hover:underline font-mono font-bold text-[#182a41]">{viewingOrder.phone}</a>
+                            </p>
+                            <p className="flex items-center gap-1.5">
+                              <Mail className="w-3.5 h-3.5 text-[#2a6ecb]" />
+                              <span>{viewingOrder.email}</span>
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="bg-white p-4 rounded-2xl border border-[#e9edf4] space-y-2">
+                          <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block">
+                            Shipping Destination
+                          </span>
+                          <span className="font-archivo font-bold text-sm text-[#182a41] block">
+                            {viewingOrder.city}, {viewingOrder.state} ({viewingOrder.pincode})
+                          </span>
+                          <p className="text-[#64748B] leading-relaxed">
+                            {viewingOrder.street}
+                            {viewingOrder.landmark ? ` • Landmark: ${viewingOrder.landmark}` : ""}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Items Purchased List */}
+                      <div className="bg-white rounded-2xl border border-[#e9edf4] overflow-hidden">
+                        <div className="p-4 bg-[#f7f6fb] border-b border-[#e9edf4] flex justify-between items-center">
+                          <span className="font-archivo font-bold text-xs uppercase text-[#182a41]">
+                            Purchased Medical Equipment ({viewingOrder.items.length} Items)
+                          </span>
+                          <span className="font-mono text-xs font-bold text-[#2a6ecb]">
+                            Total: ₹{viewingOrder.totalAmount.toLocaleString("en-IN")}.00
+                          </span>
+                        </div>
+
+                        <div className="divide-y divide-[#f6f4fb] p-2">
+                          {viewingOrder.items.map((it, idx) => (
+                            <div key={idx} className="p-3 flex items-center justify-between gap-3 text-xs">
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={it.image || "/images/pulmocare/pulmocare_prisma-smart.png"}
+                                  alt={it.name}
+                                  className="w-10 h-10 object-contain rounded-lg bg-white p-1 border border-[#e9edf4] shrink-0"
+                                />
+                                <div>
+                                  <span className="font-archivo font-bold text-xs text-[#182a41] block">{it.name}</span>
+                                  <span className="text-[11px] text-[#64748B]">
+                                    Unit Price: ₹{it.price.toLocaleString("en-IN")}.00
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <span className="font-bold text-xs text-[#182a41] block">
+                                  ₹{(it.price * it.quantity).toLocaleString("en-IN")}.00
+                                </span>
+                                <span className="text-[10px] text-[#64748B] block">Qty: {it.quantity}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {viewingOrder.prescriptionNote && (
+                        <div className="bg-[#f7f6fb] p-3 rounded-xl border border-[#e9edf4] text-xs space-y-1">
+                          <span className="font-bold text-[#182a41] uppercase text-[10px] block">Customer Prescription / Doctor Note:</span>
+                          <p className="text-[#64748B]">{viewingOrder.prescriptionNote}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Modal Footer */}
+                    <div className="px-6 py-4 bg-[#F8FAFC] border-t border-[#F1F5F9] flex flex-wrap items-center justify-between gap-3 shrink-0">
+                      <div className="flex items-center gap-2">
+                        {viewingOrder.orderStatus !== "Delivered" && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              await updateOrderStatus(viewingOrder.orderId, "Delivered");
+                              setViewingOrder({ ...viewingOrder, orderStatus: "Delivered" });
+                              addToast("Order Delivered", `Order ${viewingOrder.orderId} marked as Delivered.`);
+                            }}
+                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-archivo font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Mark Delivered</span>
+                          </button>
+                        )}
+
+                        {viewingOrder.orderStatus === "Pending" && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              await updateOrderStatus(viewingOrder.orderId, "On Progress");
+                              setViewingOrder({ ...viewingOrder, orderStatus: "On Progress" });
+                              addToast("Order Dispatched", `Order ${viewingOrder.orderId} marked as In Transit.`);
+                            }}
+                            className="px-4 py-2 rounded-xl bg-[#2a6ecb] hover:bg-[#1f56a3] text-white font-archivo font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+                          >
+                            <Truck className="w-3.5 h-3.5" />
+                            <span>Mark In Transit</span>
+                          </button>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setViewingOrder(null)}
+                        className="px-5 py-2 rounded-xl bg-white hover:bg-[#F1F5F9] text-[#64748B] hover:text-[#182a41] border border-[#E2E8F0] font-archivo font-bold text-xs transition-colors cursor-pointer"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* TAB 6: INQUIRIES & CONTACT SUBMISSIONS */}
           {activeTab === "messages" && (
             <div className="bg-white rounded-[20px] border border-[#e9edf4] p-6 md:p-8 shadow-[0_2px_8px_rgba(24,42,65,0.05)] space-y-6">
@@ -2133,15 +2736,55 @@ export default function AdminDashboardPage() {
 
                   <div>
                     <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
-                      Brochure / Spec PDF Link <span className="text-[#64748b] text-[10px] font-normal">(Optional — Leave blank if product has no PDF)</span>
+                      Brochure / Spec PDF <span className="text-[#64748b] text-[10px] font-normal">(Optional — Upload PDF or Paste Link)</span>
                     </label>
-                    <input
-                      type="text"
-                      value={pBrochureUrl}
-                      onChange={(e) => setPBrochureUrl(e.target.value)}
-                      placeholder="Leave blank if no PDF (e.g. /doc-files/sample_doc.pdf)"
-                      className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
-                    />
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                      <label className="px-4 py-2.5 rounded-xl bg-[#dcebfb] text-[#2a6ecb] hover:bg-[#2a6ecb] hover:text-white font-archivo font-bold text-xs cursor-pointer transition-colors flex items-center justify-center gap-2 shrink-0">
+                        <Upload className="w-4 h-4" />
+                        <span>{isUploadingPdf ? "Uploading..." : "Upload PDF"}</span>
+                        <input
+                          type="file"
+                          accept=".pdf,application/pdf"
+                          onChange={handlePdfFileUpload}
+                          className="hidden"
+                          disabled={isUploadingPdf}
+                        />
+                      </label>
+                      <input
+                        type="text"
+                        value={pBrochureUrl}
+                        onChange={(e) => setPBrochureUrl(e.target.value)}
+                        placeholder="e.g. /doc-files/sample_doc.pdf"
+                        className="flex-1 p-2.5 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
+                      />
+                    </div>
+                    {pBrochureUrl && (
+                      <div className="mt-2 flex items-center justify-between p-2.5 bg-[#f7f6fb] rounded-2xl border border-[#e9edf4]">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <FileText className="w-4 h-4 text-[#2a6ecb] shrink-0" />
+                          <span className="text-xs font-semibold text-[#182a41] truncate max-w-[280px]">
+                            {pBrochureUrl.startsWith("data:") ? "Uploaded PDF Brochure Document" : pBrochureUrl}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <a
+                            href={pBrochureUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] text-[#2a6ecb] hover:underline font-bold"
+                          >
+                            Preview
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => setPBrochureUrl("")}
+                            className="text-[11px] text-red-500 hover:text-red-700 font-bold"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -2219,6 +2862,56 @@ export default function AdminDashboardPage() {
                     className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41]"
                   />
                 </div>
+              </div>
+
+              {/* Article Image Upload & Selection */}
+              <div className="space-y-2">
+                <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
+                  Featured Article Image <span className="text-[#64748b] text-[10px] font-normal">(Upload Image or Paste Link)</span>
+                </label>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <label className="px-4 py-2.5 rounded-xl bg-[#dcebfb] text-[#2a6ecb] hover:bg-[#2a6ecb] hover:text-white font-archivo font-bold text-xs cursor-pointer transition-colors flex items-center justify-center gap-2 shrink-0">
+                    <Upload className="w-4 h-4" />
+                    <span>{isUploadingBlogImage ? "Uploading..." : "Upload Image"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBlogImageUpload}
+                      className="hidden"
+                      disabled={isUploadingBlogImage}
+                    />
+                  </label>
+                  <input
+                    type="text"
+                    value={bImage}
+                    onChange={(e) => setBImage(e.target.value)}
+                    placeholder="e.g. /images/pulmocare/pulmocare_prisma-smart.png"
+                    className="flex-1 p-2.5 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
+                  />
+                </div>
+
+                {bImage && (
+                  <div className="mt-2 flex items-center gap-3 p-2.5 bg-[#f7f6fb] rounded-2xl border border-[#e9edf4]">
+                    <img
+                      src={bImage}
+                      alt="Article Thumbnail"
+                      className="w-14 h-14 object-cover rounded-xl bg-white p-1 border border-[#e9edf4] shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-bold text-[#1fb37a] block">Featured Image Attached</span>
+                      <span className="text-[11px] text-[#64748B] font-mono truncate block">
+                        {bImage.startsWith("data:") ? "Uploaded Image (Base64)" : bImage}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setBImage("")}
+                      className="text-[11px] text-red-500 hover:text-red-700 font-bold px-2 py-1"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div>

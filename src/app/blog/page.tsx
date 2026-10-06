@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
@@ -15,10 +15,50 @@ export default function BlogPage() {
   const [selectedCategory, setSelectedCategory] = useState<string>("All");
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [posts, setPosts] = useState<BlogPost[]>(BLOG_POSTS);
 
   const categories = ["All", "Sleep Therapy", "Ventilation", "Oxygen Care", "Diagnostics", "Masks"];
 
-  const filteredPosts = BLOG_POSTS.filter((post) => {
+  useEffect(() => {
+    const fetchBlogs = async () => {
+      try {
+        const res = await fetch(`/api/blogs?_t=${Date.now()}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        });
+        const data = await res.json();
+        if (data.success && Array.isArray(data.blogs) && data.blogs.length > 0) {
+          const map = new Map<string, BlogPost>();
+          // Add default static posts first
+          BLOG_POSTS.forEach((p) => map.set(p.slug.toLowerCase(), p));
+          // Merge / overwrite with database posts from admin portal
+          data.blogs.forEach((b: any) => {
+            const formatted: BlogPost = {
+              slug: b.slug,
+              title: b.title,
+              excerpt: b.excerpt,
+              category: b.category,
+              author: b.author,
+              date: b.date || (b.createdAt ? new Date(b.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "Recent"),
+              readTime: b.readTime || "5 min read",
+              image: b.image || "/images/pulmocare/pulmocare_prisma-smart.png",
+              content: Array.isArray(b.content) ? b.content : [b.content || ""],
+            };
+            map.set(b.slug.toLowerCase(), formatted);
+          });
+          // Order: newest DB articles first
+          const allPosts = Array.from(map.values());
+          setPosts(allPosts);
+        }
+      } catch (err) {
+        console.warn("Could not fetch latest blogs from server:", err);
+      }
+    };
+
+    fetchBlogs();
+  }, []);
+
+  const filteredPosts = posts.filter((post) => {
     if (selectedCategory === "All") return true;
     return post.category === selectedCategory;
   });
