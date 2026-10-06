@@ -23,9 +23,21 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const newProduct = await Product.create(body);
+
+    if (!body.id) {
+      body.id = `prod-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    }
+
+    // Upsert into MongoDB Atlas so save always succeeds and never fails on duplicate key
+    const newProduct = await Product.findOneAndUpdate(
+      { id: body.id },
+      { $set: body },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
+
     return NextResponse.json({ success: true, product: newProduct }, { status: 201 });
   } catch (error: any) {
+    console.error("MongoDB Product Create/Upsert Error:", error);
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
 }

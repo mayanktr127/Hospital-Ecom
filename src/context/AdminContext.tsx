@@ -237,6 +237,20 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           fetchedProds.forEach((p) => {
             if (p && p.id) map.set(p.id.toLowerCase(), p);
           });
+
+          // Also merge any local backup custom products so custom products never disappear
+          if (typeof window !== "undefined") {
+            try {
+              const localCustom = localStorage.getItem("pulmocare_custom_products");
+              if (localCustom) {
+                const parsed: Product[] = JSON.parse(localCustom);
+                parsed.forEach((p) => {
+                  if (p && p.id) map.set(p.id.toLowerCase(), p);
+                });
+              }
+            } catch {}
+          }
+
           return Array.from(map.values());
         };
 
@@ -343,6 +357,17 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Products CRUD Handlers
   const addProduct = async (newProduct: Product) => {
+    // 1. Save to localStorage backup immediately so it's NEVER lost across reloads
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_products");
+        const list: Product[] = stored ? JSON.parse(stored) : [];
+        const filtered = list.filter((p) => p.id?.toLowerCase() !== newProduct.id?.toLowerCase());
+        localStorage.setItem("pulmocare_custom_products", JSON.stringify([newProduct, ...filtered]));
+      } catch {}
+    }
+
+    // 2. Persist to MongoDB Atlas
     try {
       const res = await fetch("/api/products", {
         method: "POST",
@@ -351,18 +376,32 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
       const data = await res.json();
       if (data.success && data.product) {
-        setProducts((prev) => [data.product, ...prev]);
+        setProducts((prev) => [data.product, ...prev.filter((p) => p.id?.toLowerCase() !== data.product.id?.toLowerCase())]);
+        return data.product;
       } else {
-        setProducts((prev) => [newProduct, ...prev]);
+        console.warn("MongoDB Atlas product save notice:", data.error);
+        setProducts((prev) => [newProduct, ...prev.filter((p) => p.id?.toLowerCase() !== newProduct.id?.toLowerCase())]);
+        return newProduct;
       }
     } catch (err) {
       console.error("Error adding product to MongoDB Atlas", err);
-      setProducts((prev) => [newProduct, ...prev]);
+      setProducts((prev) => [newProduct, ...prev.filter((p) => p.id?.toLowerCase() !== newProduct.id?.toLowerCase())]);
+      return newProduct;
     }
   };
 
   const updateProduct = async (updatedProduct: Product) => {
     setProducts((prev) => prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p)));
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_products");
+        if (stored) {
+          const list: Product[] = JSON.parse(stored);
+          const nextList = list.map((p) => (p.id === updatedProduct.id ? updatedProduct : p));
+          localStorage.setItem("pulmocare_custom_products", JSON.stringify(nextList));
+        }
+      } catch {}
+    }
     try {
       await fetch("/api/products", {
         method: "PUT",
@@ -376,6 +415,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const deleteProduct = async (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_products");
+        if (stored) {
+          const list: Product[] = JSON.parse(stored);
+          localStorage.setItem("pulmocare_custom_products", JSON.stringify(list.filter((p) => p.id !== id)));
+        }
+      } catch {}
+    }
     try {
       await fetch(`/api/products?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     } catch (err) {

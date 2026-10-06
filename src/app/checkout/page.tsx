@@ -37,7 +37,7 @@ export default function CheckoutPage() {
   const [city, setCity] = useState("");
   const [state, setState] = useState("Karnataka");
   const [pincode, setPincode] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("Cash on Delivery");
+  const [paymentMethod] = useState("UPI / Razorpay");
   const [prescriptionNote, setPrescriptionNote] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [placedOrder, setPlacedOrder] = useState<OrderItem | null>(null);
@@ -83,94 +83,80 @@ export default function CheckoutPage() {
       createdAt: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
     };
 
-    // If customer selected Razorpay, initiate Razorpay checkout flow
-    if (paymentMethod === "UPI / Razorpay") {
-      try {
-        await openRazorpayModal({
-          amount: totalAmount,
-          name: "Pulmo Care Medical",
-          description: `Hospital Equipment Order (${cart.length} items)`,
-          receipt: generatedOrderId,
-          prefill: {
-            name: customerName,
-            email: email,
-            contact: phone,
-          },
-          notes: {
-            orderId: generatedOrderId,
-            city,
-            state,
-          },
-          onSuccess: async (response) => {
-            try {
-              const verifyRes = await fetch("/api/razorpay/verify-payment", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  razorpay_order_id: response.razorpay_order_id,
-                  razorpay_payment_id: response.razorpay_payment_id,
-                  razorpay_signature: response.razorpay_signature,
-                  type: "checkout",
-                  orderDetails: {
-                    ...newOrder,
-                    paymentMethod: "Razorpay (Online Verified)",
-                    orderStatus: "Confirmed",
-                  },
-                }),
-              });
-
-              const verifyData = await verifyRes.json();
-              if (verifyData.success) {
-                const confirmedOrder = verifyData.order || {
+    // Initiate Razorpay checkout flow (Only payment method)
+    try {
+      await openRazorpayModal({
+        amount: totalAmount,
+        name: "Pulmo Care Medical",
+        description: `Hospital Equipment Order (${cart.length} items)`,
+        receipt: generatedOrderId,
+        prefill: {
+          name: customerName,
+          email: email,
+          contact: phone,
+        },
+        notes: {
+          orderId: generatedOrderId,
+          city,
+          state,
+        },
+        onSuccess: async (response) => {
+          try {
+            const verifyRes = await fetch("/api/razorpay/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                type: "checkout",
+                orderDetails: {
                   ...newOrder,
                   paymentMethod: "Razorpay (Online Verified)",
                   orderStatus: "Confirmed",
-                };
-                setPlacedOrder(confirmedOrder);
-                clearCart();
-                addToast(
-                  "Payment Verified & Order Confirmed!",
-                  `Payment ${response.razorpay_payment_id} verified. Order #${confirmedOrder.orderId} logged in MongoDB Atlas.`
-                );
-              } else {
-                addToast("Verification Issue", verifyData.error || "Payment received, verifying with server.", "warning");
-                setPlacedOrder(newOrder);
-                clearCart();
-              }
-            } catch (err) {
-              console.error("Order verification error:", err);
+                },
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+            if (verifyData.success) {
+              const confirmedOrder = verifyData.order || {
+                ...newOrder,
+                paymentMethod: "Razorpay (Online Verified)",
+                orderStatus: "Confirmed",
+              };
+              setPlacedOrder(confirmedOrder);
+              clearCart();
+              addToast(
+                "Payment Verified & Order Confirmed!",
+                `Payment ${response.razorpay_payment_id} verified. Order #${confirmedOrder.orderId} logged in MongoDB Atlas.`
+              );
+            } else {
+              addToast("Verification Issue", verifyData.error || "Payment received, verifying with server.", "warning");
               setPlacedOrder(newOrder);
               clearCart();
-            } finally {
-              setIsSubmitting(false);
             }
-          },
-          onDismiss: () => {
+          } catch (err) {
+            console.error("Order verification error:", err);
+            setPlacedOrder(newOrder);
+            clearCart();
+          } finally {
             setIsSubmitting(false);
-            addToast("Checkout Dismissed", "You closed the Razorpay payment window.", "info");
-          },
-          onError: (err) => {
-            setIsSubmitting(false);
-            addToast("Payment Failed", err?.description || "Razorpay transaction was not completed.", "error");
-          },
-        });
-      } catch (err: any) {
-        setIsSubmitting(false);
-        addToast("Payment Gateway Error", err?.message || "Failed to initialize Razorpay checkout.", "error");
-      }
-      return;
+          }
+        },
+        onDismiss: () => {
+          setIsSubmitting(false);
+          addToast("Checkout Dismissed", "You closed the Razorpay payment window.", "info");
+        },
+        onError: (err) => {
+          setIsSubmitting(false);
+          addToast("Payment Failed", err?.description || "Razorpay transaction was not completed.", "error");
+        },
+      });
+    } catch (err: any) {
+      setIsSubmitting(false);
+      addToast("Payment Gateway Error", err?.message || "Failed to initialize Razorpay checkout.", "error");
     }
-
-    // Otherwise, Direct Placement for Cash on Delivery / Bank Wire
-    await addOrder(newOrder);
-    setPlacedOrder(newOrder);
-    clearCart();
-    setIsSubmitting(false);
-
-    addToast(
-      "Order Placed Successfully!",
-      `Order ${generatedOrderId} has been logged in MongoDB Atlas and is being processed for dispatch.`
-    );
   };
 
   return (
@@ -402,63 +388,38 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* Payment Method Selection */}
+              {/* Payment Method Selection - Exclusively Razorpay */}
               <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#E2E8F0] shadow-xs space-y-4">
-                <h2 className="font-archivo font-extrabold text-xl text-[#0A192F] pb-4 border-b border-[#F1F5F9]">
-                  2. Select Payment Method
-                </h2>
+                <div className="flex items-center justify-between pb-4 border-b border-[#F1F5F9]">
+                  <h2 className="font-archivo font-extrabold text-xl text-[#0A192F]">
+                    2. Payment Gateway
+                  </h2>
+                  <span className="bg-[#10b981]/10 text-[#10b981] font-archivo font-bold text-xs uppercase px-3 py-1 rounded-full border border-[#10b981]/20 flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#10b981] animate-pulse" />
+                    Verified Razorpay
+                  </span>
+                </div>
 
-                <div className="space-y-3">
-                  <label className={`p-4 rounded-2xl border cursor-pointer flex items-center justify-between transition-all ${paymentMethod === "Cash on Delivery" ? "border-[#0066FF] bg-[#EBF5FF]" : "border-[#E2E8F0] bg-white"}`}>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="payment"
-                        checked={paymentMethod === "Cash on Delivery"}
-                        onChange={() => setPaymentMethod("Cash on Delivery")}
-                        className="w-4 h-4 text-[#0066FF]"
-                      />
-                      <div>
-                        <span className="font-archivo font-bold text-sm text-[#0A192F] block">Cash on Delivery (COD)</span>
-                        <span className="text-xs text-[#64748B]">Pay upon inspection at your hospital or home.</span>
-                      </div>
+                <div className="p-4 sm:p-5 rounded-2xl border-2 border-[#0066FF] bg-[#EBF5FF] flex items-center justify-between shadow-xs">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-6 h-6 rounded-full bg-[#0066FF] text-white flex items-center justify-center text-xs font-bold shrink-0 shadow-xs">
+                      ✓
                     </div>
-                    <Truck className="w-5 h-5 text-[#0066FF]" />
-                  </label>
-
-                  <label className={`p-4 rounded-2xl border cursor-pointer flex items-center justify-between transition-all ${paymentMethod === "UPI / Razorpay" ? "border-[#0066FF] bg-[#EBF5FF]" : "border-[#E2E8F0] bg-white"}`}>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="payment"
-                        checked={paymentMethod === "UPI / Razorpay"}
-                        onChange={() => setPaymentMethod("UPI / Razorpay")}
-                        className="w-4 h-4 text-[#0066FF]"
-                      />
-                      <div>
-                        <span className="font-archivo font-bold text-sm text-[#0A192F] block">UPI / NetBanking / Razorpay</span>
-                        <span className="text-xs text-[#64748B]">Instant payment via GPay, PhonePe, Cards, or NetBanking.</span>
+                    <div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-archivo font-bold text-sm text-[#0A192F]">
+                          Razorpay Standard Secure Checkout
+                        </span>
+                        <span className="bg-[#0066FF] text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
+                          Instant Online
+                        </span>
                       </div>
+                      <span className="text-xs text-[#64748B] block mt-1">
+                        Instant zero-fee payment via UPI (Google Pay, PhonePe, Paytm, BHIM), Credit &amp; Debit Cards, NetBanking, and Corporate Banking.
+                      </span>
                     </div>
-                    <CreditCard className="w-5 h-5 text-[#0066FF]" />
-                  </label>
-
-                  <label className={`p-4 rounded-2xl border cursor-pointer flex items-center justify-between transition-all ${paymentMethod === "Bank Wire Transfer" ? "border-[#0066FF] bg-[#EBF5FF]" : "border-[#E2E8F0] bg-white"}`}>
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="radio"
-                        name="payment"
-                        checked={paymentMethod === "Bank Wire Transfer"}
-                        onChange={() => setPaymentMethod("Bank Wire Transfer")}
-                        className="w-4 h-4 text-[#0066FF]"
-                      />
-                      <div>
-                        <span className="font-archivo font-bold text-sm text-[#0A192F] block">Hospital Bank Wire Transfer</span>
-                        <span className="text-xs text-[#64748B]">NEFT/RTGS wire transfer with official tax invoice.</span>
-                      </div>
-                    </div>
-                    <Building2 className="w-5 h-5 text-[#0066FF]" />
-                  </label>
+                  </div>
+                  <CreditCard className="w-6 h-6 text-[#0066FF] shrink-0 hidden sm:block" />
                 </div>
               </div>
 
