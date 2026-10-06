@@ -11,6 +11,7 @@ import { isRentalProduct, isRentalCategory } from "@/utils/rental";
 import {
   LayoutDashboard,
   Package,
+  PackagePlus,
   FileText,
   Plus,
   Edit,
@@ -49,6 +50,7 @@ import {
   Star,
   ThumbsUp,
 } from "lucide-react";
+import { BundleMakerTab } from "@/components/admin/BundleMakerTab";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -81,10 +83,21 @@ export default function AdminDashboardPage() {
     sleepStudyBookings,
     deleteSleepStudyBooking,
     updateSleepStudyBookingStatus,
+    bundles,
   } = useAdmin();
   const { addToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "products" | "categories" | "blogs" | "reviews" | "tracking" | "messages" | "sleep-studies">("dashboard");
+  const [activeTab, setActiveTab] = useState<
+    | "dashboard"
+    | "products"
+    | "categories"
+    | "blogs"
+    | "reviews"
+    | "tracking"
+    | "messages"
+    | "sleep-studies"
+    | "bundles"
+  >("dashboard");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Search & Filter States
@@ -617,6 +630,18 @@ export default function AdminDashboardPage() {
                   </div>
                   <span className="bg-[#EBF5FF] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono font-bold">{sleepStudyBookings.length}</span>
                 </button>
+                <button
+                  onClick={() => { setActiveTab("bundles"); setMobileSidebarOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "bundles" ? "bg-[#0066FF] text-white shadow-xs" : "text-[#64748B]"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <PackagePlus className="w-4 h-4" />
+                    <span>Bundle Maker</span>
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${activeTab === "bundles" ? "bg-white/20 text-white" : "bg-[#EBF5FF] text-[#0066FF]"}`}>
+                    {bundles.length}
+                  </span>
+                </button>
               </div>
 
               <div className="space-y-1">
@@ -785,6 +810,25 @@ export default function AdminDashboardPage() {
               </div>
               <span className="bg-[#EBF5FF] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono font-bold">
                 {sleepStudyBookings.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("bundles")}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs transition-all cursor-pointer ${
+                activeTab === "bundles"
+                  ? "bg-[#0066FF] text-white shadow-xs"
+                  : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0066FF]"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <PackagePlus className="w-4 h-4" />
+                <span>Bundle Maker</span>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
+                activeTab === "bundles" ? "bg-white/20 text-white" : "bg-[#EBF5FF] text-[#0066FF]"
+              }`}>
+                {bundles.length}
               </span>
             </button>
           </div>
@@ -1755,6 +1799,9 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           )}
+
+          {/* TAB 8: BUNDLE MAKER & QUOTATION CREATOR */}
+          {activeTab === "bundles" && <BundleMakerTab />}
         </main>
       </div>
 
@@ -1923,9 +1970,10 @@ export default function AdminDashboardPage() {
                     <input
                       type="number"
                       required
-                      value={pPrice}
-                      onChange={(e) => setPPrice(e.target.value)}
+                      value={pPrice === "0" ? "" : pPrice}
                       placeholder="e.g. 45990"
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => setPPrice(e.target.value)}
                       className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-bold text-[#0a1f3c] focus:border-[#2a6ecb]"
                     />
                   </div>
@@ -1934,9 +1982,10 @@ export default function AdminDashboardPage() {
                     <label className="block font-archivo font-bold text-[#64748b] uppercase mb-1">Original Price / MSRP (₹)</label>
                     <input
                       type="number"
-                      value={pOriginalPrice}
-                      onChange={(e) => setPOriginalPrice(e.target.value)}
+                      value={pOriginalPrice === "0" ? "" : pOriginalPrice}
                       placeholder="e.g. 65000"
+                      onFocus={(e) => e.target.select()}
+                      onChange={(e) => setPOriginalPrice(e.target.value)}
                       className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-semibold text-[#64748b] focus:border-[#2a6ecb]"
                     />
                   </div>

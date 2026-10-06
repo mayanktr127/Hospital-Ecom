@@ -8,6 +8,7 @@ import { useCart } from "@/context/CartContext";
 import { useAdmin, OrderItem, OrderProductItem } from "@/context/AdminContext";
 import { useToast } from "@/context/ToastContext";
 import { getMaskOptionDetails, isMaskAddonProduct } from "@/utils/maskAddon";
+import { openRazorpayModal } from "@/utils/razorpay";
 import {
   ShieldCheck,
   Truck,
@@ -82,6 +83,85 @@ export default function CheckoutPage() {
       createdAt: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
     };
 
+    // If customer selected Razorpay, initiate Razorpay checkout flow
+    if (paymentMethod === "UPI / Razorpay") {
+      try {
+        await openRazorpayModal({
+          amount: totalAmount,
+          name: "Pulmo Care Medical",
+          description: `Hospital Equipment Order (${cart.length} items)`,
+          receipt: generatedOrderId,
+          prefill: {
+            name: customerName,
+            email: email,
+            contact: phone,
+          },
+          notes: {
+            orderId: generatedOrderId,
+            city,
+            state,
+          },
+          onSuccess: async (response) => {
+            try {
+              const verifyRes = await fetch("/api/razorpay/verify-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_signature: response.razorpay_signature,
+                  type: "checkout",
+                  orderDetails: {
+                    ...newOrder,
+                    paymentMethod: "Razorpay (Online Verified)",
+                    orderStatus: "Confirmed",
+                  },
+                }),
+              });
+
+              const verifyData = await verifyRes.json();
+              if (verifyData.success) {
+                const confirmedOrder = verifyData.order || {
+                  ...newOrder,
+                  paymentMethod: "Razorpay (Online Verified)",
+                  orderStatus: "Confirmed",
+                };
+                setPlacedOrder(confirmedOrder);
+                clearCart();
+                addToast(
+                  "Payment Verified & Order Confirmed!",
+                  `Payment ${response.razorpay_payment_id} verified. Order #${confirmedOrder.orderId} logged in MongoDB Atlas.`
+                );
+              } else {
+                addToast("Verification Issue", verifyData.error || "Payment received, verifying with server.", "warning");
+                setPlacedOrder(newOrder);
+                clearCart();
+              }
+            } catch (err) {
+              console.error("Order verification error:", err);
+              setPlacedOrder(newOrder);
+              clearCart();
+            } finally {
+              setIsSubmitting(false);
+            }
+          },
+          onDismiss: () => {
+            setIsSubmitting(false);
+            addToast("Checkout Dismissed", "You closed the Razorpay payment window.", "info");
+          },
+          onError: (err) => {
+            setIsSubmitting(false);
+            addToast("Payment Failed", err?.description || "Razorpay transaction was not completed.", "error");
+          },
+        });
+      } catch (err: any) {
+        setIsSubmitting(false);
+        addToast("Payment Gateway Error", err?.message || "Failed to initialize Razorpay checkout.", "error");
+      }
+      return;
+    }
+
+    // Otherwise, Direct Placement for Cash on Delivery / Bank Wire
     await addOrder(newOrder);
     setPlacedOrder(newOrder);
     clearCart();
@@ -477,7 +557,13 @@ export default function CheckoutPage() {
                       className="w-full py-4 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold text-xs uppercase tracking-wider shadow-lg hover:shadow-xl active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
                     >
                       <Lock className="w-4 h-4" />
-                      <span>{isSubmitting ? "Processing Order..." : "Place Order"}</span>
+                      <span>
+                        {isSubmitting
+                          ? "Connecting Gateway..."
+                          : paymentMethod === "UPI / Razorpay"
+                          ? `Pay ₹${totalAmount.toLocaleString("en-IN")}.00 via Razorpay`
+                          : "Place Order"}
+                      </span>
                     </button>
                   </>
                 )}

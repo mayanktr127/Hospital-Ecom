@@ -97,6 +97,48 @@ export interface BlogPost {
   tags?: string[];
 }
 
+export interface BundleProductItem {
+  productId: string;
+  name: string;
+  category: string;
+  image: string;
+  catalogPrice?: number | null;
+  customPrice: number;
+  quantity: number;
+  subtotal: number;
+}
+
+export interface BundleItem {
+  _id?: string;
+  bundleId: string;
+  title: string;
+  description?: string;
+  clientName?: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  items: BundleProductItem[];
+  totalAmount: number;
+  discountAmount?: number;
+  status: "active" | "paid" | "expired" | "cancelled";
+  expiresAt?: string;
+  paymentDetails?: {
+    paymentMethod: string;
+    transactionId: string;
+    paidAt: string;
+    paidAmount: number;
+    payerName: string;
+    payerPhone: string;
+    payerEmail: string;
+    shippingAddress: string;
+    city: string;
+    state: string;
+    pincode: string;
+    orderId?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 interface AdminUser {
   name: string;
   email: string;
@@ -144,6 +186,12 @@ interface AdminContextType {
   addSleepStudyBooking: (booking: SleepStudyBookingItem) => Promise<void>;
   deleteSleepStudyBooking: (bookingId: string) => Promise<void>;
   updateSleepStudyBookingStatus: (bookingId: string, status: string) => Promise<void>;
+  // Bundles CRUD State
+  bundles: BundleItem[];
+  addBundle: (bundle: Partial<BundleItem>) => Promise<BundleItem | null>;
+  updateBundle: (bundle: Partial<BundleItem>) => Promise<void>;
+  deleteBundle: (bundleId: string) => Promise<void>;
+  refreshBundles: () => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -161,6 +209,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [sleepStudyBookings, setSleepStudyBookings] = useState<SleepStudyBookingItem[]>([]);
+  const [bundles, setBundles] = useState<BundleItem[]>([]);
 
   useEffect(() => {
     // Restore admin session from localStorage
@@ -258,6 +307,12 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const ssbRes = await fetch("/api/sleep-study-bookings").then((r) => r.json()).catch(() => ({ success: false }));
         if (ssbRes.success && ssbRes.bookings && ssbRes.bookings.length > 0) {
           setSleepStudyBookings(ssbRes.bookings);
+        }
+
+        // Fetch bundles
+        const bundleRes = await fetch("/api/bundles").then((r) => r.json()).catch(() => ({ success: false }));
+        if (bundleRes.success && bundleRes.bundles && bundleRes.bundles.length > 0) {
+          setBundles(bundleRes.bundles);
         }
       } catch (err) {
         console.error("Failed to load data from backend", err);
@@ -578,6 +633,60 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const refreshBundles = async () => {
+    try {
+      const res = await fetch("/api/bundles").then((r) => r.json()).catch(() => ({ success: false }));
+      if (res.success && res.bundles) {
+        setBundles(res.bundles);
+      }
+    } catch (err) {
+      console.error("Failed to refresh bundles", err);
+    }
+  };
+
+  const addBundle = async (bundleData: Partial<BundleItem>): Promise<BundleItem | null> => {
+    try {
+      const res = await fetch("/api/bundles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bundleData),
+      });
+      const data = await res.json();
+      if (data.success && data.bundle) {
+        setBundles((prev) => [data.bundle, ...prev]);
+        return data.bundle;
+      }
+      return null;
+    } catch (err) {
+      console.error("Error creating bundle", err);
+      return null;
+    }
+  };
+
+  const updateBundle = async (bundleData: Partial<BundleItem>) => {
+    setBundles((prev) =>
+      prev.map((b) => (b.bundleId === bundleData.bundleId ? ({ ...b, ...bundleData } as BundleItem) : b))
+    );
+    try {
+      await fetch("/api/bundles", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bundleData),
+      });
+    } catch (err) {
+      console.error("Error updating bundle", err);
+    }
+  };
+
+  const deleteBundle = async (bundleId: string) => {
+    setBundles((prev) => prev.filter((b) => b.bundleId !== bundleId));
+    try {
+      await fetch(`/api/bundles?bundleId=${encodeURIComponent(bundleId)}`, { method: "DELETE" });
+    } catch (err) {
+      console.error("Error deleting bundle", err);
+    }
+  };
+
   return (
     <AdminContext.Provider
       value={{
@@ -614,6 +723,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addSleepStudyBooking,
         deleteSleepStudyBooking,
         updateSleepStudyBookingStatus,
+        bundles,
+        addBundle,
+        updateBundle,
+        deleteBundle,
+        refreshBundles,
       }}
     >
       {children}
