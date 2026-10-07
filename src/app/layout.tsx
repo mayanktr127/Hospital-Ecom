@@ -4,9 +4,11 @@ import { CartProvider } from "@/context/CartContext";
 import { WishlistProvider } from "@/context/WishlistContext";
 import { ToastProvider } from "@/context/ToastContext";
 import { AdminProvider } from "@/context/AdminContext";
+import { InquiryProvider } from "@/context/InquiryContext";
 import { ToastContainer } from "@/components/ui/Toast";
 import { CartDrawer } from "@/components/cart/CartDrawer";
 import { WishlistDrawer } from "@/components/wishlist/WishlistDrawer";
+import { ProductInquiryModal } from "@/components/inquiry/ProductInquiryModal";
 
 export const metadata: Metadata = {
   title: "Pulmo Care — Hospital & Home Healthcare Products",
@@ -32,14 +34,17 @@ export default function RootLayout({
       <body className="bg-paper text-ink antialiased">
         <ToastProvider>
           <AdminProvider>
-            <CartProvider>
-              <WishlistProvider>
-                {children}
-                <CartDrawer />
-                <WishlistDrawer />
-                <ToastContainer />
-              </WishlistProvider>
-            </CartProvider>
+            <InquiryProvider>
+              <CartProvider>
+                <WishlistProvider>
+                  {children}
+                  <CartDrawer />
+                  <WishlistDrawer />
+                  <ProductInquiryModal />
+                  <ToastContainer />
+                </WishlistProvider>
+              </CartProvider>
+            </InquiryProvider>
           </AdminProvider>
         </ToastProvider>
       </body>

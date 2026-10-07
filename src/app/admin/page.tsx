@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAdmin, ReviewItem, CategoryItem } from "@/context/AdminContext";
+import { useAdmin, ReviewItem, CategoryItem, OrderItem } from "@/context/AdminContext";
 import { useToast } from "@/context/ToastContext";
 import { Product } from "@/types/product";
 import { BlogPost } from "@/context/AdminContext";
@@ -11,6 +11,7 @@ import { isRentalProduct, isRentalCategory } from "@/utils/rental";
 import {
   LayoutDashboard,
   Package,
+  PackagePlus,
   FileText,
   Plus,
   Edit,
@@ -48,12 +49,16 @@ import {
   Users,
   Star,
   ThumbsUp,
+  Eye,
+  Printer,
 } from "lucide-react";
+import { BundleMakerTab } from "@/components/admin/BundleMakerTab";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
   const {
     isAdminAuthenticated,
+    isAuthChecked,
     adminUser,
     logout,
     products,
@@ -81,10 +86,21 @@ export default function AdminDashboardPage() {
     sleepStudyBookings,
     deleteSleepStudyBooking,
     updateSleepStudyBookingStatus,
+    bundles,
   } = useAdmin();
   const { addToast } = useToast();
 
-  const [activeTab, setActiveTab] = useState<"dashboard" | "products" | "categories" | "blogs" | "reviews" | "tracking" | "messages" | "sleep-studies">("dashboard");
+  const [activeTab, setActiveTab] = useState<
+    | "dashboard"
+    | "products"
+    | "categories"
+    | "blogs"
+    | "reviews"
+    | "tracking"
+    | "messages"
+    | "sleep-studies"
+    | "bundles"
+  >("dashboard");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Search & Filter States
@@ -94,6 +110,169 @@ export default function AdminDashboardPage() {
   const [reviewSearch, setReviewSearch] = useState("");
   const [inquirySearch, setInquirySearch] = useState("");
   const [ssSearch, setSsSearch] = useState("");
+  const [orderSearch, setOrderSearch] = useState("");
+  const [orderStatusFilter, setOrderStatusFilter] = useState<string>("all");
+  const [viewingOrder, setViewingOrder] = useState<OrderItem | null>(null);
+  const [selectedAnalyticsMonthIndex, setSelectedAnalyticsMonthIndex] = useState<number | null>(null);
+
+  // Notification Center State & Aggregator
+  const [notificationPanelOpen, setNotificationPanelOpen] = useState(false);
+  const [notificationCategoryFilter, setNotificationCategoryFilter] = useState<string>("all");
+  const [readNotificationIds, setReadNotificationIds] = useState<string[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_admin_read_notifs");
+        return stored ? JSON.parse(stored) : [];
+      } catch {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  const allNotifications = useMemo(() => {
+    const list: Array<{
+      id: string;
+      category: "inquiry" | "order" | "bundle" | "sleep" | "inventory" | "review";
+      categoryLabel: string;
+      title: string;
+      description: string;
+      timeAgo: string;
+      rawTime: number;
+      targetTab: "messages" | "tracking" | "bundles" | "sleep-studies" | "products" | "reviews";
+      unread: boolean;
+      badgeColor: string;
+    }> = [];
+
+    // 1. Customer Inquiries & Price Quote Requests
+    (inquiries || []).forEach((inq) => {
+      const created = inq.createdAt ? new Date(inq.createdAt).getTime() : Date.now() - 3600000;
+      list.push({
+        id: `notif-inq-${inq.id}`,
+        category: "inquiry",
+        categoryLabel: "Inquiry & Quote",
+        title: `Quote Request: ${inq.device || "Equipment"}`,
+        description: `${inq.fullName} (${inq.city || "Client"}) • "${inq.inquiryType || "Price Quote"}"`,
+        timeAgo: inq.createdAt ? new Date(inq.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) : "Recent",
+        rawTime: created,
+        targetTab: "messages",
+        unread: !readNotificationIds.includes(`notif-inq-${inq.id}`),
+        badgeColor: "bg-blue-100 text-blue-800 border-blue-200",
+      });
+    });
+
+    // 2. Orders & E-Commerce Transactions
+    (orders || []).forEach((ord) => {
+      const created = ord.createdAt ? new Date(ord.createdAt).getTime() : Date.now() - 7200000;
+      list.push({
+        id: `notif-ord-${ord.orderId}`,
+        category: "order",
+        categoryLabel: "Store Order",
+        title: `New Order #${ord.orderId} (₹${ord.totalAmount?.toLocaleString("en-IN") || "0"})`,
+        description: `${ord.customerName} • Status: ${ord.orderStatus || "Processing"} • ${ord.items?.length || 1} items`,
+        timeAgo: ord.createdAt ? new Date(ord.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Recent",
+        rawTime: created,
+        targetTab: "tracking",
+        unread: !readNotificationIds.includes(`notif-ord-${ord.orderId}`),
+        badgeColor: "bg-emerald-100 text-emerald-800 border-emerald-200",
+      });
+    });
+
+    // 3. Bundles (Paid & Quotations)
+    (bundles || []).forEach((bdl) => {
+      const isPaid = bdl.status === "paid";
+      const created = bdl.createdAt ? new Date(bdl.createdAt).getTime() : Date.now() - 10800000;
+      list.push({
+        id: `notif-bdl-${bdl.bundleId}`,
+        category: "bundle",
+        categoryLabel: isPaid ? "Bundle Paid" : "Bundle Created",
+        title: isPaid ? `Payment Received: ${bdl.bundleId} (₹${bdl.totalAmount?.toLocaleString("en-IN")})` : `Quotation: ${bdl.bundleId}`,
+        description: bdl.clientName ? `Customer: ${bdl.clientName} • ${bdl.items?.length || 0} items` : `Quotation with ${bdl.items?.length || 0} items`,
+        timeAgo: bdl.createdAt ? new Date(bdl.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Recent",
+        rawTime: created,
+        targetTab: "bundles",
+        unread: !readNotificationIds.includes(`notif-bdl-${bdl.bundleId}`),
+        badgeColor: isPaid ? "bg-emerald-100 text-emerald-800 border-emerald-200" : "bg-purple-100 text-purple-800 border-purple-200",
+      });
+    });
+
+    // 4. Sleep Study Diagnostic Bookings
+    (sleepStudyBookings || []).forEach((sb) => {
+      const created = sb.createdAt ? new Date(sb.createdAt).getTime() : Date.now() - 14400000;
+      list.push({
+        id: `notif-ss-${sb.bookingId}`,
+        category: "sleep",
+        categoryLabel: "Sleep Diagnostic",
+        title: `Sleep Study: ${sb.patientName}`,
+        description: `${sb.level || "Home Sleep Study"} in ${sb.city || "Bengaluru"} • Phone: ${sb.phone}`,
+        timeAgo: sb.createdAt ? new Date(sb.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Recent",
+        rawTime: created,
+        targetTab: "sleep-studies",
+        unread: !readNotificationIds.includes(`notif-ss-${sb.bookingId}`),
+        badgeColor: "bg-indigo-100 text-indigo-800 border-indigo-200",
+      });
+    });
+
+    // 5. Inventory & Stock Alerts
+    (products || []).filter((p) => p.inStock === false).forEach((p) => {
+      list.push({
+        id: `notif-inv-${p.id}`,
+        category: "inventory",
+        categoryLabel: "Out of Stock",
+        title: `Stock Alert: ${p.name}`,
+        description: `Marked Out of Stock in catalog (${p.category})`,
+        timeAgo: "Attention Required",
+        rawTime: Date.now() - 86400000,
+        targetTab: "products",
+        unread: !readNotificationIds.includes(`notif-inv-${p.id}`),
+        badgeColor: "bg-red-100 text-red-800 border-red-200",
+      });
+    });
+
+    // 6. Customer Reviews Pending Moderation
+    (reviews || []).filter((r) => r.status === "pending").forEach((r) => {
+      list.push({
+        id: `notif-rev-${r.id}`,
+        category: "review",
+        categoryLabel: "Review Awaiting",
+        title: `New ${r.rating}★ Review: ${r.productName}`,
+        description: `By ${r.author}: "${r.comment.slice(0, 45)}..."`,
+        timeAgo: "Pending Approval",
+        rawTime: Date.now() - 172800000,
+        targetTab: "reviews",
+        unread: !readNotificationIds.includes(`notif-rev-${r.id}`),
+        badgeColor: "bg-amber-100 text-amber-800 border-amber-200",
+      });
+    });
+
+    return list.sort((a, b) => b.rawTime - a.rawTime);
+  }, [inquiries, orders, bundles, sleepStudyBookings, products, reviews, readNotificationIds]);
+
+  const unreadCount = allNotifications.filter((n) => n.unread).length;
+
+  const filteredNotifications = useMemo(() => {
+    if (notificationCategoryFilter === "all") return allNotifications;
+    return allNotifications.filter((n) => n.category === notificationCategoryFilter);
+  }, [allNotifications, notificationCategoryFilter]);
+
+  const markAllNotificationsAsRead = () => {
+    const allIds = allNotifications.map((n) => n.id);
+    setReadNotificationIds(allIds);
+    try {
+      localStorage.setItem("pulmocare_admin_read_notifs", JSON.stringify(allIds));
+    } catch {}
+    addToast("Notifications Cleared", "All notifications marked as read.");
+  };
+
+  const markNotificationAsRead = (id: string) => {
+    if (!readNotificationIds.includes(id)) {
+      const updated = [...readNotificationIds, id];
+      setReadNotificationIds(updated);
+      try {
+        localStorage.setItem("pulmocare_admin_read_notifs", JSON.stringify(updated));
+      } catch {}
+    }
+  };
 
   // Product Modal State
   const [productModalOpen, setProductModalOpen] = useState(false);
@@ -217,13 +396,14 @@ export default function AdminDashboardPage() {
   const [pInStock, setPInStock] = useState(true);
   const [pIsFeatured, setPIsFeatured] = useState(false);
   const [pIsOffer, setPIsOffer] = useState(false);
-  const [pPricingMode, setPPricingMode] = useState<"price" | "rental">("price");
+  const [pPricingMode, setPPricingMode] = useState<"price" | "rental" | "on_request">("price");
   const [pFeaturesText, setPFeaturesText] = useState("");
   const [pSpecsText, setPSpecsText] = useState("");
   const [pBoxContentsText, setPBoxContentsText] = useState("");
   const [pWarranty, setPWarranty] = useState("2 Years Warranty");
   const [pBrochureUrl, setPBrochureUrl] = useState("");
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
 
   const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -242,15 +422,49 @@ export default function AdminDashboardPage() {
       const data = await res.json();
       if (data.success && data.url) {
         setPImage(data.url);
-        addToast("Multer Upload Success", "Image uploaded and stored in /uploads directory.");
+        addToast("Upload Success", "Product image uploaded successfully.");
       } else {
         addToast("Upload Failed", data.error || "Could not upload image.", "error");
       }
     } catch (err) {
-      console.error("Multer upload error", err);
+      console.error("Image upload error", err);
       addToast("Upload Error", "Failed to upload image file.", "error");
     } finally {
       setIsUploadingImage(false);
+    }
+  };
+
+  const handlePdfFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.type !== "application/pdf" && !file.name.toLowerCase().endsWith(".pdf")) {
+      addToast("Invalid File Type", "Please choose a valid .pdf brochure document.", "warning");
+      return;
+    }
+
+    setIsUploadingPdf(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        setPBrochureUrl(data.url);
+        addToast("Brochure Uploaded", "Product PDF brochure attached successfully.");
+      } else {
+        addToast("Upload Failed", data.error || "Could not upload brochure PDF.", "error");
+      }
+    } catch (err) {
+      console.error("PDF upload error", err);
+      addToast("Upload Error", "Failed to upload brochure file.", "error");
+    } finally {
+      setIsUploadingPdf(false);
     }
   };
 
@@ -263,14 +477,42 @@ export default function AdminDashboardPage() {
   const [bImage, setBImage] = useState("");
   const [bExcerpt, setBExcerpt] = useState("");
   const [bContentText, setBContentText] = useState("");
+  const [isUploadingBlogImage, setIsUploadingBlogImage] = useState(false);
+
+  const handleBlogImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingBlogImage(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (data.success && data.url) {
+        setBImage(data.url);
+        addToast("Image Uploaded", "Article image attached successfully.");
+      } else {
+        addToast("Upload Failed", data.error || "Could not upload image.", "error");
+      }
+    } catch (err) {
+      console.error("Blog image upload error", err);
+      addToast("Upload Error", "Failed to upload article image.", "error");
+    } finally {
+      setIsUploadingBlogImage(false);
+    }
+  };
 
   useEffect(() => {
-    if (!isAdminAuthenticated) {
+    if (isAuthChecked && !isAdminAuthenticated) {
       router.push("/admin/login");
     }
-  }, [isAdminAuthenticated, router]);
-
-  if (!isAdminAuthenticated) return null;
+  }, [isAuthChecked, isAdminAuthenticated, router]);
 
   // Handlers for Product Form
   const handleOpenProductModal = (prod?: Product) => {
@@ -279,8 +521,9 @@ export default function AdminDashboardPage() {
       setPId(prod.id);
       setPName(prod.name);
       setPCategory(prod.category);
-      setPPrice(prod.price.toString());
-      setPOriginalPrice((prod.originalPrice || Math.round(prod.price * 1.35)).toString());
+      const isActuallyOnRequest = !prod.price || prod.price <= 0;
+      setPPrice(prod.price && prod.price > 0 ? prod.price.toString() : "");
+      setPOriginalPrice(prod.originalPrice && prod.originalPrice > 0 ? prod.originalPrice.toString() : prod.price ? Math.round(prod.price * 1.35).toString() : "");
       setPImage(prod.image);
       setPDescription(prod.description || "");
       setPBadge(prod.badge || "");
@@ -289,7 +532,13 @@ export default function AdminDashboardPage() {
       setPInStock(prod.inStock !== false);
       setPIsFeatured(Boolean(prod.isFeatured));
       setPIsOffer(Boolean(prod.isOffer));
-      setPPricingMode(isRentalProduct(prod) ? "rental" : "price");
+      if (isActuallyOnRequest) {
+        setPPricingMode("on_request");
+      } else if (isRentalProduct(prod)) {
+        setPPricingMode("rental");
+      } else {
+        setPPricingMode("price");
+      }
       setPFeaturesText((prod.features || []).join("\n"));
       setPSpecsText(
         (prod.specifications || [])
@@ -325,7 +574,7 @@ export default function AdminDashboardPage() {
     setProductModalOpen(true);
   };
 
-  const handleSaveProduct = (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const parsedFeatures = pFeaturesText
@@ -351,19 +600,25 @@ export default function AdminDashboardPage() {
       .map((b) => b.trim())
       .filter(Boolean);
 
+    const isPriceOnRequest = pPricingMode === "on_request";
+    const numPrice = parseFloat(pPrice);
+    const numOriginalPrice = parseFloat(pOriginalPrice);
+    const finalPrice = isPriceOnRequest || isNaN(numPrice) || numPrice <= 0 ? undefined : numPrice;
+    const finalOriginalPrice = isPriceOnRequest || isNaN(numOriginalPrice) || numOriginalPrice <= 0 ? undefined : numOriginalPrice;
+
     const prodObj: Product = {
       id: pId || `prod-${Date.now()}`,
       name: pName,
       category: pCategory as any,
-      price: parseFloat(pPrice) || 0,
-      originalPrice: parseFloat(pOriginalPrice) || Math.round((parseFloat(pPrice) || 0) * 1.35),
+      price: finalPrice,
+      originalPrice: finalOriginalPrice,
       image: pImage || "/images/pulmocare/pulmocare_prisma-smart.png",
       rating: editingProduct?.rating || 5,
       reviewsCount: editingProduct?.reviewsCount || 4,
       inStock: pInStock,
       isFeatured: pIsFeatured,
       isOffer: pIsOffer,
-      isRental: pPricingMode === "rental",
+      isRental: pPricingMode === "rental" || pPricingMode === "on_request",
       description: pDescription,
       badge: pBadge,
       brand: pBrand,
@@ -375,14 +630,18 @@ export default function AdminDashboardPage() {
       brochureUrl: pBrochureUrl,
     };
 
-    if (editingProduct) {
-      updateProduct(prodObj);
-      addToast("Product Updated", `Updated ${pName} successfully.`);
-    } else {
-      addProduct(prodObj);
-      addToast("Product Created", `Added new product ${pName}.`);
+    try {
+      if (editingProduct) {
+        await updateProduct(prodObj);
+        addToast("Product Updated", `Updated ${pName} in MongoDB Atlas.`);
+      } else {
+        await addProduct(prodObj);
+        addToast("Product Created", `Added ${pName} to MongoDB Atlas.`);
+      }
+      setProductModalOpen(false);
+    } catch (err: any) {
+      addToast("Save Failed", err?.message || "Could not save product to MongoDB Atlas.", "error");
     }
-    setProductModalOpen(false);
   };
 
   const handleDeleteProduct = (id: string, name: string) => {
@@ -401,9 +660,15 @@ export default function AdminDashboardPage() {
       setBCategory(blog.category);
       setBAuthor(blog.author);
       setBReadTime(blog.readTime);
-      setBImage(blog.image);
+      setBImage(blog.image || "/images/pulmocare/pulmocare_prisma-smart.png");
       setBExcerpt(blog.excerpt);
-      setBContentText(blog.content ?? "");
+      setBContentText(
+        Array.isArray(blog.content)
+          ? blog.content.join("\n\n")
+          : typeof blog.content === "string"
+            ? blog.content
+            : ""
+      );
     } else {
       setEditingBlog(null);
       setBSlug(`clinical-guide-${Date.now()}`);
@@ -420,7 +685,13 @@ export default function AdminDashboardPage() {
 
   const handleSaveBlog = (e: React.FormEvent) => {
     e.preventDefault();
-    const blogObj: BlogPost = {
+    const parsedContent = bContentText
+      .split("\n\n")
+      .map((p) => p.trim())
+      .filter(Boolean);
+    const finalContent = parsedContent.length > 0 ? parsedContent : [bContentText.trim()];
+
+    const blogObj: any = {
       slug: bSlug.toLowerCase().replace(/[^a-z0-9-]/g, "-"),
       title: bTitle,
       category: bCategory,
@@ -429,7 +700,7 @@ export default function AdminDashboardPage() {
       readTime: bReadTime || "5 min read",
       image: bImage || "/images/pulmocare/pulmocare_prisma-smart.png",
       excerpt: bExcerpt,
-      content: bContentText,
+      content: finalContent,
     };
 
     if (editingBlog) {
@@ -487,42 +758,188 @@ export default function AdminDashboardPage() {
     addToast("Status Updated", `Inquiry from ${name} updated to ${status}.`);
   };
 
-  const filteredProducts = products.filter(
+  const filteredProducts = (products || []).filter(
     (p) =>
-      p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-      p.category.toLowerCase().includes(productSearch.toLowerCase())
+      (p?.name || "").toLowerCase().includes(productSearch.toLowerCase()) ||
+      (p?.category || "").toLowerCase().includes(productSearch.toLowerCase())
   );
 
-  const filteredBlogs = blogPosts.filter(
+  const filteredBlogs = (blogPosts || []).filter(
     (b) =>
-      b.title.toLowerCase().includes(blogSearch.toLowerCase()) ||
-      b.category.toLowerCase().includes(blogSearch.toLowerCase())
+      (b?.title || "").toLowerCase().includes(blogSearch.toLowerCase()) ||
+      (typeof b?.category === "string" ? b.category : "").toLowerCase().includes(blogSearch.toLowerCase())
   );
 
-  const filteredReviews = reviews.filter(
+  const filteredReviews = (reviews || []).filter(
     (r) =>
-      r.productName.toLowerCase().includes(reviewSearch.toLowerCase()) ||
-      r.author.toLowerCase().includes(reviewSearch.toLowerCase()) ||
-      r.comment.toLowerCase().includes(reviewSearch.toLowerCase())
+      (r?.productName || "").toLowerCase().includes(reviewSearch.toLowerCase()) ||
+      (r?.author || "").toLowerCase().includes(reviewSearch.toLowerCase()) ||
+      (r?.comment || "").toLowerCase().includes(reviewSearch.toLowerCase())
   );
 
-  const filteredInquiries = inquiries.filter(
+  const filteredInquiries = (inquiries || []).filter(
     (inq) =>
-      inq.fullName.toLowerCase().includes(inquirySearch.toLowerCase()) ||
-      inq.phone.toLowerCase().includes(inquirySearch.toLowerCase()) ||
-      inq.email.toLowerCase().includes(inquirySearch.toLowerCase()) ||
-      inq.city.toLowerCase().includes(inquirySearch.toLowerCase()) ||
-      inq.device.toLowerCase().includes(inquirySearch.toLowerCase()) ||
-      inq.inquiryType.toLowerCase().includes(inquirySearch.toLowerCase())
+      (inq?.fullName || "").toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq?.phone || "").toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq?.email || "").toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq?.city || "").toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq?.device || "").toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq?.inquiryType || "").toLowerCase().includes(inquirySearch.toLowerCase())
   );
 
-  // Sample Shipments Activity Data
-  const activityData = [
-    { id: "CA-12321-ID", date: "12/11/2024", origin: "Bengaluru, IN", destination: "Jakarta, ID", status: "On Progress", color: "bg-[#fdeadf] text-[#e8a33d]" },
-    { id: "NY-12321-SF", date: "14/11/2024", origin: "Delhi, IN", destination: "San Francisco, US", status: "On Progress", color: "bg-[#dcebfb] text-[#2a6ecb] font-semibold" },
-    { id: "CGK-12321-NY", date: "14/11/2024", origin: "Mumbai, IN", destination: "New York, US", status: "Pending", color: "bg-[#fbe6ee] text-[#dc4b56]" },
-    { id: "UK-12321-MLG", date: "18/11/2024", origin: "Chennai, IN", destination: "London, UK", status: "Delivered", color: "bg-[#e0f3ec] text-[#1fb37a]" },
-  ];
+  // Dynamic Real Dashboard Metrics & Analytics (Live MongoDB Atlas Data)
+  const dashboardMetrics = useMemo(() => {
+    // 1. On Delivery / Active In-Transit Orders
+    const onDeliveryOrders = (orders || []).filter((o) => {
+      const s = (o.orderStatus || "").toLowerCase();
+      return (
+        s === "on progress" ||
+        s === "in transit" ||
+        s === "on delivery" ||
+        s === "dispatched" ||
+        s === "pending"
+      );
+    });
+    const onDeliveryCount = onDeliveryOrders.length;
+
+    // 2. Success / Completed Deliveries
+    const deliveredOrders = (orders || []).filter(
+      (o) => (o.orderStatus || "").toLowerCase() === "delivered"
+    );
+    const deliveredCount = deliveredOrders.length;
+
+    // 3. Real Revenue (Orders + Paid Bundles)
+    const ordersRevenue = (orders || []).reduce(
+      (sum, ord) => sum + (Number(ord.totalAmount) || 0),
+      0
+    );
+    const existingOrderIds = new Set((orders || []).map((o) => o.orderId));
+    const bundleRevenue = (bundles || [])
+      .filter(
+        (b) =>
+          b.status === "paid" &&
+          (!b.paymentDetails?.orderId || !existingOrderIds.has(b.paymentDetails.orderId))
+      )
+      .reduce((sum, b) => sum + (Number(b.totalAmount) || 0), 0);
+    const totalRevenue = ordersRevenue + bundleRevenue;
+
+    // 4. Latest Active Shipment / Tracker Order
+    const latestActiveOrder =
+      (orders || []).find(
+        (o) =>
+          o.orderStatus === "On Progress" ||
+          o.orderStatus === "In Transit" ||
+          o.orderStatus === "Dispatched" ||
+          o.orderStatus === "Pending"
+      ) ||
+      (orders || [])[0] ||
+      null;
+
+    // 5. Monthly Analytics (5 months dynamic rolling window)
+    const months: Array<{
+      monthKey: string;
+      shortLabel: string;
+      fullLabel: string;
+      orderCount: number;
+      deliveredCount: number;
+      revenue: number;
+    }> = [];
+
+    const now = new Date();
+    let anchorDate = now;
+    if (orders && orders.length > 0) {
+      const orderTimestamps = orders
+        .map((o) => (o.createdAt ? new Date(o.createdAt).getTime() : 0))
+        .filter((t) => !isNaN(t) && t > 0);
+      if (orderTimestamps.length > 0) {
+        const latestTime = Math.max(...orderTimestamps);
+        if (latestTime > now.getTime()) {
+          anchorDate = new Date(latestTime);
+        }
+      }
+    }
+
+    for (let i = 4; i >= 0; i--) {
+      const d = new Date(anchorDate.getFullYear(), anchorDate.getMonth() - i, 1);
+      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      months.push({
+        monthKey,
+        shortLabel: d.toLocaleString("en-US", { month: "short" }),
+        fullLabel: d.toLocaleString("en-US", { month: "long", year: "numeric" }),
+        orderCount: 0,
+        deliveredCount: 0,
+        revenue: 0,
+      });
+    }
+
+    // Distribute orders into months
+    (orders || []).forEach((ord) => {
+      let ordDate: Date | null = null;
+      if (ord.createdAt) {
+        const parsed = new Date(ord.createdAt);
+        if (!isNaN(parsed.getTime())) ordDate = parsed;
+      }
+      if (!ordDate) ordDate = anchorDate;
+
+      const key = `${ordDate.getFullYear()}-${String(ordDate.getMonth() + 1).padStart(2, "0")}`;
+      const found = months.find((m) => m.monthKey === key);
+      const target = found || months[months.length - 1];
+
+      target.orderCount += 1;
+      target.revenue += Number(ord.totalAmount) || 0;
+      if ((ord.orderStatus || "").toLowerCase() === "delivered") {
+        target.deliveredCount += 1;
+      }
+    });
+
+    return {
+      onDeliveryCount,
+      deliveredCount,
+      totalRevenue,
+      latestActiveOrder,
+      months,
+      totalOrders: (orders || []).length,
+    };
+  }, [orders, bundles]);
+
+  const activeAnalyticsMonthIndex = useMemo(() => {
+    if (
+      selectedAnalyticsMonthIndex !== null &&
+      selectedAnalyticsMonthIndex >= 0 &&
+      selectedAnalyticsMonthIndex < dashboardMetrics.months.length
+    ) {
+      return selectedAnalyticsMonthIndex;
+    }
+    const withOrders = dashboardMetrics.months.findIndex((m) => m.orderCount > 0);
+    if (withOrders !== -1) {
+      return dashboardMetrics.months.reduce(
+        (bestIdx, m, idx, arr) => (m.orderCount >= arr[bestIdx].orderCount ? idx : bestIdx),
+        dashboardMetrics.months.length - 1
+      );
+    }
+    return dashboardMetrics.months.length - 1;
+  }, [selectedAnalyticsMonthIndex, dashboardMetrics.months]);
+
+  const activeAnalyticsMonthData =
+    dashboardMetrics.months[activeAnalyticsMonthIndex] ||
+    dashboardMetrics.months[dashboardMetrics.months.length - 1];
+
+  // While checking auth session from localStorage/cookies, render a smooth loading spinner
+  if (!isAuthChecked) {
+    return (
+      <div className="min-h-screen bg-[#f6f4fb] flex items-center justify-center p-6 font-inter">
+        <div className="flex flex-col items-center gap-3 bg-white p-8 rounded-2xl border border-[#e9edf4] shadow-sm">
+          <div className="w-10 h-10 border-4 border-[#2a6ecb] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-semibold text-[#182a41]">Verifying Admin Credentials...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If verified and not authenticated, return null while router.push('/admin/login') executes
+  if (!isAdminAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-[#f6f4fb] text-[#12315c] font-inter flex relative">
@@ -592,10 +1009,17 @@ export default function AdminDashboardPage() {
                 </button>
                 <button
                   onClick={() => { setActiveTab("tracking"); setMobileSidebarOpen(false); }}
-                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "tracking" ? "bg-[#dcebfb] text-[#2a6ecb]" : "text-[#64748B]"}`}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "tracking" ? "bg-[#dcebfb] text-[#2a6ecb]" : "text-[#64748B]"}`}
                 >
-                  <Truck className="w-4 h-4" />
-                  <span>Tracking &amp; Orders</span>
+                  <div className="flex items-center gap-3">
+                    <Truck className="w-4 h-4" />
+                    <span>Tracking &amp; Orders</span>
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
+                    activeTab === "tracking" ? "bg-[#2a6ecb] text-white" : "bg-[#f6f4fb] text-[#2a6ecb]"
+                  }`}>
+                    {orders.length}
+                  </span>
                 </button>
                 <button
                   onClick={() => { setActiveTab("messages"); setMobileSidebarOpen(false); }}
@@ -617,6 +1041,18 @@ export default function AdminDashboardPage() {
                   </div>
                   <span className="bg-[#EBF5FF] text-[#0066FF] text-[10px] px-2 py-0.5 rounded-full font-mono font-bold">{sleepStudyBookings.length}</span>
                 </button>
+                <button
+                  onClick={() => { setActiveTab("bundles"); setMobileSidebarOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "bundles" ? "bg-[#0066FF] text-white shadow-xs" : "text-[#64748B]"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <PackagePlus className="w-4 h-4" />
+                    <span>Bundle Maker</span>
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${activeTab === "bundles" ? "bg-white/20 text-white" : "bg-[#EBF5FF] text-[#0066FF]"}`}>
+                    {bundles.length}
+                  </span>
+                </button>
               </div>
 
               <div className="space-y-1">
@@ -634,17 +1070,6 @@ export default function AdminDashboardPage() {
                   <span>System Setup</span>
                 </button>
               </div>
-            </div>
-
-            <div className="bg-gradient-to-br from-[#2a6ecb] to-[#2a6ecb] rounded-2xl p-4 text-white shadow-lg space-y-3 relative overflow-hidden mt-6">
-              <div className="space-y-1 relative z-10">
-                <span className="text-[10px] uppercase font-bold text-[#7fb0ee]">Pro Suite</span>
-                <h4 className="font-archivo font-semibold text-lg leading-tight">50% Off Upgrade</h4>
-                <p className="text-[11px] text-white/80">Unlock advanced medical analytics &amp; telehealth telemetry.</p>
-              </div>
-              <button className="w-full py-2 bg-white text-[#2a6ecb] font-archivo font-bold text-xs rounded-xl shadow-xs cursor-pointer">
-                Try Pro Free
-              </button>
             </div>
           </aside>
         </div>
@@ -746,14 +1171,21 @@ export default function AdminDashboardPage() {
 
             <button
               onClick={() => setActiveTab("tracking")}
-              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs transition-all cursor-pointer ${
                 activeTab === "tracking"
                   ? "bg-[#dcebfb] text-[#2a6ecb] shadow-xs"
                   : "text-[#64748B] hover:bg-[#f7f6fb] hover:text-[#2a6ecb]"
               }`}
             >
-              <Truck className="w-4 h-4" />
-              <span>Tracking &amp; Orders</span>
+              <div className="flex items-center gap-3">
+                <Truck className="w-4 h-4" />
+                <span>Tracking &amp; Orders</span>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono ${
+                activeTab === "tracking" ? "bg-[#2a6ecb] text-white" : "bg-[#f6f4fb] text-[#2a6ecb]"
+              }`}>
+                {orders.length}
+              </span>
             </button>
 
             <button
@@ -787,6 +1219,25 @@ export default function AdminDashboardPage() {
                 {sleepStudyBookings.length}
               </span>
             </button>
+
+            <button
+              onClick={() => setActiveTab("bundles")}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs transition-all cursor-pointer ${
+                activeTab === "bundles"
+                  ? "bg-[#0066FF] text-white shadow-xs"
+                  : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0066FF]"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <PackagePlus className="w-4 h-4" />
+                <span>Bundle Maker</span>
+              </div>
+              <span className={`text-[10px] px-2 py-0.5 rounded-full font-mono font-bold ${
+                activeTab === "bundles" ? "bg-white/20 text-white" : "bg-[#EBF5FF] text-[#0066FF]"
+              }`}>
+                {bundles.length}
+              </span>
+            </button>
           </div>
 
           <div className="space-y-1">
@@ -809,17 +1260,6 @@ export default function AdminDashboardPage() {
               <span>System Setup</span>
             </button>
           </div>
-        </div>
-
-        <div className="bg-gradient-to-br from-[#2a6ecb] to-[#2a6ecb] rounded-2xl p-4 text-white shadow-lg space-y-3 relative overflow-hidden mt-6">
-          <div className="space-y-1 relative z-10">
-            <span className="text-[10px] uppercase font-bold text-[#7fb0ee]">Pro Suite</span>
-            <h4 className="font-archivo font-semibold text-lg leading-tight">50% Off Upgrade</h4>
-            <p className="text-[11px] text-white/80">Unlock advanced medical analytics &amp; telehealth telemetry.</p>
-          </div>
-          <button className="w-full py-2 bg-white text-[#2a6ecb] font-archivo font-bold text-xs rounded-xl shadow-xs cursor-pointer">
-            Try Pro Free
-          </button>
         </div>
       </aside>
 
@@ -847,10 +1287,166 @@ export default function AdminDashboardPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <button className="p-2 rounded-full border border-[#e9edf4] bg-white hover:bg-[#f7f6fb] text-[#64748B] relative">
-              <Bell className="w-4 h-4" />
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#dc4b56]" />
-            </button>
+            {/* Interactive Notification Center */}
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setNotificationPanelOpen((prev) => !prev)}
+                className={`p-2 rounded-full border transition-all relative cursor-pointer ${
+                  notificationPanelOpen
+                    ? "bg-[#EBF5FF] border-[#2a6ecb] text-[#2a6ecb] shadow-xs"
+                    : "border-[#e9edf4] bg-white hover:bg-[#f7f6fb] text-[#64748B]"
+                }`}
+                title="Notifications"
+                aria-label="Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full bg-[#dc4b56] text-white text-[10px] font-archivo font-extrabold flex items-center justify-center shadow-xs">
+                    {unreadCount > 99 ? "99+" : unreadCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Popover Dropdown */}
+              {notificationPanelOpen && (
+                <>
+                  {/* Backdrop for click away on all screens */}
+                  <div
+                    className="fixed inset-0 z-40"
+                    onClick={() => setNotificationPanelOpen(false)}
+                  />
+
+                  <div className="absolute right-0 mt-2 w-[90vw] sm:w-[420px] max-w-[440px] bg-white rounded-3xl border border-[#e9edf4] shadow-[0_20px_60px_rgba(24,42,65,0.18)] z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+                    {/* Header */}
+                    <div className="p-4 bg-gradient-to-r from-[#F8FAFC] to-white border-b border-[#F1F5F9] flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-xl bg-[#EBF5FF] text-[#0066FF] flex items-center justify-center">
+                          <Bell className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h4 className="font-archivo font-extrabold text-sm text-[#0A192F]">
+                            Notifications
+                          </h4>
+                          <p className="text-[10px] text-[#64748B]">
+                            {unreadCount} unread • {allNotifications.length} total events
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        {unreadCount > 0 && (
+                          <button
+                            type="button"
+                            onClick={markAllNotificationsAsRead}
+                            className="text-[11px] font-archivo font-bold text-[#0066FF] hover:underline cursor-pointer"
+                          >
+                            Mark all read
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => setNotificationPanelOpen(false)}
+                          className="p-1 rounded-lg hover:bg-[#F1F5F9] text-[#64748B] cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Category Filter Chips */}
+                    <div className="px-3 py-2 bg-[#F8FAFC] border-b border-[#F1F5F9] flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+                      {[
+                        { id: "all", label: "All", count: allNotifications.length },
+                        { id: "inquiry", label: "Inquiries", count: allNotifications.filter((n) => n.category === "inquiry").length },
+                        { id: "order", label: "Orders", count: allNotifications.filter((n) => n.category === "order").length },
+                        { id: "bundle", label: "Bundles", count: allNotifications.filter((n) => n.category === "bundle").length },
+                        { id: "sleep", label: "Sleep Study", count: allNotifications.filter((n) => n.category === "sleep").length },
+                        { id: "inventory", label: "Stock Alerts", count: allNotifications.filter((n) => n.category === "inventory").length },
+                      ].map((cat) => {
+                        const active = notificationCategoryFilter === cat.id;
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => setNotificationCategoryFilter(cat.id)}
+                            className={`px-2.5 py-1 rounded-xl text-[11px] font-archivo font-bold whitespace-nowrap transition-all cursor-pointer flex items-center gap-1.5 ${
+                              active
+                                ? "bg-[#0066FF] text-white shadow-2xs"
+                                : "bg-white text-[#64748B] hover:text-[#0A192F] border border-[#E2E8F0]"
+                            }`}
+                          >
+                            <span>{cat.label}</span>
+                            <span
+                              className={`px-1.5 py-0.2 rounded-full text-[9px] font-mono ${
+                                active ? "bg-white/25 text-white" : "bg-[#F1F5F9] text-[#64748B]"
+                              }`}
+                            >
+                              {cat.count}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+
+                    {/* Notification Items List */}
+                    <div className="max-h-[380px] overflow-y-auto divide-y divide-[#F1F5F9]">
+                      {filteredNotifications.length === 0 ? (
+                        <div className="p-8 text-center text-[#64748B]">
+                          <Bell className="w-8 h-8 text-[#CBD5E1] mx-auto mb-2 opacity-60" />
+                          <p className="text-xs font-bold font-archivo text-[#0A192F]">No notifications here</p>
+                          <p className="text-[11px] text-[#94A3B8] mt-0.5">Everything is up to date in this category.</p>
+                        </div>
+                      ) : (
+                        filteredNotifications.map((notif) => (
+                          <div
+                            key={notif.id}
+                            onClick={() => {
+                              markNotificationAsRead(notif.id);
+                              setActiveTab(notif.targetTab as any);
+                              setNotificationPanelOpen(false);
+                            }}
+                            className={`p-3.5 hover:bg-[#F8FAFC] transition-colors cursor-pointer flex items-start gap-3 text-left ${
+                              notif.unread ? "bg-[#F0F7FF]/50" : "bg-white"
+                            }`}
+                          >
+                            <span
+                              className={`w-2 h-2 rounded-full mt-1.5 shrink-0 ${
+                                notif.unread ? "bg-[#0066FF]" : "bg-transparent"
+                              }`}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between gap-2 mb-1">
+                                <span className={`text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-full border ${notif.badgeColor}`}>
+                                  {notif.categoryLabel}
+                                </span>
+                                <span className="text-[10px] text-[#94A3B8] font-medium shrink-0">
+                                  {notif.timeAgo}
+                                </span>
+                              </div>
+                              <h5 className="font-archivo font-bold text-xs text-[#0A192F] line-clamp-1">
+                                {notif.title}
+                              </h5>
+                              <p className="text-[11px] text-[#64748B] line-clamp-2 mt-0.5">
+                                {notif.description}
+                              </p>
+                            </div>
+                            <ChevronRight className="w-4 h-4 text-[#CBD5E1] shrink-0 mt-2" />
+                          </div>
+                        ))
+                      )}
+                    </div>
+
+                    {/* Footer */}
+                    <div className="p-3 bg-[#F8FAFC] border-t border-[#F1F5F9] text-center">
+                      <span className="text-[10px] text-[#64748B] font-medium">
+                        Click any notification to open its respective admin management tab.
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
 
             <div className="flex items-center gap-3 pl-3 border-l border-[#e9edf4]">
               <div className="w-8 h-8 rounded-full bg-[#2a6ecb] text-white flex items-center justify-center font-bold text-xs">
@@ -898,7 +1494,9 @@ export default function AdminDashboardPage() {
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                {/* 3 Real Metric Cards */}
                 <div className="lg:col-span-3 space-y-5">
+                  {/* Card 1: On Delivery */}
                   <div className="bg-white rounded-[20px] p-5 border border-[#e9edf4] shadow-[0_2px_8px_rgba(24,42,65,0.05)] space-y-3">
                     <div className="flex items-center justify-between text-xs text-[#64748B]">
                       <span className="flex items-center gap-1.5 font-medium">
@@ -906,33 +1504,51 @@ export default function AdminDashboardPage() {
                         On Delivery
                       </span>
                       <span className="text-[#1fb37a] font-bold text-[11px] flex items-center gap-0.5">
-                        <TrendingUp className="w-3 h-3" /> +16,5%
+                        <TrendingUp className="w-3 h-3" />
+                        {dashboardMetrics.totalOrders > 0
+                          ? `${Math.round((dashboardMetrics.onDeliveryCount / dashboardMetrics.totalOrders) * 100)}%`
+                          : "0%"}
                       </span>
                     </div>
 
                     <div>
-                      <h3 className="font-archivo font-semibold text-3xl text-[#182a41]">1,354</h3>
-                      <p className="text-[11px] text-[#64748b]">Since last week</p>
+                      <h3 className="font-archivo font-semibold text-3xl text-[#182a41]">
+                        {dashboardMetrics.onDeliveryCount.toLocaleString("en-IN")}
+                      </h3>
+                      <p className="text-[11px] text-[#64748b]">
+                        {dashboardMetrics.totalOrders > 0
+                          ? `${dashboardMetrics.onDeliveryCount} of ${dashboardMetrics.totalOrders} orders active`
+                          : "Active dispatches in transit"}
+                      </p>
                     </div>
                   </div>
 
+                  {/* Card 2: Success Deliveries */}
                   <div className="bg-white rounded-[20px] p-5 border border-[#e9edf4] shadow-[0_2px_8px_rgba(24,42,65,0.05)] space-y-3">
                     <div className="flex items-center justify-between text-xs text-[#64748B]">
                       <span className="flex items-center gap-1.5 font-medium">
                         <CheckCircle className="w-4 h-4 text-[#2a6ecb]" />
                         Success Deliveries
                       </span>
-                      <span className="text-[#dc4b56] font-bold text-[11px] flex items-center gap-0.5">
-                        <TrendingDown className="w-3 h-3" /> -0,5%
+                      <span className="text-[#1fb37a] font-bold text-[11px] flex items-center gap-0.5">
+                        <TrendingUp className="w-3 h-3" />
+                        {dashboardMetrics.totalOrders > 0
+                          ? `${Math.round((dashboardMetrics.deliveredCount / dashboardMetrics.totalOrders) * 100)}%`
+                          : "100%"}
                       </span>
                     </div>
 
                     <div>
-                      <h3 className="font-archivo font-semibold text-3xl text-[#182a41]">40,523</h3>
-                      <p className="text-[11px] text-[#64748b]">Since last week</p>
+                      <h3 className="font-archivo font-semibold text-3xl text-[#182a41]">
+                        {dashboardMetrics.deliveredCount.toLocaleString("en-IN")}
+                      </h3>
+                      <p className="text-[11px] text-[#64748b]">
+                        {dashboardMetrics.deliveredCount} fulfilled out of {dashboardMetrics.totalOrders} logged
+                      </p>
                     </div>
                   </div>
 
+                  {/* Card 3: Revenue */}
                   <div className="bg-white rounded-[20px] p-5 border border-[#e9edf4] shadow-[0_2px_8px_rgba(24,42,65,0.05)] space-y-3">
                     <div className="flex items-center justify-between text-xs text-[#64748B]">
                       <span className="flex items-center gap-1.5 font-medium">
@@ -940,73 +1556,159 @@ export default function AdminDashboardPage() {
                         Revenue
                       </span>
                       <span className="text-[#1fb37a] font-bold text-[11px] flex items-center gap-0.5">
-                        <TrendingUp className="w-3 h-3" /> +5,2%
+                        <TrendingUp className="w-3 h-3" /> Live Atlas
                       </span>
                     </div>
 
                     <div>
-                      <h3 className="font-archivo font-semibold text-3xl text-[#182a41]">₹140,854</h3>
-                      <p className="text-[11px] text-[#64748b]">Since last week</p>
+                      <h3 className="font-archivo font-semibold text-3xl text-[#182a41]">
+                        ₹{dashboardMetrics.totalRevenue.toLocaleString("en-IN")}
+                      </h3>
+                      <p className="text-[11px] text-[#64748b]">
+                        From {dashboardMetrics.totalOrders} customer order{dashboardMetrics.totalOrders === 1 ? "" : "s"}
+                      </p>
                     </div>
                   </div>
                 </div>
 
+                {/* Center: Dynamic Delivery Analytics Bar Chart */}
                 <div className="lg:col-span-5 bg-white rounded-[20px] p-6 border border-[#e9edf4] shadow-[0_2px_8px_rgba(24,42,65,0.05)] space-y-6">
                   <div className="flex items-center justify-between border-b border-[#f6f4fb] pb-4">
-                    <h3 className="font-archivo font-bold text-lg text-[#182a41]">Delivery Analytics</h3>
+                    <div>
+                      <h3 className="font-archivo font-bold text-lg text-[#182a41]">Delivery Analytics</h3>
+                      <p className="text-[11px] text-[#64748b]">Real order throughput &amp; delivery progression</p>
+                    </div>
+                    <span className="text-[10px] font-mono font-bold bg-[#dcebfb] text-[#2a6ecb] px-2.5 py-1 rounded-full border border-[#2a6ecb]/20">
+                      {dashboardMetrics.totalOrders} Total Orders
+                    </span>
                   </div>
 
                   <div className="h-64 flex items-end justify-between gap-3 pt-6 px-4 relative border-b border-[#f6f4fb]">
-                    <div className="absolute top-2 left-[54%] -translate-x-1/2 bg-[#182a41] text-white p-2.5 rounded-xl text-[11px] shadow-xl z-10 space-y-1 font-mono">
-                      <div className="text-[10px] text-[#64748b]">September 2024</div>
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#2a6ecb]" /> 10,123
+                    {/* Dynamic Tooltip pinned to selected month */}
+                    <div className="absolute top-1 left-1/2 -translate-x-1/2 bg-[#182a41] text-white p-2.5 rounded-xl text-[11px] shadow-xl z-10 space-y-1 font-mono border border-slate-700 pointer-events-none transition-all">
+                      <div className="text-[10px] text-[#94a3b8] flex items-center justify-between gap-3">
+                        <span>{activeAnalyticsMonthData.fullLabel}</span>
+                        <span className="text-emerald-400 font-bold uppercase text-[9px]">Live Data</span>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <span className="flex items-center gap-1.5 font-bold">
+                          <span className="w-2 h-2 rounded-full bg-[#2a6ecb]" />
+                          {activeAnalyticsMonthData.orderCount} Order{activeAnalyticsMonthData.orderCount === 1 ? "" : "s"}
+                        </span>
+                        <span className="text-slate-400">•</span>
+                        <span className="text-[#38bdf8] font-archivo font-bold">
+                          ₹{activeAnalyticsMonthData.revenue.toLocaleString("en-IN")}
+                        </span>
                       </div>
                     </div>
 
-                    <div className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full bg-[#f6f4fb] rounded-xl h-36" />
-                      <span className="text-xs text-[#64748b] font-medium">Jul</span>
-                    </div>
+                    {/* 5 Dynamic Rolling Months */}
+                    {dashboardMetrics.months.map((m, idx) => {
+                      const isSelected = idx === activeAnalyticsMonthIndex;
+                      const maxOrders = Math.max(1, ...dashboardMetrics.months.map((item) => item.orderCount));
+                      const heightPercent = m.orderCount > 0 ? Math.max(30, Math.round((m.orderCount / maxOrders) * 85)) : 16;
 
-                    <div className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full bg-[#f6f4fb] rounded-xl h-44" />
-                      <span className="text-xs text-[#64748b] font-medium">Aug</span>
-                    </div>
-
-                    <div className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full bg-[#2a6ecb] rounded-xl h-52 shadow-md relative overflow-hidden" />
-                      <span className="text-xs font-bold text-[#2a6ecb]">Sept</span>
-                    </div>
-
-                    <div className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full bg-[#f6f4fb] rounded-xl h-28" />
-                      <span className="text-xs text-[#64748b] font-medium">Oct</span>
-                    </div>
-
-                    <div className="flex-1 flex flex-col items-center gap-2">
-                      <div className="w-full bg-[#f6f4fb] rounded-xl h-40" />
-                      <span className="text-xs text-[#64748b] font-medium">November</span>
-                    </div>
+                      return (
+                        <div
+                          key={m.monthKey}
+                          onClick={() => setSelectedAnalyticsMonthIndex(idx)}
+                          onMouseEnter={() => setSelectedAnalyticsMonthIndex(idx)}
+                          className="flex-1 flex flex-col items-center gap-2 cursor-pointer group"
+                        >
+                          <div className="w-full flex items-end justify-center h-44">
+                            <div
+                              style={{ height: `${heightPercent}%` }}
+                              className={`w-full rounded-xl transition-all duration-300 relative ${
+                                isSelected
+                                  ? "bg-[#2a6ecb] shadow-lg shadow-[#2a6ecb]/30 ring-2 ring-[#2a6ecb]/30"
+                                  : "bg-[#f6f4fb] group-hover:bg-[#dcebfb]"
+                              }`}
+                            >
+                              {m.orderCount > 0 && (
+                                <span
+                                  className={`absolute -top-5 left-1/2 -translate-x-1/2 text-[10px] font-mono font-bold px-1.5 py-0.2 rounded ${
+                                    isSelected ? "bg-[#182a41] text-white" : "bg-slate-200 text-[#182a41]"
+                                  }`}
+                                >
+                                  {m.orderCount}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <span
+                            className={`text-xs transition-colors ${
+                              isSelected
+                                ? "font-bold text-[#2a6ecb]"
+                                : "font-medium text-[#64748b] group-hover:text-[#182a41]"
+                            }`}
+                          >
+                            {m.shortLabel}
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
+                {/* Right: Dynamic Live Shipment Route Box */}
                 <div className="lg:col-span-4 space-y-6">
                   <div className="bg-white rounded-[20px] p-5 border border-[#e9edf4] shadow-[0_2px_8px_rgba(24,42,65,0.05)] space-y-4">
-                    <div className="w-full h-36 bg-[#f6f4fb] rounded-2xl relative overflow-hidden flex items-center justify-center border border-[#e9edf4]">
-                      <div className="relative z-10 flex items-center gap-2 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full shadow-md text-xs font-bold text-[#182a41]">
-                        <MapPin className="w-4 h-4 text-[#dc4b56]" />
+                    <div className="w-full h-36 bg-gradient-to-br from-[#f6f9fe] to-[#eef4fc] rounded-2xl relative overflow-hidden flex flex-col items-center justify-center p-4 border border-[#e9edf4]">
+                      <div className="relative z-10 flex items-center gap-2 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full shadow-xs text-xs font-bold text-[#182a41] mb-2 border border-[#e9edf4]">
+                        <MapPin className="w-3.5 h-3.5 text-[#dc4b56]" />
                         <span>Live Shipment Route</span>
                       </div>
+
+                      {dashboardMetrics.latestActiveOrder ? (
+                        <div className="relative z-10 w-full text-center space-y-1">
+                          <div className="flex items-center justify-center gap-2 text-[11px] font-bold text-[#182a41]">
+                            <span className="truncate max-w-[100px]">Pulmo Care HQ</span>
+                            <span className="text-[#2a6ecb] font-mono">➔</span>
+                            <span className="truncate max-w-[120px] text-[#2a6ecb]">
+                              {dashboardMetrics.latestActiveOrder.city || "Destination"}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-[#64748b] truncate">
+                            {dashboardMetrics.latestActiveOrder.customerName} • {dashboardMetrics.latestActiveOrder.state || "IN"}
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-[11px] text-[#64748b] relative z-10">No dispatches in transit</p>
+                      )}
+
+                      {/* Visual grid pattern */}
+                      <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#2a6ecb_1px,transparent_1px)] [background-size:12px_12px]" />
                     </div>
 
                     <div>
                       <span className="text-[10px] uppercase font-bold text-[#64748b] block">Tracker ID</span>
-                      <div className="flex items-center justify-between">
-                        <h4 className="font-archivo font-semibold text-lg text-[#182a41]">NY-12321-SF</h4>
-                        <span className="bg-[#fdeadf] text-[#e8a33d] text-[10px] font-bold px-2.5 py-0.5 rounded-full">On Progress</span>
+                      <div className="flex items-center justify-between mt-0.5">
+                        <h4 className="font-archivo font-semibold text-lg text-[#182a41] truncate max-w-[190px]">
+                          {dashboardMetrics.latestActiveOrder?.orderId || "NO-ORDERS"}
+                        </h4>
+                        <span
+                          className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase ${
+                            dashboardMetrics.latestActiveOrder?.orderStatus === "Delivered"
+                              ? "bg-[#e0f3ec] text-[#1fb37a]"
+                              : dashboardMetrics.latestActiveOrder?.orderStatus === "Cancelled"
+                              ? "bg-[#fbe6ee] text-[#dc4b56]"
+                              : "bg-[#fdeadf] text-[#e8a33d]"
+                          }`}
+                        >
+                          {dashboardMetrics.latestActiveOrder?.orderStatus || "Idle"}
+                        </span>
                       </div>
                     </div>
+
+                    {dashboardMetrics.latestActiveOrder && (
+                      <button
+                        onClick={() => setActiveTab("tracking")}
+                        className="w-full py-2 px-3 rounded-xl bg-[#f7f6fb] hover:bg-[#dcebfb] text-[#2a6ecb] font-archivo font-bold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <span>View in Tracking &amp; Fulfillment</span>
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      </button>
+                    )}
                   </div>
                 </div>
               </div>
@@ -1035,7 +1737,18 @@ export default function AdminDashboardPage() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-[#f6f4fb]">
-                      {orders.map((ord) => (
+                      {orders.length === 0 ? (
+                        <tr>
+                          <td colSpan={6} className="py-12 text-center text-[#64748B]">
+                            <Truck className="w-8 h-8 mx-auto text-[#CBD5E1] mb-2" />
+                            <p className="font-archivo font-bold text-sm text-[#182a41]">No Orders Logged Yet</p>
+                            <p className="text-xs text-[#64748B] mt-0.5">
+                              Customer purchases from the storefront and paid custom bundles will appear here in real time.
+                            </p>
+                          </td>
+                        </tr>
+                      ) : (
+                        orders.map((ord) => (
                         <tr key={ord.orderId} className="hover:bg-[#f7f6fb] transition-colors">
                           <td className="py-3.5 px-4 font-mono font-bold text-[#2a6ecb]">
                             <span>{ord.orderId}</span>
@@ -1116,7 +1829,8 @@ export default function AdminDashboardPage() {
                             </div>
                           </td>
                         </tr>
-                      ))}
+                      ))
+                    )}
                     </tbody>
                   </table>
                 </div>
@@ -1178,7 +1892,7 @@ export default function AdminDashboardPage() {
                         </td>
                         <td className="py-3 px-4 text-[#64748B] font-medium">{p.category}</td>
                         <td className="py-3 px-4 font-bold text-[#182a41]">
-                          <span className="block">₹{p.price.toLocaleString("en-IN")}</span>
+                          <span className="block">{p.price ? `₹${p.price.toLocaleString("en-IN")}` : "On Request"}</span>
                           {isRentalProduct(p) && (
                             <span className="bg-[#EBF5FF] text-[#2a6ecb] px-2 py-0.5 rounded-full text-[10px] font-bold inline-block mt-1">
                               + Rental
@@ -1237,11 +1951,14 @@ export default function AdminDashboardPage() {
               {/* Categories Grid Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {categories.map((cat) => {
-                  const matchingProds = products.filter(
+                  const catName = cat?.name || "";
+                  const matchingProds = (products || []).filter(
                     (p) =>
-                      p.category === cat.name ||
-                      p.category.toLowerCase().includes(cat.name.toLowerCase()) ||
-                      cat.name.toLowerCase().includes(p.category.toLowerCase())
+                      p?.category &&
+                      catName &&
+                      (p.category === catName ||
+                        p.category.toLowerCase().includes(catName.toLowerCase()) ||
+                        catName.toLowerCase().includes(p.category.toLowerCase()))
                   ).length;
 
                   return (
@@ -1483,6 +2200,678 @@ export default function AdminDashboardPage() {
             </div>
           )}
 
+          {/* TAB: TRACKING & ORDER MANAGEMENT */}
+          {activeTab === "tracking" && (
+            <div className="space-y-6 animate-in fade-in duration-200">
+              {/* Header */}
+              <div className="bg-white rounded-[20px] border border-[#e9edf4] p-6 md:p-8 shadow-[0_2px_8px_rgba(24,42,65,0.05)] space-y-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6 border-b border-[#f6f4fb]">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="bg-[#dcebfb] text-[#2a6ecb] font-archivo font-bold text-xs uppercase px-3 py-1 rounded-full flex items-center gap-1.5">
+                        <Truck className="w-3.5 h-3.5" />
+                        <span>Fulfillment &amp; Logistics</span>
+                      </span>
+                    </div>
+                    <h2 className="font-archivo font-semibold text-2xl md:text-3xl text-[#182a41] tracking-tight">
+                      Tracking &amp; Orders Fulfillment
+                    </h2>
+                    <p className="text-xs text-[#64748B]">
+                      Real-time customer storefront orders, hospital equipment dispatch, and delivery progression stored in MongoDB Atlas.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="bg-[#dcebfb] text-[#2a6ecb] font-archivo font-semibold text-xs px-3.5 py-1.5 rounded-full border border-[#2a6ecb]/20">
+                      {orders.length} Orders Logged
+                    </span>
+                  </div>
+                </div>
+
+                {/* 4 Overview Metric Cards */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="bg-[#f7f6fb] p-4.5 rounded-2xl border border-[#e9edf4]">
+                    <div className="flex items-center justify-between text-xs text-[#64748B]">
+                      <span className="font-bold uppercase text-[10px] tracking-wider">Total Orders</span>
+                      <Package className="w-4 h-4 text-[#2a6ecb]" />
+                    </div>
+                    <h3 className="font-archivo font-bold text-2xl text-[#182a41] mt-1.5">
+                      {orders.length}
+                    </h3>
+                    <p className="text-[10px] text-[#64748B]">All registered purchases</p>
+                  </div>
+
+                  <div className="bg-[#f7f6fb] p-4.5 rounded-2xl border border-[#e9edf4]">
+                    <div className="flex items-center justify-between text-xs text-[#64748B]">
+                      <span className="font-bold uppercase text-[10px] tracking-wider">Pending Action</span>
+                      <Clock className="w-4 h-4 text-amber-600" />
+                    </div>
+                    <h3 className="font-archivo font-bold text-2xl text-amber-600 mt-1.5">
+                      {orders.filter((o) => o.orderStatus === "Pending").length}
+                    </h3>
+                    <p className="text-[10px] text-amber-700">Awaiting dispatch</p>
+                  </div>
+
+                  <div className="bg-[#f7f6fb] p-4.5 rounded-2xl border border-[#e9edf4]">
+                    <div className="flex items-center justify-between text-xs text-[#64748B]">
+                      <span className="font-bold uppercase text-[10px] tracking-wider">In Transit</span>
+                      <Truck className="w-4 h-4 text-[#2a6ecb]" />
+                    </div>
+                    <h3 className="font-archivo font-bold text-2xl text-[#2a6ecb] mt-1.5">
+                      {orders.filter((o) => o.orderStatus === "On Progress" || o.orderStatus === "On Delivery" || o.orderStatus === "Dispatched").length}
+                    </h3>
+                    <p className="text-[10px] text-[#2a6ecb]">Out for delivery</p>
+                  </div>
+
+                  <div className="bg-[#f7f6fb] p-4.5 rounded-2xl border border-[#e9edf4]">
+                    <div className="flex items-center justify-between text-xs text-[#64748B]">
+                      <span className="font-bold uppercase text-[10px] tracking-wider">Delivered</span>
+                      <CheckCircle className="w-4 h-4 text-emerald-600" />
+                    </div>
+                    <h3 className="font-archivo font-bold text-2xl text-emerald-600 mt-1.5">
+                      {orders.filter((o) => o.orderStatus === "Delivered").length}
+                    </h3>
+                    <p className="text-[10px] text-emerald-700">Completed shipments</p>
+                  </div>
+                </div>
+
+                {/* Filter Tabs & Search Bar */}
+                <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-2">
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                    {[
+                      { key: "all", label: "All Orders", count: orders.length },
+                      { key: "Pending", label: "Pending", count: orders.filter((o) => o.orderStatus === "Pending").length },
+                      { key: "On Progress", label: "In Transit", count: orders.filter((o) => o.orderStatus === "On Progress" || o.orderStatus === "On Delivery" || o.orderStatus === "Dispatched").length },
+                      { key: "Delivered", label: "Delivered", count: orders.filter((o) => o.orderStatus === "Delivered").length },
+                      { key: "Cancelled", label: "Cancelled", count: orders.filter((o) => o.orderStatus === "Cancelled").length },
+                    ].map((tab) => (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        onClick={() => setOrderStatusFilter(tab.key)}
+                        className={`px-3 py-1.5 rounded-xl font-archivo font-bold text-xs transition-colors flex items-center gap-1.5 whitespace-nowrap cursor-pointer ${
+                          orderStatusFilter === tab.key
+                            ? "bg-[#2a6ecb] text-white shadow-xs"
+                            : "bg-[#f7f6fb] text-[#64748B] hover:bg-[#e9edf4] hover:text-[#182a41]"
+                        }`}
+                      >
+                        <span>{tab.label}</span>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-mono ${
+                          orderStatusFilter === tab.key ? "bg-white/25 text-white" : "bg-[#e2e8f0] text-[#64748B]"
+                        }`}>
+                          {tab.count}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+
+                  <div className="w-full md:w-72 relative">
+                    <Search className="w-4 h-4 text-[#64748b] absolute left-3.5 top-1/2 -translate-y-1/2" />
+                    <input
+                      type="text"
+                      value={orderSearch}
+                      onChange={(e) => setOrderSearch(e.target.value)}
+                      placeholder="Search order ID, client, city..."
+                      className="w-full pl-9 pr-4 py-2 rounded-xl bg-[#f7f6fb] border border-[#e9edf4] text-xs text-[#182a41] focus:outline-none focus:border-[#2a6ecb]"
+                    />
+                  </div>
+                </div>
+
+                {/* Orders Table */}
+                {(() => {
+                  const filtered = (orders || []).filter((o) => {
+                    const q = (orderSearch || "").toLowerCase();
+                    const matchesSearch =
+                      !q ||
+                      (o.orderId || "").toLowerCase().includes(q) ||
+                      (o.customerName || "").toLowerCase().includes(q) ||
+                      (o.phone || "").toLowerCase().includes(q) ||
+                      (o.email || "").toLowerCase().includes(q) ||
+                      (o.city || "").toLowerCase().includes(q) ||
+                      (o.items && o.items.some((it) => (it?.name || "").toLowerCase().includes(q)));
+
+                    const matchesStatus =
+                      orderStatusFilter === "all" ||
+                      (orderStatusFilter === "On Progress" && (o.orderStatus === "On Progress" || o.orderStatus === "On Delivery" || o.orderStatus === "Dispatched")) ||
+                      (o.orderStatus || "").toLowerCase() === orderStatusFilter.toLowerCase();
+
+                    return matchesSearch && matchesStatus;
+                  });
+
+                  if (filtered.length === 0) {
+                    return (
+                      <div className="py-16 text-center text-[#64748b] space-y-2">
+                        <Truck className="w-10 h-10 mx-auto text-[#cbd5e1]" />
+                        <p className="font-archivo font-bold text-sm text-[#182a41]">No Orders Found</p>
+                        <p className="text-xs">No customer orders matching the current filter or search criteria.</p>
+                      </div>
+                    );
+                  }
+
+                  return (
+                    <div className="space-y-4">
+                      {/* MOBILE VIEW: Ultra Clean Responsive Cards */}
+                      <div className="block lg:hidden space-y-4">
+                        {filtered.map((ord) => (
+                          <div
+                            key={ord.orderId}
+                            className="bg-white rounded-2xl border border-[#e9edf4] p-4 sm:p-5 shadow-xs space-y-4 hover:border-[#2a6ecb]/40 transition-all text-left"
+                          >
+                            {/* Card Header: Order ID + Status Badge */}
+                            <div className="flex items-start justify-between gap-2 pb-3 border-b border-[#f1f5f9]">
+                              <div>
+                                <span className="font-mono font-bold text-sm text-[#2a6ecb] block">
+                                  {ord.orderId}
+                                </span>
+                                <span className="text-[11px] text-[#64748B] block mt-0.5">
+                                  {ord.createdAt ? new Date(ord.createdAt).toLocaleDateString("en-IN", { month: "short", day: "numeric", year: "numeric" }) : "Recent Purchase"}
+                                </span>
+                              </div>
+                              <span
+                                className={`px-2.5 py-1 rounded-full text-[10px] font-archivo font-bold uppercase tracking-wide ${
+                                  ord.orderStatus === "Delivered"
+                                    ? "bg-[#e0f3ec] text-[#1fb37a]"
+                                    : ord.orderStatus === "Cancelled"
+                                    ? "bg-[#fbe6ee] text-[#dc4b56]"
+                                    : ord.orderStatus === "On Progress" || ord.orderStatus === "On Delivery" || ord.orderStatus === "Dispatched"
+                                    ? "bg-[#dcebfb] text-[#2a6ecb]"
+                                    : "bg-[#fdeadf] text-[#e8a33d]"
+                                }`}
+                              >
+                                {ord.orderStatus}
+                              </span>
+                            </div>
+
+                            {/* Customer & Destination Details */}
+                            <div className="bg-[#f8fafd] rounded-xl p-3 space-y-2 text-xs">
+                              <div className="flex items-center justify-between">
+                                <span className="font-archivo font-bold text-[#182a41] text-xs">
+                                  {ord.customerName}
+                                </span>
+                                <a
+                                  href={`tel:${ord.phone}`}
+                                  className="text-[#2a6ecb] font-mono text-[11px] font-bold hover:underline flex items-center gap-1"
+                                >
+                                  <Phone className="w-3 h-3" />
+                                  <span>{ord.phone}</span>
+                                </a>
+                              </div>
+                              <div className="text-[11px] text-[#64748B] flex items-center gap-1 truncate">
+                                <Mail className="w-3 h-3 shrink-0" />
+                                <span>{ord.email}</span>
+                              </div>
+                              <div className="text-[11px] text-[#182a41] flex items-start gap-1 pt-1 border-t border-[#e9edf4]">
+                                <MapPin className="w-3.5 h-3.5 text-[#dc4b56] shrink-0 mt-0.5" />
+                                <span className="line-clamp-2">
+                                  <strong>{ord.city}, {ord.state} ({ord.pincode})</strong> • {ord.street}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Equipment List */}
+                            <div className="space-y-2">
+                              <span className="text-[10px] uppercase font-bold text-[#64748B] tracking-wider block">
+                                Purchased Equipment ({ord.items?.length || 0})
+                              </span>
+                              <div className="space-y-1.5">
+                                {(ord.items || []).map((it, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="flex items-center justify-between gap-2 p-2 bg-[#f8fafd] rounded-xl border border-[#e9edf4]"
+                                  >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                      <img
+                                        src={it.image || "/images/pulmocare/pulmocare_prisma-smart.png"}
+                                        alt={it.name}
+                                        className="w-8 h-8 object-contain rounded-lg bg-white p-0.5 border border-[#e9edf4] shrink-0"
+                                      />
+                                      <div className="min-w-0">
+                                        <p className="text-xs font-semibold text-[#182a41] truncate max-w-[180px]">
+                                          {it.name}
+                                        </p>
+                                        <p className="text-[10px] text-[#64748B]">Qty: {it.quantity}</p>
+                                      </div>
+                                    </div>
+                                    <span className="font-archivo font-bold text-xs text-[#182a41] shrink-0">
+                                      ₹{(it.price * it.quantity).toLocaleString("en-IN")}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+
+                            {/* Price & Payment */}
+                            <div className="flex items-center justify-between pt-2 border-t border-[#f1f5f9]">
+                              <div>
+                                <span className="text-[10px] uppercase font-bold text-[#64748B] block">Total Amount</span>
+                                <span className="font-archivo font-extrabold text-lg text-[#182a41]">
+                                  ₹{ord.totalAmount.toLocaleString("en-IN")}.00
+                                </span>
+                              </div>
+                              <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#EBF5FF] text-[#0066FF] border border-[#0066FF]/20">
+                                {ord.paymentMethod || "Razorpay Verified"}
+                              </span>
+                            </div>
+
+                            {/* Status Change & Action Buttons */}
+                            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                              <div className="flex items-center gap-2 flex-1">
+                                <span className="text-[10px] font-bold text-[#64748B] shrink-0">Status:</span>
+                                <select
+                                  value={ord.orderStatus}
+                                  onChange={async (e) => {
+                                    const nextStatus = e.target.value;
+                                    await updateOrderStatus(ord.orderId, nextStatus);
+                                    addToast("Status Updated", `Order ${ord.orderId} updated to ${nextStatus}.`);
+                                  }}
+                                  className="w-full text-xs font-archivo font-semibold bg-[#f8fafd] border border-[#e2e8f0] rounded-xl px-2.5 py-1.5 text-[#182a41] focus:outline-none focus:border-[#2a6ecb] cursor-pointer"
+                                >
+                                  <option value="Pending">Pending</option>
+                                  <option value="On Progress">On Progress (In Transit)</option>
+                                  <option value="Delivered">Delivered</option>
+                                  <option value="Cancelled">Cancelled</option>
+                                </select>
+                              </div>
+
+                              <div className="flex items-center gap-2 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => setViewingOrder(ord)}
+                                  className="flex-1 sm:flex-none px-4 py-1.5 rounded-xl bg-[#2a6ecb] text-white hover:bg-[#1f5ab0] transition-colors font-archivo font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-xs"
+                                >
+                                  <Eye className="w-3.5 h-3.5" />
+                                  <span>Details</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={async () => {
+                                    if (confirm(`Delete order ${ord.orderId}?`)) {
+                                      await deleteOrder(ord.orderId);
+                                      addToast("Order Deleted", `Order ${ord.orderId} removed from database.`);
+                                    }
+                                  }}
+                                  className="p-2 rounded-xl bg-[#fbe6ee] text-[#dc4b56] hover:bg-[#dc4b56] hover:text-white transition-colors cursor-pointer"
+                                  title="Delete Order"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* DESKTOP VIEW: Clean, Organized Spacious Table */}
+                      <div className="hidden lg:block overflow-x-auto rounded-2xl border border-[#e9edf4]">
+                        <table className="w-full text-left text-xs font-inter border-collapse bg-white">
+                          <thead>
+                            <tr className="bg-[#f7f6fb] text-[#64748B] font-archivo font-bold uppercase tracking-wider border-b border-[#e9edf4]">
+                              <th className="py-3.5 px-5">Order ID &amp; Customer</th>
+                              <th className="py-3.5 px-5">Destination &amp; Contact</th>
+                              <th className="py-3.5 px-5">Purchased Equipment</th>
+                              <th className="py-3.5 px-5">Total &amp; Payment</th>
+                              <th className="py-3.5 px-5">Fulfillment Status</th>
+                              <th className="py-3.5 px-5 text-right">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-[#f1f5f9]">
+                            {filtered.map((ord) => (
+                              <tr key={ord.orderId} className="hover:bg-[#f8fafd] transition-colors">
+                                {/* Order ID & Customer */}
+                                <td className="py-4 px-5 align-top">
+                                  <span className="font-mono font-bold text-[#2a6ecb] block text-xs">
+                                    {ord.orderId}
+                                  </span>
+                                  <span className="font-archivo font-bold text-[#182a41] block text-xs mt-1">
+                                    {ord.customerName}
+                                  </span>
+                                  <span className="text-[10px] text-[#64748B] block mt-0.5">
+                                    {ord.createdAt ? new Date(ord.createdAt).toLocaleDateString("en-IN") : "Recent Order"}
+                                  </span>
+                                </td>
+
+                                {/* Destination & Contact */}
+                                <td className="py-4 px-5 align-top max-w-xs">
+                                  <div className="space-y-1">
+                                    <div className="flex items-center gap-1.5">
+                                      <Phone className="w-3 h-3 text-[#2a6ecb] shrink-0" />
+                                      <a href={`tel:${ord.phone}`} className="text-[#2a6ecb] font-mono text-[11px] hover:underline font-bold">
+                                        {ord.phone}
+                                      </a>
+                                    </div>
+                                    <div className="flex items-center gap-1.5 text-[10px] text-[#64748B] truncate">
+                                      <Mail className="w-3 h-3 shrink-0" />
+                                      <span className="truncate">{ord.email}</span>
+                                    </div>
+                                    <div className="pt-1 text-[11px] text-[#182a41]">
+                                      <span className="font-bold block">{ord.city}, {ord.state} ({ord.pincode})</span>
+                                      <span className="text-[10px] text-[#64748B] line-clamp-1">{ord.street}</span>
+                                    </div>
+                                  </div>
+                                </td>
+
+                                {/* Purchased Equipment */}
+                                <td className="py-4 px-5 align-top min-w-[220px]">
+                                  <div className="space-y-2">
+                                    {(ord.items || []).map((it, idx) => (
+                                      <div key={idx} className="flex items-center gap-2.5 p-1.5 bg-[#f8fafd] rounded-xl border border-[#e9edf4]/80">
+                                        <img
+                                          src={it.image || "/images/pulmocare/pulmocare_prisma-smart.png"}
+                                          alt={it.name}
+                                          className="w-7 h-7 object-contain rounded bg-white p-0.5 border border-[#e9edf4] shrink-0"
+                                        />
+                                        <div className="min-w-0 flex-1">
+                                          <span className="font-semibold text-[#182a41] text-[11px] block truncate max-w-[190px]" title={it.name}>
+                                            {it.name}
+                                          </span>
+                                          <span className="text-[10px] text-[#64748B]">
+                                            Qty: {it.quantity} • ₹{it.price.toLocaleString("en-IN")}
+                                          </span>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </td>
+
+                                {/* Total & Payment */}
+                                <td className="py-4 px-5 align-top">
+                                  <span className="font-archivo font-extrabold text-sm text-[#182a41] block">
+                                    ₹{ord.totalAmount.toLocaleString("en-IN")}.00
+                                  </span>
+                                  <span className="inline-block mt-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#EBF5FF] text-[#0066FF] border border-[#0066FF]/20">
+                                    {ord.paymentMethod || "Razorpay Verified"}
+                                  </span>
+                                </td>
+
+                                {/* Fulfillment Status & Select */}
+                                <td className="py-4 px-5 align-top min-w-[150px]">
+                                  <div className="space-y-2">
+                                    <span className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-archivo font-bold uppercase tracking-wide ${
+                                      ord.orderStatus === "Delivered"
+                                        ? "bg-[#e0f3ec] text-[#1fb37a]"
+                                        : ord.orderStatus === "Cancelled"
+                                        ? "bg-[#fbe6ee] text-[#dc4b56]"
+                                        : ord.orderStatus === "On Progress" || ord.orderStatus === "On Delivery" || ord.orderStatus === "Dispatched"
+                                        ? "bg-[#dcebfb] text-[#2a6ecb]"
+                                        : "bg-[#fdeadf] text-[#e8a33d]"
+                                    }`}>
+                                      {ord.orderStatus}
+                                    </span>
+
+                                    <select
+                                      value={ord.orderStatus}
+                                      onChange={async (e) => {
+                                        const nextStatus = e.target.value;
+                                        await updateOrderStatus(ord.orderId, nextStatus);
+                                        addToast("Status Updated", `Order ${ord.orderId} updated to ${nextStatus}.`);
+                                      }}
+                                      className="block w-full text-[11px] font-archivo font-semibold bg-[#f8fafd] border border-[#e2e8f0] rounded-lg px-2.5 py-1.5 text-[#182a41] focus:outline-none focus:border-[#2a6ecb] cursor-pointer"
+                                    >
+                                      <option value="Pending">Pending</option>
+                                      <option value="On Progress">On Progress (In Transit)</option>
+                                      <option value="Delivered">Delivered</option>
+                                      <option value="Cancelled">Cancelled</option>
+                                    </select>
+                                  </div>
+                                </td>
+
+                                {/* Actions */}
+                                <td className="py-4 px-5 align-top text-right">
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => setViewingOrder(ord)}
+                                      className="px-3 py-1.5 rounded-xl bg-[#2a6ecb] hover:bg-[#1f5ab0] text-white transition-all font-archivo font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs"
+                                      title="View full order dossier"
+                                    >
+                                      <Eye className="w-3.5 h-3.5" />
+                                      <span>Details</span>
+                                    </button>
+
+                                    <button
+                                      type="button"
+                                      onClick={async () => {
+                                        if (confirm(`Are you sure you want to delete order ${ord.orderId}?`)) {
+                                          await deleteOrder(ord.orderId);
+                                          addToast("Order Deleted", `Order ${ord.orderId} removed from database.`);
+                                        }
+                                      }}
+                                      className="p-1.5 rounded-xl bg-[#fbe6ee] text-[#dc4b56] hover:bg-[#dc4b56] hover:text-white transition-colors cursor-pointer"
+                                      title="Delete Order"
+                                    >
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {/* Order Dossier Modal */}
+              {viewingOrder && (
+                <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 overflow-y-auto animate-in fade-in duration-200">
+                  <div className="bg-white rounded-3xl border border-[#e9edf4] shadow-2xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden animate-in zoom-in-95 duration-200">
+                    {/* Header */}
+                    <div className="px-6 py-4 border-b border-[#F1F5F9] flex items-center justify-between bg-white shrink-0">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-2xl bg-[#2a6ecb] text-white flex items-center justify-center shadow-md shrink-0">
+                          <Truck className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="font-archivo font-extrabold text-lg text-[#182a41]">
+                              Order Shipment Dossier
+                            </h3>
+                            <span className="font-mono text-xs font-bold text-[#2a6ecb] bg-[#dcebfb] px-2.5 py-0.5 rounded-full">
+                              {viewingOrder.orderId}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#64748B]">
+                            Customer: {viewingOrder.customerName} • Placed {viewingOrder.createdAt ? new Date(viewingOrder.createdAt).toLocaleString("en-IN") : "Recently"}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => window.print()}
+                          className="w-9 h-9 rounded-xl bg-[#F8FAFC] hover:bg-[#F1F5F9] text-[#64748B] hover:text-[#182a41] flex items-center justify-center transition-colors cursor-pointer"
+                          title="Print Packing Slip"
+                        >
+                          <Printer className="w-4 h-4" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setViewingOrder(null)}
+                          className="w-9 h-9 rounded-xl bg-[#F8FAFC] hover:bg-[#F1F5F9] text-[#64748B] hover:text-[#182a41] flex items-center justify-center transition-colors cursor-pointer"
+                          title="Close"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Modal Body */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                      {/* Status Pipeline Visualizer */}
+                      <div className="bg-[#f7f6fb] p-4 rounded-2xl border border-[#e9edf4] space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-[11px] font-archivo font-bold text-[#182a41] uppercase tracking-wider">
+                            Fulfillment Progression
+                          </span>
+                          <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                            viewingOrder.orderStatus === "Delivered"
+                              ? "bg-[#e0f3ec] text-[#1fb37a]"
+                              : viewingOrder.orderStatus === "Cancelled"
+                              ? "bg-[#fbe6ee] text-[#dc4b56]"
+                              : "bg-[#fdeadf] text-[#e8a33d]"
+                          }`}>
+                            Current: {viewingOrder.orderStatus}
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-3 gap-2 text-center text-xs">
+                          <div className={`p-2.5 rounded-xl border ${
+                            viewingOrder.orderStatus !== "Cancelled"
+                              ? "bg-white border-[#2a6ecb] text-[#2a6ecb] font-bold"
+                              : "bg-white/50 border-[#e2e8f0] text-[#94a3b8]"
+                          }`}>
+                            <span className="block text-xs">1. Order Placed</span>
+                            <span className="text-[10px] text-[#64748b] block font-normal">Registered in DB</span>
+                          </div>
+                          <div className={`p-2.5 rounded-xl border ${
+                            viewingOrder.orderStatus === "On Progress" || viewingOrder.orderStatus === "Delivered"
+                              ? "bg-white border-[#2a6ecb] text-[#2a6ecb] font-bold"
+                              : "bg-white/50 border-[#e2e8f0] text-[#94a3b8]"
+                          }`}>
+                            <span className="block text-xs">2. Dispatched</span>
+                            <span className="text-[10px] text-[#64748b] block font-normal">Courier In Transit</span>
+                          </div>
+                          <div className={`p-2.5 rounded-xl border ${
+                            viewingOrder.orderStatus === "Delivered"
+                              ? "bg-[#e0f3ec] border-emerald-500 text-[#1fb37a] font-bold"
+                              : "bg-white/50 border-[#e2e8f0] text-[#94a3b8]"
+                          }`}>
+                            <span className="block text-xs">3. Delivered</span>
+                            <span className="text-[10px] text-[#64748b] block font-normal">Handed to Client</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Customer & Delivery Address Dossier */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div className="bg-white p-4 rounded-2xl border border-[#e9edf4] space-y-2">
+                          <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block">
+                            Customer Details
+                          </span>
+                          <span className="font-archivo font-bold text-sm text-[#182a41] block">{viewingOrder.customerName}</span>
+                          <div className="space-y-1 text-[#64748B]">
+                            <p className="flex items-center gap-1.5">
+                              <Phone className="w-3.5 h-3.5 text-[#2a6ecb]" />
+                              <a href={`tel:${viewingOrder.phone}`} className="hover:underline font-mono font-bold text-[#182a41]">{viewingOrder.phone}</a>
+                            </p>
+                            <p className="flex items-center gap-1.5">
+                              <Mail className="w-3.5 h-3.5 text-[#2a6ecb]" />
+                              <span>{viewingOrder.email}</span>
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="bg-white p-4 rounded-2xl border border-[#e9edf4] space-y-2">
+                          <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-wider block">
+                            Shipping Destination
+                          </span>
+                          <span className="font-archivo font-bold text-sm text-[#182a41] block">
+                            {viewingOrder.city}, {viewingOrder.state} ({viewingOrder.pincode})
+                          </span>
+                          <p className="text-[#64748B] leading-relaxed">
+                            {viewingOrder.street}
+                            {viewingOrder.landmark ? ` • Landmark: ${viewingOrder.landmark}` : ""}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Items Purchased List */}
+                      <div className="bg-white rounded-2xl border border-[#e9edf4] overflow-hidden">
+                        <div className="p-4 bg-[#f7f6fb] border-b border-[#e9edf4] flex justify-between items-center">
+                          <span className="font-archivo font-bold text-xs uppercase text-[#182a41]">
+                            Purchased Medical Equipment ({viewingOrder.items.length} Items)
+                          </span>
+                          <span className="font-mono text-xs font-bold text-[#2a6ecb]">
+                            Total: ₹{viewingOrder.totalAmount.toLocaleString("en-IN")}.00
+                          </span>
+                        </div>
+
+                        <div className="divide-y divide-[#f6f4fb] p-2">
+                          {viewingOrder.items.map((it, idx) => (
+                            <div key={idx} className="p-3 flex items-center justify-between gap-3 text-xs">
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={it.image || "/images/pulmocare/pulmocare_prisma-smart.png"}
+                                  alt={it.name}
+                                  className="w-10 h-10 object-contain rounded-lg bg-white p-1 border border-[#e9edf4] shrink-0"
+                                />
+                                <div>
+                                  <span className="font-archivo font-bold text-xs text-[#182a41] block">{it.name}</span>
+                                  <span className="text-[11px] text-[#64748B]">
+                                    Unit Price: ₹{it.price.toLocaleString("en-IN")}.00
+                                  </span>
+                                </div>
+                              </div>
+                              <div className="text-right">
+                                <span className="font-bold text-xs text-[#182a41] block">
+                                  ₹{(it.price * it.quantity).toLocaleString("en-IN")}.00
+                                </span>
+                                <span className="text-[10px] text-[#64748B] block">Qty: {it.quantity}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+
+                      {viewingOrder.prescriptionNote && (
+                        <div className="bg-[#f7f6fb] p-3 rounded-xl border border-[#e9edf4] text-xs space-y-1">
+                          <span className="font-bold text-[#182a41] uppercase text-[10px] block">Customer Prescription / Doctor Note:</span>
+                          <p className="text-[#64748B]">{viewingOrder.prescriptionNote}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Modal Footer */}
+                    <div className="px-6 py-4 bg-[#F8FAFC] border-t border-[#F1F5F9] flex flex-wrap items-center justify-between gap-3 shrink-0">
+                      <div className="flex items-center gap-2">
+                        {viewingOrder.orderStatus !== "Delivered" && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              await updateOrderStatus(viewingOrder.orderId, "Delivered");
+                              setViewingOrder({ ...viewingOrder, orderStatus: "Delivered" });
+                              addToast("Order Delivered", `Order ${viewingOrder.orderId} marked as Delivered.`);
+                            }}
+                            className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-archivo font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Mark Delivered</span>
+                          </button>
+                        )}
+
+                        {viewingOrder.orderStatus === "Pending" && (
+                          <button
+                            type="button"
+                            onClick={async () => {
+                              await updateOrderStatus(viewingOrder.orderId, "On Progress");
+                              setViewingOrder({ ...viewingOrder, orderStatus: "On Progress" });
+                              addToast("Order Dispatched", `Order ${viewingOrder.orderId} marked as In Transit.`);
+                            }}
+                            className="px-4 py-2 rounded-xl bg-[#2a6ecb] hover:bg-[#1f56a3] text-white font-archivo font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-xs transition-colors"
+                          >
+                            <Truck className="w-3.5 h-3.5" />
+                            <span>Mark In Transit</span>
+                          </button>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => setViewingOrder(null)}
+                        className="px-5 py-2 rounded-xl bg-white hover:bg-[#F1F5F9] text-[#64748B] hover:text-[#182a41] border border-[#E2E8F0] font-archivo font-bold text-xs transition-colors cursor-pointer"
+                      >
+                        Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* TAB 6: INQUIRIES & CONTACT SUBMISSIONS */}
           {activeTab === "messages" && (
             <div className="bg-white rounded-[20px] border border-[#e9edf4] p-6 md:p-8 shadow-[0_2px_8px_rgba(24,42,65,0.05)] space-y-6">
@@ -1558,26 +2947,64 @@ export default function AdminDashboardPage() {
                           <p className="line-clamp-2">{inq.message}</p>
                         </td>
                         <td className="py-3 px-4">
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide inline-block ${
-                              inq.status === "New Lead"
-                                ? "bg-[#2a6ecb] text-white"
-                                : inq.status === "Contacted"
-                                ? "bg-[#fdeadf] text-[#e8a33d]"
-                                : "bg-[#e0f3ec] text-emerald-800"
-                            }`}
-                          >
-                            {inq.status}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="button"
+                              role="switch"
+                              aria-checked={inq.status === "Resolved"}
+                              onClick={() => {
+                                const nextStatus = inq.status === "Resolved" ? "New Lead" : "Resolved";
+                                handleUpdateInquiryStatus(inq.id, nextStatus, inq.fullName);
+                              }}
+                              className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                                inq.status === "Resolved" ? "bg-[#10b981]" : "bg-[#2a6ecb]"
+                              }`}
+                              title={`Click to toggle status to ${inq.status === "Resolved" ? "New Lead" : "Resolved"}`}
+                            >
+                              <span
+                                aria-hidden="true"
+                                className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow-xs ring-0 transition duration-200 ease-in-out ${
+                                  inq.status === "Resolved" ? "translate-x-4" : "translate-x-0"
+                                }`}
+                              />
+                            </button>
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide inline-flex items-center gap-1 ${
+                                inq.status === "New Lead"
+                                  ? "bg-[#2a6ecb]/15 text-[#2a6ecb]"
+                                  : inq.status === "Contacted"
+                                  ? "bg-[#fdeadf] text-[#e8a33d]"
+                                  : "bg-[#e0f3ec] text-emerald-800"
+                              }`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${
+                                  inq.status === "Resolved"
+                                    ? "bg-emerald-500"
+                                    : inq.status === "Contacted"
+                                    ? "bg-amber-500"
+                                    : "bg-[#2a6ecb]"
+                                }`}
+                              />
+                              {inq.status}
+                            </span>
+                          </div>
                         </td>
                         <td className="py-3 px-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
-                            {inq.status !== "Resolved" && (
+                            {inq.status !== "Resolved" ? (
                               <button
                                 onClick={() => handleUpdateInquiryStatus(inq.id, inq.status === "New Lead" ? "Contacted" : "Resolved", inq.fullName)}
-                                className="px-2.5 py-1 rounded-lg bg-[#dcebfb] text-[#2a6ecb] font-bold text-[10px] hover:bg-[#2a6ecb] hover:text-white transition-colors cursor-pointer"
+                                className="px-2 py-1 rounded-lg bg-[#dcebfb] text-[#2a6ecb] font-bold text-[10px] hover:bg-[#2a6ecb] hover:text-white transition-colors cursor-pointer"
                               >
                                 {inq.status === "New Lead" ? "Mark Contacted" : "Mark Resolved"}
+                              </button>
+                            ) : (
+                              <button
+                                onClick={() => handleUpdateInquiryStatus(inq.id, "New Lead", inq.fullName)}
+                                className="px-2 py-1 rounded-lg bg-[#f1f5f9] text-[#64748b] font-bold text-[10px] hover:bg-[#e2e8f0] hover:text-[#182a41] transition-colors cursor-pointer"
+                              >
+                                Reopen
                               </button>
                             )}
                             <button
@@ -1673,15 +3100,15 @@ export default function AdminDashboardPage() {
                           </td>
                         </tr>
                       ) : (
-                        sleepStudyBookings
+                        (sleepStudyBookings || [])
                           .filter(
                             (b) =>
-                              b.patientName.toLowerCase().includes(ssSearch.toLowerCase()) ||
-                              b.phone.toLowerCase().includes(ssSearch.toLowerCase()) ||
-                              b.email.toLowerCase().includes(ssSearch.toLowerCase()) ||
-                              b.level.toLowerCase().includes(ssSearch.toLowerCase()) ||
-                              b.city.toLowerCase().includes(ssSearch.toLowerCase()) ||
-                              b.bookingId.toLowerCase().includes(ssSearch.toLowerCase())
+                              (b.patientName || "").toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              (b.phone || "").toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              (b.email || "").toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              (b.level || "").toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              (b.city || "").toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              (b.bookingId || "").toLowerCase().includes(ssSearch.toLowerCase())
                           )
                           .map((b) => (
                             <tr key={b.bookingId} className="hover:bg-[#F8FAFC] transition-colors">
@@ -1769,6 +3196,9 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           )}
+
+          {/* TAB 8: BUNDLE MAKER & QUOTATION CREATOR */}
+          {activeTab === "bundles" && <BundleMakerTab />}
         </main>
       </div>
 
@@ -1830,11 +3260,16 @@ export default function AdminDashboardPage() {
                     className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] font-semibold focus:border-[#2a6ecb]"
                   >
                     {categories && categories.length > 0 ? (
-                      categories.map((c) => (
-                        <option key={c.id || c.name} value={c.name}>
-                          {c.name}
-                        </option>
-                      ))
+                      <>
+                        {pCategory && !categories.some((c) => (c?.name || "").toLowerCase() === pCategory.toLowerCase()) && (
+                          <option value={pCategory}>{pCategory} (Custom)</option>
+                        )}
+                        {categories.map((c) => (
+                          <option key={c.id || c.name} value={c.name}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </>
                     ) : (
                       <>
                         <option value="Ventilation & Sleep">Ventilation &amp; Sleep</option>
@@ -1879,28 +3314,28 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* Pricing: Sale vs Rental mode, then Selling Price & Original Price */}
+              {/* Pricing: Sale vs Rental mode vs On Request mode */}
               <div className="space-y-4 bg-[#f7f6fb] p-4 rounded-2xl border border-[#e9edf4]">
                 <div>
                   <label className="block font-archivo font-bold text-[#182a41] uppercase mb-2">
-                    Availability Type *
+                    Pricing &amp; Procurement Mode *
                   </label>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     <button
                       type="button"
                       onClick={() => setPPricingMode("price")}
                       className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                         pPricingMode === "price"
-                          ? "bg-white border-[#2a6ecb] ring-2 ring-[#2a6ecb]/25"
+                          ? "bg-white border-[#2a6ecb] ring-2 ring-[#2a6ecb]/25 shadow-xs"
                           : "bg-white/60 border-[#e9edf4] hover:border-[#7fb0ee]"
                       }`}
                     >
                       <span className="font-archivo font-bold text-xs text-[#182a41] block">
-                        Purchase Only
+                        Fixed Purchase
                       </span>
                       <span className="text-[11px] text-[#64748B] leading-snug block mt-0.5">
-                        Price with Add to Cart &amp; Buy Now. No rental notice.
+                        Fixed price with direct &ldquo;Add to Cart&rdquo; checkout.
                       </span>
                     </button>
 
@@ -1909,7 +3344,7 @@ export default function AdminDashboardPage() {
                       onClick={() => setPPricingMode("rental")}
                       className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
                         pPricingMode === "rental"
-                          ? "bg-white border-[#2a6ecb] ring-2 ring-[#2a6ecb]/25"
+                          ? "bg-white border-[#2a6ecb] ring-2 ring-[#2a6ecb]/25 shadow-xs"
                           : "bg-white/60 border-[#e9edf4] hover:border-[#7fb0ee]"
                       }`}
                     >
@@ -1917,44 +3352,82 @@ export default function AdminDashboardPage() {
                         Purchase + Rental
                       </span>
                       <span className="text-[11px] text-[#64748B] leading-snug block mt-0.5">
-                        Same price and buy flow, plus &ldquo;also available on rental &mdash; please contact&rdquo;.
+                        Fixed price plus &ldquo;Also on rental &mdash; contact us&rdquo;.
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setPPricingMode("on_request")}
+                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                        pPricingMode === "on_request"
+                          ? "bg-white border-amber-500 ring-2 ring-amber-500/25 shadow-xs"
+                          : "bg-white/60 border-[#e9edf4] hover:border-amber-300"
+                      }`}
+                    >
+                      <span className="font-archivo font-bold text-xs text-amber-700 block flex items-center gap-1">
+                        <span>On Request</span>
+                        <span className="px-1.5 py-0.2 rounded-full text-[9px] bg-amber-100 text-amber-800 font-extrabold">Quote</span>
+                      </span>
+                      <span className="text-[11px] text-[#64748B] leading-snug block mt-0.5">
+                        No listed price. &ldquo;Price on Request&rdquo; with inquiry form.
                       </span>
                     </button>
                   </div>
 
                   {pPricingMode === "rental" && (
                     <p className="text-[11px] text-[#2a6ecb] font-semibold mt-2">
-                      The price below still shows on the storefront — customers additionally get a rental contact option.
+                      Customers see the fixed retail price and can also contact for monthly device rental.
                     </p>
+                  )}
+
+                  {pPricingMode === "on_request" && (
+                    <div className="mt-2.5 p-3 bg-amber-50/90 border border-amber-200 rounded-2xl flex items-start gap-2.5">
+                      <Info className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                      <div className="text-[11px] text-amber-900 leading-relaxed">
+                        <strong className="font-bold">Price on Request Activated:</strong> On the website, this device will display <span className="font-bold text-amber-800">&ldquo;Price on Request&rdquo;</span> and a <span className="font-bold text-amber-800">&ldquo;Request Quote / Enquire Now&rdquo;</span> button. When customers submit their request, it immediately logs into your <strong className="font-bold">Customer Inquiries</strong> portal.
+                      </div>
+                    </div>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
-                      Selling Price (₹) *
-                    </label>
-                    <input
-                      type="number"
-                      required
-                      value={pPrice}
-                      onChange={(e) => setPPrice(e.target.value)}
-                      placeholder="e.g. 45990"
-                      className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-bold text-[#0a1f3c] focus:border-[#2a6ecb]"
-                    />
-                  </div>
+                {pPricingMode !== "on_request" ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
+                        Selling Price (₹) *
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        value={pPrice === "0" ? "" : pPrice}
+                        placeholder="e.g. 45990"
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => setPPrice(e.target.value)}
+                        className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-bold text-[#0a1f3c] focus:border-[#2a6ecb]"
+                      />
+                    </div>
 
-                  <div>
-                    <label className="block font-archivo font-bold text-[#64748b] uppercase mb-1">Original Price / MSRP (₹)</label>
-                    <input
-                      type="number"
-                      value={pOriginalPrice}
-                      onChange={(e) => setPOriginalPrice(e.target.value)}
-                      placeholder="e.g. 65000"
-                      className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-semibold text-[#64748b] focus:border-[#2a6ecb]"
-                    />
+                    <div>
+                      <label className="block font-archivo font-bold text-[#64748b] uppercase mb-1">Original Price / MSRP (₹)</label>
+                      <input
+                        type="number"
+                        value={pOriginalPrice === "0" ? "" : pOriginalPrice}
+                        placeholder="e.g. 65000"
+                        onFocus={(e) => e.target.select()}
+                        onChange={(e) => setPOriginalPrice(e.target.value)}
+                        className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-sm font-semibold text-[#64748b] focus:border-[#2a6ecb]"
+                      />
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className="p-3 bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl flex items-center justify-between text-xs text-[#64748B]">
+                    <span>Catalog Price Status:</span>
+                    <span className="font-archivo font-bold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                      Price on Request (Unlisted / Quote Only)
+                    </span>
+                  </div>
+                )}
               </div>
 
               {/* Inventory & Display Toggles */}
@@ -2098,15 +3571,55 @@ export default function AdminDashboardPage() {
 
                   <div>
                     <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
-                      Brochure / Spec PDF Link <span className="text-[#64748b] text-[10px] font-normal">(Optional — Leave blank if product has no PDF)</span>
+                      Brochure / Spec PDF <span className="text-[#64748b] text-[10px] font-normal">(Optional — Upload PDF or Paste Link)</span>
                     </label>
-                    <input
-                      type="text"
-                      value={pBrochureUrl}
-                      onChange={(e) => setPBrochureUrl(e.target.value)}
-                      placeholder="Leave blank if no PDF (e.g. /doc-files/sample_doc.pdf)"
-                      className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
-                    />
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                      <label className="px-4 py-2.5 rounded-xl bg-[#dcebfb] text-[#2a6ecb] hover:bg-[#2a6ecb] hover:text-white font-archivo font-bold text-xs cursor-pointer transition-colors flex items-center justify-center gap-2 shrink-0">
+                        <Upload className="w-4 h-4" />
+                        <span>{isUploadingPdf ? "Uploading..." : "Upload PDF"}</span>
+                        <input
+                          type="file"
+                          accept=".pdf,application/pdf"
+                          onChange={handlePdfFileUpload}
+                          className="hidden"
+                          disabled={isUploadingPdf}
+                        />
+                      </label>
+                      <input
+                        type="text"
+                        value={pBrochureUrl}
+                        onChange={(e) => setPBrochureUrl(e.target.value)}
+                        placeholder="e.g. /doc-files/sample_doc.pdf"
+                        className="flex-1 p-2.5 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
+                      />
+                    </div>
+                    {pBrochureUrl && (
+                      <div className="mt-2 flex items-center justify-between p-2.5 bg-[#f7f6fb] rounded-2xl border border-[#e9edf4]">
+                        <div className="flex items-center gap-2 overflow-hidden">
+                          <FileText className="w-4 h-4 text-[#2a6ecb] shrink-0" />
+                          <span className="text-xs font-semibold text-[#182a41] truncate max-w-[280px]">
+                            {pBrochureUrl.startsWith("data:") ? "Uploaded PDF Brochure Document" : pBrochureUrl}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <a
+                            href={pBrochureUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-[11px] text-[#2a6ecb] hover:underline font-bold"
+                          >
+                            Preview
+                          </a>
+                          <button
+                            type="button"
+                            onClick={() => setPBrochureUrl("")}
+                            className="text-[11px] text-red-500 hover:text-red-700 font-bold"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -2184,6 +3697,56 @@ export default function AdminDashboardPage() {
                     className="w-full p-3 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41]"
                   />
                 </div>
+              </div>
+
+              {/* Article Image Upload & Selection */}
+              <div className="space-y-2">
+                <label className="block font-archivo font-bold text-[#182a41] uppercase mb-1">
+                  Featured Article Image <span className="text-[#64748b] text-[10px] font-normal">(Upload Image or Paste Link)</span>
+                </label>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                  <label className="px-4 py-2.5 rounded-xl bg-[#dcebfb] text-[#2a6ecb] hover:bg-[#2a6ecb] hover:text-white font-archivo font-bold text-xs cursor-pointer transition-colors flex items-center justify-center gap-2 shrink-0">
+                    <Upload className="w-4 h-4" />
+                    <span>{isUploadingBlogImage ? "Uploading..." : "Upload Image"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleBlogImageUpload}
+                      className="hidden"
+                      disabled={isUploadingBlogImage}
+                    />
+                  </label>
+                  <input
+                    type="text"
+                    value={bImage}
+                    onChange={(e) => setBImage(e.target.value)}
+                    placeholder="e.g. /images/pulmocare/pulmocare_prisma-smart.png"
+                    className="flex-1 p-2.5 rounded-2xl border border-[#e9edf4] bg-white text-xs text-[#182a41] focus:border-[#2a6ecb]"
+                  />
+                </div>
+
+                {bImage && (
+                  <div className="mt-2 flex items-center gap-3 p-2.5 bg-[#f7f6fb] rounded-2xl border border-[#e9edf4]">
+                    <img
+                      src={bImage}
+                      alt="Article Thumbnail"
+                      className="w-14 h-14 object-cover rounded-xl bg-white p-1 border border-[#e9edf4] shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <span className="text-xs font-bold text-[#1fb37a] block">Featured Image Attached</span>
+                      <span className="text-[11px] text-[#64748B] font-mono truncate block">
+                        {bImage.startsWith("data:") ? "Uploaded Image (Base64)" : bImage}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setBImage("")}
+                      className="text-[11px] text-red-500 hover:text-red-700 font-bold px-2 py-1"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div>

@@ -3,6 +3,9 @@ import { dbConnect } from "@/lib/mongodb";
 import BlogPost from "@/models/BlogPost";
 import { serverCache } from "@/lib/cache";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const cachedBlogs = serverCache.get<any>("blogs_list");
@@ -11,7 +14,9 @@ export async function GET() {
         { success: true, blogs: cachedBlogs, fromCache: true },
         {
           headers: {
-            "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+            "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+            Pragma: "no-cache",
+            Expires: "0",
           },
         }
       );
@@ -25,7 +30,9 @@ export async function GET() {
       { success: true, blogs, fromCache: false },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+          "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate, max-age=0",
+          Pragma: "no-cache",
+          Expires: "0",
         },
       }
     );
@@ -38,7 +45,17 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const newBlog = await BlogPost.create(body);
+
+    const normalizedContent = Array.isArray(body.content)
+      ? body.content
+      : typeof body.content === "string"
+        ? body.content.split(/\n\n+/).map((p: string) => p.trim()).filter(Boolean)
+        : [];
+
+    const newBlog = await BlogPost.create({
+      ...body,
+      content: normalizedContent.length > 0 ? normalizedContent : [body.content || ""],
+    });
 
     serverCache.del("blogs_list");
     serverCache.del("storefront_data");
@@ -53,9 +70,19 @@ export async function PUT(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
+
+    const normalizedContent = Array.isArray(body.content)
+      ? body.content
+      : typeof body.content === "string"
+        ? body.content.split(/\n\n+/).map((p: string) => p.trim()).filter(Boolean)
+        : [];
+
     const updatedBlog = await BlogPost.findOneAndUpdate(
       { slug: body.slug },
-      body,
+      {
+        ...body,
+        content: normalizedContent.length > 0 ? normalizedContent : [body.content || ""],
+      },
       { new: true, runValidators: true }
     );
 

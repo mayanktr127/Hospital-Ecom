@@ -7,9 +7,21 @@ import { motion, AnimatePresence } from "motion/react";
 import { X, Trash2, Plus, Minus, ShoppingBag, ArrowRight, ShieldCheck, Truck } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { MaskOptionSelector } from "@/components/cart/MaskOptionSelector";
+import { isMaskEligible, isMaskAddonProduct } from "@/utils/maskAddon";
 
 export const CartDrawer: React.FC = () => {
-  const { cart, isOpen, closeCart, removeFromCart, updateQuantity, subtotal, totalItems, freeShippingThreshold } = useCart();
+  const {
+    cart,
+    isOpen,
+    closeCart,
+    removeFromCart,
+    updateQuantity,
+    updateMaskOption,
+    subtotal,
+    totalItems,
+    freeShippingThreshold,
+  } = useCart();
   const { addToast } = useToast();
 
   const progress = Math.min(100, (subtotal / freeShippingThreshold) * 100);
@@ -67,59 +79,91 @@ export const CartDrawer: React.FC = () => {
                     </p>
                   </div>
                 ) : (
-                  cart.map(({ product, quantity }) => (
-                    <div
-                      key={product.id}
-                      className="flex items-center gap-4 p-3 bg-white border border-[#e9edf4] rounded-[14px] shadow-[0_2px_8px_rgba(24,42,65,0.05)]"
-                    >
-                      <div className="w-16 h-16 rounded-[14px] bg-gradient-to-br from-[#e9e6fb] to-white flex items-center justify-center p-2 shrink-0 border border-[#e9edf4]">
-                        <Image
-                          src={product.image}
-                          alt={product.name}
-                          width={56}
-                          height={56}
-                          className="object-contain max-h-full product-drop-shadow"
-                        />
-                      </div>
+                  cart.map(({ product, quantity, maskOption, unitPrice }) => {
+                    const isMaskItem = isMaskAddonProduct(product);
+                    const effectivePrice = isMaskItem ? (product.price || 0) : (unitPrice ?? product.price ?? 0);
+                    const isEligible = !isMaskItem && isMaskEligible(product);
 
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-archivo font-semibold text-xs text-[#182a41] line-clamp-1">
-                          {product.name}
-                        </h4>
-                        <span className="font-archivo font-bold text-sm text-[#0a1f3c] block mt-0.5">
-                          ₹{(product.price * quantity).toLocaleString("en-IN")}.00
-                        </span>
-
-                        <div className="flex items-center gap-2 mt-2">
-                          <div className="flex items-center border border-[#e9edf4] rounded-full bg-white h-7 px-1">
-                            <button
-                              onClick={() => updateQuantity(product.id, quantity - 1)}
-                              className="w-5 h-5 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
-                            >
-                              <Minus className="w-3 h-3" />
-                            </button>
-                            <span className="w-6 text-center text-xs font-archivo font-bold text-[#0a1f3c]">
-                              {quantity}
-                            </span>
-                            <button
-                              onClick={() => updateQuantity(product.id, quantity + 1)}
-                              className="w-5 h-5 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors"
-                            >
-                              <Plus className="w-3 h-3" />
-                            </button>
+                    return (
+                      <div
+                        key={product.id}
+                        className={`p-3.5 bg-white border rounded-[16px] shadow-[0_2px_8px_rgba(24,42,65,0.05)] transition-all ${
+                          isMaskItem
+                            ? "border-[#dcebfb] bg-gradient-to-r from-[#f8fbff] to-white"
+                            : "border-[#e9edf4]"
+                        }`}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="w-16 h-16 rounded-[14px] bg-gradient-to-br from-[#e9e6fb] to-white flex items-center justify-center p-2 shrink-0 border border-[#e9edf4]">
+                            <Image
+                              src={product.image}
+                              alt={product.name}
+                              width={56}
+                              height={56}
+                              className="object-contain max-h-full product-drop-shadow"
+                            />
                           </div>
 
-                          <button
-                            onClick={() => removeFromCart(product.id)}
-                            className="p-1 text-[#64748b] hover:text-[#dc4b56] transition-colors ml-auto"
-                            aria-label="Remove item"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <h4 className="font-archivo font-semibold text-xs text-[#182a41] line-clamp-1">
+                                {product.name}
+                              </h4>
+                              {isMaskItem && (
+                                <span className="text-[9px] font-bold uppercase tracking-wider bg-[#dcebfb] text-[#2a6ecb] px-1.5 py-0.5 rounded font-archivo">
+                                  Mask Add-on
+                                </span>
+                              )}
+                            </div>
+
+                            <span className="font-archivo font-bold text-sm text-[#0a1f3c] block mt-0.5">
+                              ₹{(effectivePrice * quantity).toLocaleString("en-IN")}.00
+                            </span>
+
+                            <div className="flex items-center gap-2 mt-2">
+                              <div className="flex items-center border border-[#e9edf4] rounded-full bg-white h-7 px-1">
+                                <button
+                                  onClick={() => updateQuantity(product.id, quantity - 1)}
+                                  className="w-5 h-5 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors cursor-pointer"
+                                  aria-label="Decrease quantity"
+                                >
+                                  <Minus className="w-3 h-3" />
+                                </button>
+                                <span className="w-6 text-center text-xs font-archivo font-bold text-[#0a1f3c]">
+                                  {quantity}
+                                </span>
+                                <button
+                                  onClick={() => updateQuantity(product.id, quantity + 1)}
+                                  className="w-5 h-5 rounded-full flex items-center justify-center text-[#64748b] hover:text-[#0a1f3c] hover:bg-[#f6f4fb] transition-colors cursor-pointer"
+                                  aria-label="Increase quantity"
+                                >
+                                  <Plus className="w-3 h-3" />
+                                </button>
+                              </div>
+
+                              <button
+                                onClick={() => removeFromCart(product.id)}
+                                className="p-1 text-[#64748b] hover:text-[#dc4b56] transition-colors ml-auto cursor-pointer"
+                                aria-label="Remove item"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </div>
                         </div>
+
+                        {/* Interactive Mask Option Toggle in Cart */}
+                        {isEligible && (
+                          <MaskOptionSelector
+                            product={product}
+                            selectedOption={maskOption || "none"}
+                            onChange={(newOpt) => updateMaskOption(product.id, newOpt)}
+                            variant="compact"
+                          />
+                        )}
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
 

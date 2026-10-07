@@ -1,35 +1,21 @@
-/**
- * Helper to dynamically load Razorpay Checkout SDK script (checkout.js)
- */
-export function loadRazorpayScript(): Promise<boolean> {
-  return new Promise((resolve) => {
-    if (typeof window === "undefined") {
-      resolve(false);
-      return;
+import Razorpay from "razorpay";
+
+let razorpayInstance: Razorpay | null = null;
+
+export function getRazorpayClient(): Razorpay {
+  if (!razorpayInstance) {
+    const key_id = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+
+    if (!key_id || !key_secret) {
+      throw new Error("Razorpay API keys (NEXT_PUBLIC_RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET) are missing.");
     }
 
-    if ((window as any).Razorpay) {
-      resolve(true);
-      return;
-    }
+    razorpayInstance = new Razorpay({
+      key_id,
+      key_secret,
+    });
+  }
 
-    const existingScript = document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]');
-    if (existingScript) {
-      existingScript.addEventListener("load", () => resolve(true));
-      existingScript.addEventListener("error", () => resolve(false));
-      return;
-    }
-
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.async = true;
-    script.onload = () => {
-      resolve(true);
-    };
-    script.onerror = () => {
-      console.error("Failed to load Razorpay SDK script.");
-      resolve(false);
-    };
-    document.body.appendChild(script);
-  });
+  return razorpayInstance;
 }

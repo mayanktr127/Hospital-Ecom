@@ -101,6 +101,48 @@ export interface BlogPost {
   tags?: string[];
 }
 
+export interface BundleProductItem {
+  productId: string;
+  name: string;
+  category: string;
+  image: string;
+  catalogPrice?: number | null;
+  customPrice: number;
+  quantity: number;
+  subtotal: number;
+}
+
+export interface BundleItem {
+  _id?: string;
+  bundleId: string;
+  title: string;
+  description?: string;
+  clientName?: string;
+  clientEmail?: string;
+  clientPhone?: string;
+  items: BundleProductItem[];
+  totalAmount: number;
+  discountAmount?: number;
+  status: "active" | "paid" | "expired" | "cancelled";
+  expiresAt?: string;
+  paymentDetails?: {
+    paymentMethod: string;
+    transactionId: string;
+    paidAt: string;
+    paidAmount: number;
+    payerName: string;
+    payerPhone: string;
+    payerEmail: string;
+    shippingAddress: string;
+    city: string;
+    state: string;
+    pincode: string;
+    orderId?: string;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 interface AdminUser {
   name: string;
   email: string;
@@ -109,6 +151,7 @@ interface AdminUser {
 
 interface AdminContextType {
   isAdminAuthenticated: boolean;
+  isAuthChecked: boolean;
   adminUser: AdminUser | null;
   login: (email: string, pass: string) => boolean;
   logout: () => void;
@@ -149,12 +192,19 @@ interface AdminContextType {
   deleteSleepStudyBooking: (bookingId: string) => Promise<void>;
   updateSleepStudyBookingStatus: (bookingId: string, status: string) => Promise<void>;
   refreshAdminData: () => Promise<void>;
+  // Bundles CRUD State
+  bundles: BundleItem[];
+  addBundle: (bundle: Partial<BundleItem>) => Promise<BundleItem | null>;
+  updateBundle: (bundle: Partial<BundleItem>) => Promise<void>;
+  deleteBundle: (bundleId: string) => Promise<void>;
+  refreshBundles: () => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [isAuthChecked, setIsAuthChecked] = useState<boolean>(false);
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -166,6 +216,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [sleepStudyBookings, setSleepStudyBookings] = useState<SleepStudyBookingItem[]>([]);
+  const [bundles, setBundles] = useState<BundleItem[]>([]);
 
   // Function to fetch administrative data (inquiries, orders, bookings)
   const refreshAdminData = async () => {
@@ -187,14 +238,20 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     // 1. Restore admin session from localStorage
     try {
-      const savedAuth = localStorage.getItem("pulmocare_admin_auth");
-      if (savedAuth) {
-        const parsed = JSON.parse(savedAuth);
-        setIsAdminAuthenticated(true);
-        setAdminUser(parsed);
+      if (typeof window !== "undefined") {
+        const savedAuth = localStorage.getItem("pulmocare_admin_auth");
+        if (savedAuth) {
+          const parsed = JSON.parse(savedAuth);
+          if (parsed && (parsed.email === "admin@pulmocare.in" || parsed.role)) {
+            setIsAdminAuthenticated(true);
+            setAdminUser(parsed);
+          }
+        }
       }
     } catch (err) {
       console.error("Failed to restore admin auth from localStorage", err);
+    } finally {
+      setIsAuthChecked(true);
     }
 
     // 2. Instant client-side hydration from localStorage cache
@@ -227,44 +284,117 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const mergeWithDefaultProducts = (fetchedProds: Product[]) => {
           const defaults = getDefaultProducts();
           const map = new Map<string, Product>();
+          const getSafeProdKey = (p: Partial<Product>) => {
+            const val = p.id || p.sku || p.name || "";
+            return String(val).toLowerCase().trim();
+          };
+
           defaults.forEach((p) => {
-            if (p && p.id) map.set(p.id.toLowerCase(), p);
+            if (p && typeof p === "object") {
+              const key = getSafeProdKey(p);
+              if (key) map.set(key, p);
+            }
           });
-          fetchedProds.forEach((p) => {
-            if (p && p.id) map.set(p.id.toLowerCase(), p);
-          });
+
+          if (Array.isArray(fetchedProds)) {
+            fetchedProds.forEach((p) => {
+              if (p && typeof p === "object") {
+                const key = getSafeProdKey(p);
+                if (key) map.set(key, p);
+              }
+            });
+          }
+
+          // Also merge any local backup custom products so custom products never disappear
+          if (typeof window !== "undefined") {
+            try {
+              const localCustom = localStorage.getItem("pulmocare_custom_products");
+              if (localCustom) {
+                const parsed = JSON.parse(localCustom);
+                if (Array.isArray(parsed)) {
+                  parsed.forEach((p) => {
+                    if (p && typeof p === "object") {
+                      const key = getSafeProdKey(p);
+                      if (key) map.set(key, p);
+                    }
+                  });
+                }
+              }
+            } catch {}
+          }
+
           return Array.from(map.values());
         };
 
-        const normalizeCategories = (cats: CategoryItem[]) =>
-          cats.map((c) => {
-            if (
-              c.slug === "sleep-apnea-therapy" ||
-              c.id === "cat-1" ||
-              c.name === "Sleep Apnea Therapy" ||
-              c.name === "Sleep Therapy"
-            ) {
+        // Fetch categories - robust normalization + local custom-category preservation
+        const normalizeCategories = (cats: CategoryItem[]): CategoryItem[] => {
+          if (!Array.isArray(cats)) return [];
+          const safeCats = cats.filter((c): c is CategoryItem => Boolean(c && typeof c === "object"));
+          const mapped = safeCats.map((c) => {
+            const slug = String(c.slug || "").toLowerCase();
+            const id = String(c.id || "").toLowerCase();
+            const name = String(c.name || "").toLowerCase();
+            if (slug === "sleep-apnea-therapy" || id === "cat-1" || name === "sleep apnea therapy" || name === "sleep therapy") {
               return {
                 ...c,
+                id: c.id || "cat-1",
+                slug: c.slug || "sleep-apnea-therapy",
                 name: "CPAP Therapy",
-                image: "/images/pulmocare/pulmocare_prisma-smart-plus.png",
+                image: c.image || "/images/pulmocare/pulmocare_prisma-smart-plus.png",
               };
             }
             return c;
           });
 
+          const getSafeCatKey = (c: Partial<CategoryItem>) => {
+            const val = c.id || c.slug || c.name || "";
+            return String(val).toLowerCase().trim();
+          };
+
+          const map = new Map<string, CategoryItem>();
+          mapped.forEach((c) => {
+            const key = getSafeCatKey(c);
+            if (key) map.set(key, c);
+          });
+
+          // Merge with local backup categories so custom categories never disappear
+          if (typeof window !== "undefined") {
+            try {
+              const localCustom = localStorage.getItem("pulmocare_custom_categories");
+              if (localCustom) {
+                const parsed = JSON.parse(localCustom);
+                if (Array.isArray(parsed)) {
+                  parsed.forEach((c) => {
+                    if (c && typeof c === "object") {
+                      const key = getSafeCatKey(c);
+                      if (key) map.set(key, c);
+                    }
+                  });
+                }
+              }
+            } catch {}
+          }
+
+          return Array.from(map.values());
+        };
+
         // Try unified cached storefront endpoint first (1 single roundtrip)
         const sfRes = await fetch("/api/storefront-data").then((r) => r.json()).catch(() => null);
+
+        let gotProducts = false;
+        let gotCategories = false;
 
         if (sfRes && sfRes.success) {
           if (sfRes.products && sfRes.products.length > 0) {
             const merged = mergeWithDefaultProducts(sfRes.products);
             setProducts(merged);
+            gotProducts = true;
             try { localStorage.setItem("pulmocare_cache_prods", JSON.stringify(merged)); } catch (e) {}
           }
           if (sfRes.categories && sfRes.categories.length > 0) {
             const normCats = normalizeCategories(sfRes.categories);
             setCategories(normCats);
+            gotCategories = true;
             try { localStorage.setItem("pulmocare_cache_cats", JSON.stringify(normCats)); } catch (e) {}
           }
           if (sfRes.blogs && sfRes.blogs.length > 0) {
@@ -284,16 +414,48 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             fetch("/api/reviews").then((r) => r.json()).catch(() => ({ success: false })),
           ]);
 
-          if (prodRes.success && prodRes.products) setProducts(mergeWithDefaultProducts(prodRes.products));
-          if (catRes.success && catRes.categories) setCategories(normalizeCategories(catRes.categories));
+          if (prodRes.success && prodRes.products && prodRes.products.length > 0) {
+            setProducts(mergeWithDefaultProducts(prodRes.products));
+            gotProducts = true;
+          }
+          if (catRes.success && catRes.categories && catRes.categories.length > 0) {
+            setCategories(normalizeCategories(catRes.categories));
+            gotCategories = true;
+          }
           if (blogRes.success && blogRes.blogs) setBlogPosts(blogRes.blogs);
           if (revRes.success && revRes.reviews) setReviews(revRes.reviews);
+        }
+
+        // If the DB came back empty, trigger the idempotent seed and re-read.
+        if (!gotProducts || !gotCategories) {
+          await fetch("/api/seed").catch(() => {});
+          const [seededProds, seededCats] = await Promise.all([
+            fetch("/api/products").then((r) => r.json()).catch(() => ({ success: false })),
+            fetch("/api/categories").then((r) => r.json()).catch(() => ({ success: false })),
+          ]);
+
+          if (!gotProducts) {
+            if (seededProds.success && seededProds.products && seededProds.products.length > 0) {
+              setProducts(mergeWithDefaultProducts(seededProds.products));
+            } else {
+              setProducts(getDefaultProducts());
+            }
+          }
+          if (!gotCategories && seededCats.success && seededCats.categories && seededCats.categories.length > 0) {
+            setCategories(normalizeCategories(seededCats.categories));
+          }
         }
 
         // Check if on admin page, then load admin data
         const isClient = typeof window !== "undefined";
         if (isClient && (window.location.pathname.startsWith("/admin") || localStorage.getItem("pulmocare_admin_auth"))) {
           await refreshAdminData();
+        }
+
+        // Fetch bundles
+        const bundleRes = await fetch("/api/bundles").then((r) => r.json()).catch(() => ({ success: false }));
+        if (bundleRes.success && bundleRes.bundles && bundleRes.bundles.length > 0) {
+          setBundles(bundleRes.bundles);
         }
       } catch (err) {
         console.error("Failed to load storefront data", err);
@@ -324,6 +486,17 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Products CRUD Handlers
   const addProduct = async (newProduct: Product) => {
+    // 1. Save to localStorage backup immediately so it's NEVER lost across reloads
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_products");
+        const list: Product[] = stored ? JSON.parse(stored) : [];
+        const filtered = list.filter((p) => p.id?.toLowerCase() !== newProduct.id?.toLowerCase());
+        localStorage.setItem("pulmocare_custom_products", JSON.stringify([newProduct, ...filtered]));
+      } catch {}
+    }
+
+    // 2. Persist to MongoDB Atlas
     try {
       const res = await fetch("/api/products", {
         method: "POST",
@@ -332,18 +505,32 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
       const data = await res.json();
       if (data.success && data.product) {
-        setProducts((prev) => [data.product, ...prev]);
+        setProducts((prev) => [data.product, ...prev.filter((p) => p.id?.toLowerCase() !== data.product.id?.toLowerCase())]);
+        return data.product;
       } else {
-        setProducts((prev) => [newProduct, ...prev]);
+        console.warn("MongoDB Atlas product save notice:", data.error);
+        setProducts((prev) => [newProduct, ...prev.filter((p) => p.id?.toLowerCase() !== newProduct.id?.toLowerCase())]);
+        return newProduct;
       }
     } catch (err) {
       console.error("Error adding product to MongoDB Atlas", err);
-      setProducts((prev) => [newProduct, ...prev]);
+      setProducts((prev) => [newProduct, ...prev.filter((p) => p.id?.toLowerCase() !== newProduct.id?.toLowerCase())]);
+      return newProduct;
     }
   };
 
   const updateProduct = async (updatedProduct: Product) => {
     setProducts((prev) => prev.map((p) => (p.id === updatedProduct.id ? updatedProduct : p)));
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_products");
+        if (stored) {
+          const list: Product[] = JSON.parse(stored);
+          const nextList = list.map((p) => (p.id === updatedProduct.id ? updatedProduct : p));
+          localStorage.setItem("pulmocare_custom_products", JSON.stringify(nextList));
+        }
+      } catch {}
+    }
     try {
       await fetch("/api/products", {
         method: "PUT",
@@ -357,6 +544,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const deleteProduct = async (id: string) => {
     setProducts((prev) => prev.filter((p) => p.id !== id));
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_products");
+        if (stored) {
+          const list: Product[] = JSON.parse(stored);
+          localStorage.setItem("pulmocare_custom_products", JSON.stringify(list.filter((p) => p.id !== id)));
+        }
+      } catch {}
+    }
     try {
       await fetch(`/api/products?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     } catch (err) {
@@ -366,6 +562,18 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Categories CRUD Handlers
   const addCategory = async (newCategory: CategoryItem) => {
+    // 1. Immediately cache in localStorage so category is NEVER lost
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_categories");
+        const list: CategoryItem[] = stored ? JSON.parse(stored) : [];
+        const getCatKey = (item: any) => String(item?.id || item?.slug || item?.name || "").toLowerCase().trim();
+        const filtered = Array.isArray(list) ? list.filter((c) => getCatKey(c) !== getCatKey(newCategory)) : [];
+        localStorage.setItem("pulmocare_custom_categories", JSON.stringify([...filtered, newCategory]));
+      } catch {}
+    }
+
+    // 2. Persist to MongoDB Atlas
     try {
       const res = await fetch("/api/categories", {
         method: "POST",
@@ -373,19 +581,31 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         body: JSON.stringify(newCategory),
       });
       const data = await res.json();
+      const getCatKey = (item: any) => String(item?.id || item?.slug || item?.name || "").toLowerCase().trim();
       if (data.success && data.category) {
-        setCategories((prev) => [...prev, data.category]);
+        setCategories((prev) => [...prev.filter((c) => getCatKey(c) !== getCatKey(data.category)), data.category]);
       } else {
-        setCategories((prev) => [...prev, newCategory]);
+        setCategories((prev) => [...prev.filter((c) => getCatKey(c) !== getCatKey(newCategory)), newCategory]);
       }
     } catch (err) {
       console.error("Error adding category to MongoDB Atlas", err);
-      setCategories((prev) => [...prev, newCategory]);
+      const getCatKey = (item: any) => String(item?.id || item?.slug || item?.name || "").toLowerCase().trim();
+      setCategories((prev) => [...prev.filter((c) => getCatKey(c) !== getCatKey(newCategory)), newCategory]);
     }
   };
 
   const updateCategory = async (updatedCategory: CategoryItem) => {
     setCategories((prev) => prev.map((c) => (c.id === updatedCategory.id ? updatedCategory : c)));
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_categories");
+        if (stored) {
+          const list: CategoryItem[] = JSON.parse(stored);
+          const nextList = list.map((c) => (c.id === updatedCategory.id ? updatedCategory : c));
+          localStorage.setItem("pulmocare_custom_categories", JSON.stringify(nextList));
+        }
+      } catch {}
+    }
     try {
       await fetch("/api/categories", {
         method: "PUT",
@@ -399,6 +619,15 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const deleteCategory = async (id: string) => {
     setCategories((prev) => prev.filter((c) => c.id !== id));
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("pulmocare_custom_categories");
+        if (stored) {
+          const list: CategoryItem[] = JSON.parse(stored);
+          localStorage.setItem("pulmocare_custom_categories", JSON.stringify(list.filter((c) => c.id !== id)));
+        }
+      } catch {}
+    }
     try {
       await fetch(`/api/categories?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     } catch (err) {
@@ -614,10 +843,71 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const refreshBundles = async () => {
+    try {
+      const res = await fetch("/api/bundles").then((r) => r.json()).catch(() => ({ success: false }));
+      if (res.success && res.bundles) {
+        setBundles(res.bundles);
+      }
+    } catch (err) {
+      console.error("Failed to refresh bundles", err);
+    }
+  };
+
+  const addBundle = async (bundleData: Partial<BundleItem>): Promise<BundleItem | null> => {
+    try {
+      const res = await fetch("/api/bundles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bundleData),
+      });
+      const data = await res.json();
+      if (data.success && data.bundle) {
+        setBundles((prev) => [data.bundle, ...prev]);
+        return data.bundle;
+      }
+      return null;
+    } catch (err) {
+      console.error("Error creating bundle", err);
+      return null;
+    }
+  };
+
+  const updateBundle = async (bundleData: Partial<BundleItem>) => {
+    setBundles((prev) =>
+      prev.map((b) => (b.bundleId === bundleData.bundleId ? ({ ...b, ...bundleData } as BundleItem) : b))
+    );
+    try {
+      const res = await fetch("/api/bundles", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(bundleData),
+      });
+      const data = await res.json();
+      if (data.success && data.bundle) {
+        setBundles((prev) =>
+          prev.map((b) => (b.bundleId === data.bundle.bundleId ? data.bundle : b))
+        );
+      }
+    } catch (err) {
+      console.error("Error updating bundle", err);
+    }
+  };
+
+  const deleteBundle = async (bundleId: string) => {
+    setBundles((prev) => prev.filter((b) => b.bundleId !== bundleId));
+    try {
+      await fetch(`/api/bundles?bundleId=${encodeURIComponent(bundleId)}`, { method: "DELETE" });
+    } catch (err) {
+      console.error("Error deleting bundle", err);
+    }
+  };
+
   return (
     <AdminContext.Provider
       value={{
         isAdminAuthenticated,
+        isAuthChecked,
         adminUser,
         login,
         logout,
@@ -651,6 +941,11 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         deleteSleepStudyBooking,
         updateSleepStudyBookingStatus,
         refreshAdminData,
+        bundles,
+        addBundle,
+        updateBundle,
+        deleteBundle,
+        refreshBundles,
       }}
     >
       {children}

@@ -45,18 +45,21 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     const body = await req.json();
-    const slug = body.slug || body.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
-    const newCategory = await Category.create({
-      ...body,
-      id: body.id || `cat-${Date.now()}`,
-      slug,
-    });
+    const id = body.id || `cat-${Date.now()}`;
+    const slug = body.slug || (body.name ? body.name.toLowerCase().replace(/[^a-z0-9]+/g, "-") : `cat-${Date.now()}`);
+
+    // Atomic upsert: matches either by unique id or unique slug
+    const category = await Category.findOneAndUpdate(
+      { $or: [{ id }, { slug }] },
+      { $set: { ...body, id, slug } },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
     // Invalidate caches
     serverCache.del("categories_list");
     serverCache.del("storefront_data");
 
-    return NextResponse.json({ success: true, category: newCategory }, { status: 201 });
+    return NextResponse.json({ success: true, category }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

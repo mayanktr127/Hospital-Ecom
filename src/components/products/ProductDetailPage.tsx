@@ -45,6 +45,14 @@ import {
 import siteContent from "@/data/site_content.json";
 import structuredProducts from "@/data/product_pages/structured_products.json";
 import pulmocareProducts from "@/data/pulmocare_products.json";
+import { useInquiry } from "@/context/InquiryContext";
+import { MaskOptionSelector } from "@/components/cart/MaskOptionSelector";
+import {
+  MaskOptionType,
+  getMaskAddonInfo,
+  getMaskAddonPrice,
+  isMaskEligible,
+} from "@/utils/maskAddon";
 
 interface ProductDetailPageProps {
   categoryTitle: string;
@@ -64,8 +72,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const { addToast } = useToast();
   const { toggleFavorite, isFavorite } = useWishlist();
   const { products, reviews } = useAdmin();
+  const { openInquiryModal } = useInquiry();
 
   const [quantity, setQuantity] = useState<number>(1);
+  const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("none");
   const [activeVideoModal, setActiveVideoModal] = useState<string | null>(null);
 
   // Dynamic Lookup Keys
@@ -117,8 +127,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       : "Löwenstein Medical";
   const skuNumber = foundProd?.sku || sData?.sku || `LS-RCD-${itemSlug.toUpperCase().replace(/[^A-Z0-9]/g, "")}-1000`;
 
-  const rawPrice = foundProd?.price ?? 45990;
-  const rawOrigPrice = foundProd?.originalPrice ?? Math.round(rawPrice * 1.35);
+  const rawPrice = foundProd?.price;
+  const hasPrice = typeof rawPrice === "number" && rawPrice > 0;
+  const rawOrigPrice = foundProd?.originalPrice ?? (hasPrice ? Math.round(rawPrice * 1.35) : undefined);
 
   // Sleep Diagnostics & Masks are sold at a listed price; every other
   // category is rental-only and shows a contact CTA instead.
@@ -127,10 +138,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     isRental: foundProd?.isRental,
   });
 
-  const priceValue = `₹${rawPrice.toLocaleString("en-IN")}.00`;
-  const originalPriceValue = `₹${rawOrigPrice.toLocaleString("en-IN")}.00`;
-  const emiMonthlyValue = `₹${Math.round(rawPrice / 36).toLocaleString("en-IN")}/month`;
-  const discountSavings = `₹${Math.round(rawPrice * 0.01).toLocaleString("en-IN")}`;
+  const priceValue = hasPrice ? `₹${rawPrice.toLocaleString("en-IN")}.00` : null;
+  const originalPriceValue = rawOrigPrice ? `₹${rawOrigPrice.toLocaleString("en-IN")}.00` : null;
+  const emiMonthlyValue = hasPrice ? `₹${Math.round(rawPrice / 36).toLocaleString("en-IN")}/month` : null;
+  const discountSavings = hasPrice ? `₹${Math.round(rawPrice * 0.01).toLocaleString("en-IN")}` : null;
 
   // Intro Paragraph
   const introParagraphText =
@@ -289,8 +300,20 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const isInWishlist = isFavorite(itemSlug);
 
   const handleAddToCart = () => {
-    addToCart(currentProductObj, quantity);
-    addToast("Added to Cart", `${quantity}x ${displayTitle} added to your cart.`);
+    const maskInfo = getMaskAddonInfo(currentProductObj);
+    const effectiveOption: MaskOptionType = maskInfo.isEligible ? selectedMaskOption : "none";
+    addToCart(currentProductObj, quantity, effectiveOption);
+
+    const maskLabel = effectiveOption === "nasal"
+      ? " (with CARA Nasal Mask [+₹3,000])"
+      : effectiveOption === "full-face"
+      ? " (with CARA Full Face Mask [+₹4,500])"
+      : "";
+
+    addToast(
+      "Added to Cart",
+      `${quantity}x ${displayTitle}${maskLabel} added to your procurement cart.`
+    );
   };
 
   const handleBuyNow = () => {
@@ -379,14 +402,40 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               )}
 
               {/* Price & Discounts Block */}
-              <div className="flex items-baseline gap-3 mb-6">
-                <span className="font-archivo font-bold text-3xl sm:text-4xl text-[#0a1f3c]">
-                  {priceValue}
-                </span>
-                <span className="text-base text-[#64748b] line-through font-inter">
-                  {originalPriceValue}
-                </span>
-              </div>
+              {hasPrice ? (
+                <div className="flex flex-col gap-2 mb-6">
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-archivo font-bold text-3xl sm:text-4xl text-[#0a1f3c]">
+                      {isMaskEligible(currentProductObj)
+                        ? `₹${(getMaskAddonInfo(currentProductObj).basePrice + getMaskAddonPrice(selectedMaskOption)).toLocaleString("en-IN")}.00`
+                        : priceValue}
+                    </span>
+                    {originalPriceValue && (
+                      <span className="text-base text-[#64748b] line-through font-inter">
+                        {originalPriceValue}
+                      </span>
+                    )}
+                  </div>
+                  {isMaskEligible(currentProductObj) && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-[11px] font-bold text-[#2a6ecb] bg-[#2a6ecb]/10 px-2.5 py-0.5 rounded-full inline-block">
+                        {selectedMaskOption === "nasal" && "Pre-selected: Nasal Mask (+₹3,000)"}
+                        {selectedMaskOption === "full-face" && "Configured: Full Face Mask (+₹4,500)"}
+                        {selectedMaskOption === "none" && "Device Only (Mask Toggled Off)"}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="mb-6 p-4 sm:p-5 rounded-2xl bg-[#EBF5FF] border border-[#2a6ecb]/20">
+                  <span className="font-archivo font-bold text-lg sm:text-xl text-[#0a1f3c] block">
+                    Price on Request
+                  </span>
+                  <p className="text-xs sm:text-sm text-[#64748b] mt-1 font-inter">
+                    Official clinical quotations and device delivery terms are available on request for hospitals, clinics, and private patients.
+                  </p>
+                </div>
+              )}
 
               {/* Rental Availability Notice — shown in addition to the price */}
               {alsoOnRental && (
@@ -401,81 +450,131 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 </div>
               )}
 
-              {/* EMI & Offers Cards (Matching Screenshot 1) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-                <div className="p-4 bg-white rounded-[14px] border border-[#e9edf4] flex items-center justify-between text-xs">
-                  <div>
-                    <span className="font-bold text-[#0a1f3c] block">EMI from {emiMonthlyValue}</span>
-                    <span className="text-[#64748b] text-[10px]">Z &amp; more</span>
+              {/* EMI & Offers Cards (Only when product has a listed price) */}
+              {hasPrice && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+                  <div className="p-4 bg-white rounded-[14px] border border-[#e9edf4] flex items-center justify-between text-xs">
+                    <div>
+                      <span className="font-bold text-[#0a1f3c] block">EMI from {emiMonthlyValue}</span>
+                      <span className="text-[#64748b] text-[10px]">💳 &amp; more</span>
+                    </div>
+                    <span className="text-[#2a6ecb] font-bold text-[11px] hover:underline cursor-pointer">View plans</span>
                   </div>
-                  <span className="text-[#2a6ecb] font-bold text-[11px] hover:underline cursor-pointer">View plans</span>
-                </div>
 
-                <div className="p-4 bg-white rounded-[14px] border border-[#e9edf4] flex items-center justify-between text-xs">
-                  <div>
-                    <span className="font-bold text-[#0a1f3c] block">Save up to {discountSavings}</span>
-                    <span className="text-[#64748b] text-[10px]">💳 &amp; more</span>
+                  <div className="p-4 bg-white rounded-[14px] border border-[#e9edf4] flex items-center justify-between text-xs">
+                    <div>
+                      <span className="font-bold text-[#0a1f3c] block">Save up to {discountSavings}</span>
+                      <span className="text-[#64748b] text-[10px]">💳 &amp; more</span>
+                    </div>
+                    <span className="text-[#2a6ecb] font-bold text-[11px] hover:underline cursor-pointer">View offers</span>
                   </div>
-                  <span className="text-[#2a6ecb] font-bold text-[11px] hover:underline cursor-pointer">View offers</span>
                 </div>
-              </div>
+              )}
 
               {/* Razorpay Trust Badge */}
-              <div className="flex items-center gap-2 text-xs text-[#64748b] mb-6 font-inter">
-                <ShieldCheck className="w-4 h-4 text-[#2a6ecb]" />
-                <span>Secured by <strong>Razorpay</strong> 256-bit SSL Encryption</span>
-              </div>
+              {hasPrice && (
+                <div className="flex items-center gap-2 text-xs text-[#64748b] mb-6 font-inter">
+                  <ShieldCheck className="w-4 h-4 text-[#2a6ecb]" />
+                  <span>Secured by <strong>Razorpay</strong> 256-bit SSL Encryption</span>
+                </div>
+              )}
 
-              {/* Quantity Selector (Matching Screenshot 1) */}
-              <div className="flex items-center gap-4 mb-6">
-                <span className="text-xs font-bold text-[#0a1f3c] uppercase font-archivo">Quantity</span>
-                <div className="flex items-center border border-[#e9edf4] rounded-full bg-white px-3 py-1.5">
+              {/* Mask Customization Option for Eligible Products */}
+              {hasPrice && isMaskEligible(currentProductObj) && (
+                <MaskOptionSelector
+                  product={currentProductObj}
+                  selectedOption={selectedMaskOption}
+                  onChange={setSelectedMaskOption}
+                  variant="full"
+                />
+              )}
+
+              {/* Quantity Selector (Only when buying with price) */}
+              {hasPrice && (
+                <div className="flex items-center gap-4 mb-6">
+                  <span className="text-xs font-bold text-[#0a1f3c] uppercase font-archivo">Quantity</span>
+                  <div className="flex items-center border border-[#e9edf4] rounded-full bg-white px-3 py-1.5">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      className="p-1 text-[#0a1f3c] hover:text-[#2a6ecb] transition-colors"
+                    >
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="px-4 font-archivo font-bold text-sm text-[#0a1f3c]">{quantity}</span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      className="p-1 text-[#0a1f3c] hover:text-[#2a6ecb] transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons: Add to Cart / Buy Now or Enquiry */}
+              {hasPrice ? (
+                <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 mb-4">
                   <button
-                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                    className="p-1 text-[#0a1f3c] hover:text-[#2a6ecb] transition-colors"
+                    onClick={handleAddToCart}
+                    className="btn btn-primary w-full sm:flex-1 cursor-pointer"
                   >
-                    <Minus className="w-3.5 h-3.5" />
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Add to Cart</span>
                   </button>
-                  <span className="px-4 font-archivo font-bold text-sm text-[#0a1f3c]">{quantity}</span>
+
                   <button
-                    onClick={() => setQuantity(quantity + 1)}
-                    className="p-1 text-[#0a1f3c] hover:text-[#2a6ecb] transition-colors"
+                    onClick={handleBuyNow}
+                    className="btn btn-dark w-full sm:flex-1 cursor-pointer"
                   >
-                    <Plus className="w-3.5 h-3.5" />
+                    <span>Buy Now</span>
+                  </button>
+
+                  <button
+                    onClick={() => toggleFavorite(currentProductObj)}
+                    className={`w-12 h-12 rounded-full border grid place-items-center transition-colors shrink-0 cursor-pointer ${
+                      isInWishlist
+                        ? "bg-[#fbe6ee] text-[#dc4b56] border-[#dc4b56]/30"
+                        : "border-[#e9edf4] text-[#0a1f3c] hover:bg-[#f6f4fb] hover:border-[#7fb0ee]"
+                    }`}
+                    aria-label={isInWishlist ? "Remove from wishlist" : "Save to wishlist"}
+                    aria-pressed={isInWishlist}
+                  >
+                    <Heart className={`w-5 h-5 ${isInWishlist ? "fill-current" : ""}`} />
                   </button>
                 </div>
-              </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 mb-4">
+                  <button
+                    type="button"
+                    onClick={() => openInquiryModal(currentProductObj)}
+                    className="btn btn-primary w-full sm:flex-1 cursor-pointer inline-flex items-center justify-center gap-2 !py-3.5"
+                  >
+                    <Phone className="w-4 h-4" />
+                    <span>Send Product Enquiry</span>
+                  </button>
 
-              {/* Action Buttons: Add to Cart, Buy Now, Wishlist */}
-              <div className="flex flex-col sm:flex-row items-center gap-3 pt-2 mb-4">
-                <button
-                  onClick={handleAddToCart}
-                  className="btn btn-primary w-full sm:flex-1 cursor-pointer"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>Add to Cart</span>
-                </button>
+                  <a
+                    href={`tel:${RENTAL_PHONE}`}
+                    className="btn btn-dark w-full sm:flex-1 cursor-pointer inline-flex items-center justify-center gap-2 !py-3.5"
+                  >
+                    <Phone className="w-4 h-4" />
+                    <span>Call {RENTAL_PHONE_DISPLAY}</span>
+                  </a>
 
-                <button
-                  onClick={handleBuyNow}
-                  className="btn btn-dark w-full sm:flex-1 cursor-pointer"
-                >
-                  <span>Buy Now</span>
-                </button>
-
-                <button
-                  onClick={() => toggleFavorite(currentProductObj)}
-                  className={`w-12 h-12 rounded-full border grid place-items-center transition-colors shrink-0 cursor-pointer ${
-                    isInWishlist
-                      ? "bg-[#fbe6ee] text-[#dc4b56] border-[#dc4b56]/30"
-                      : "border-[#e9edf4] text-[#0a1f3c] hover:bg-[#f6f4fb] hover:border-[#7fb0ee]"
-                  }`}
-                  aria-label={isInWishlist ? "Remove from wishlist" : "Save to wishlist"}
-                  aria-pressed={isInWishlist}
-                >
-                  <Heart className={`w-5 h-5 ${isInWishlist ? "fill-current" : ""}`} />
-                </button>
-              </div>
+                  <button
+                    onClick={() => toggleFavorite(currentProductObj)}
+                    className={`w-12 h-12 rounded-full border grid place-items-center transition-colors shrink-0 cursor-pointer ${
+                      isInWishlist
+                        ? "bg-[#fbe6ee] text-[#dc4b56] border-[#dc4b56]/30"
+                        : "border-[#e9edf4] text-[#0a1f3c] hover:bg-[#f6f4fb] hover:border-[#7fb0ee]"
+                    }`}
+                    aria-label={isInWishlist ? "Remove from wishlist" : "Save to wishlist"}
+                    aria-pressed={isInWishlist}
+                  >
+                    <Heart className={`w-5 h-5 ${isInWishlist ? "fill-current" : ""}`} />
+                  </button>
+                </div>
+              )}
 
               {/* Rental Enquiry Actions — offered in addition to buying */}
               {alsoOnRental && (

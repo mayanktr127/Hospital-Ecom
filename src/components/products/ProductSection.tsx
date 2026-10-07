@@ -40,8 +40,8 @@ export const ProductSection: React.FC<ProductSectionProps> = ({
   });
 
   const sortedProducts = [...filteredProducts].sort((a, b) => {
-    if (sortBy === "price-asc") return a.price - b.price;
-    if (sortBy === "price-desc") return b.price - a.price;
+    if (sortBy === "price-asc") return (a.price || 0) - (b.price || 0);
+    if (sortBy === "price-desc") return (b.price || 0) - (a.price || 0);
     if (sortBy === "rating") return b.rating - a.rating;
     return 0; // featured default
   });

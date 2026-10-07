@@ -17,7 +17,7 @@ export interface Product {
   id: string;
   name: string;
   category: ProductCategory;
-  price: number;
+  price?: number;
   originalPrice?: number;
   image: string;
   rating: number;
@@ -45,6 +45,8 @@ export interface Product {
 export interface CartItem {
   product: Product;
   quantity: number;
+  maskOption?: "nasal" | "full-face" | "none";
+  unitPrice?: number;
 }
 
 export interface ToastMessage {

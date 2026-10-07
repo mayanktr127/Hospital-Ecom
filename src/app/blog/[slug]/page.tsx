@@ -1,25 +1,97 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { useParams, notFound } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
 import { ToastContainer } from "@/components/ui/Toast";
 import { SearchModal } from "@/components/search/SearchModal";
 import { ProductModal } from "@/components/products/ProductModal";
 import { Product } from "@/types/product";
-import { BLOG_POSTS } from "@/data/blog_posts";
-import { ArrowLeft, Calendar, Clock, User, Share2, Sparkles, CheckCircle } from "lucide-react";
+import { BLOG_POSTS, BlogPost } from "@/data/blog_posts";
+import { ArrowLeft, Calendar, Clock, User, Sparkles, CheckCircle, Loader2 } from "lucide-react";
 
 export default function BlogDetailPage() {
   const params = useParams();
-  const slug = params?.slug as string;
+  const rawSlug = params?.slug as string;
+  const slug = rawSlug ? decodeURIComponent(rawSlug).trim() : "";
 
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const post = BLOG_POSTS.find((p) => p.slug === slug);
+  const [post, setPost] = useState<BlogPost | null>(() => {
+    return BLOG_POSTS.find((p) => p.slug.toLowerCase() === slug.toLowerCase()) || null;
+  });
+  const [loading, setLoading] = useState<boolean>(!post);
+
+  useEffect(() => {
+    if (!slug) return;
+    const fetchArticle = async () => {
+      try {
+        const res = await fetch(`/api/blogs/${encodeURIComponent(slug)}?_t=${Date.now()}`, {
+          cache: "no-store",
+          headers: { "Cache-Control": "no-cache", Pragma: "no-cache" },
+        });
+        const data = await res.json();
+        if (data.success && data.blog) {
+          const b = data.blog;
+          setPost({
+            slug: b.slug,
+            title: b.title,
+            excerpt: b.excerpt,
+            category: b.category,
+            author: b.author,
+            date: b.date || (b.createdAt ? new Date(b.createdAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) : "Recent"),
+            readTime: b.readTime || "5 min read",
+            image: b.image || "/images/pulmocare/pulmocare_prisma-smart.png",
+            content: Array.isArray(b.content) ? b.content : [b.content || ""],
+          });
+        } else {
+          // Fallback check against full list
+          const listRes = await fetch(`/api/blogs?_t=${Date.now()}`, { cache: "no-store" });
+          const listData = await listRes.json();
+          if (listData.success && Array.isArray(listData.blogs)) {
+            const matched = listData.blogs.find(
+              (item: any) => item.slug?.toLowerCase() === slug.toLowerCase()
+            );
+            if (matched) {
+              setPost({
+                slug: matched.slug,
+                title: matched.title,
+                excerpt: matched.excerpt,
+                category: matched.category,
+                author: matched.author,
+                date: matched.date || "Recent",
+                readTime: matched.readTime || "5 min read",
+                image: matched.image || "/images/pulmocare/pulmocare_prisma-smart.png",
+                content: Array.isArray(matched.content) ? matched.content : [matched.content || ""],
+              });
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Could not load dynamic article", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchArticle();
+  }, [slug]);
+
+  if (loading) {
+    return (
+      <div className="min-h-[100dvh] flex flex-col bg-paper">
+        <Navbar />
+        <main className="flex-1 wrap max-w-[1240px] mx-auto px-4 py-24 text-center flex flex-col items-center justify-center gap-4">
+          <Loader2 className="w-8 h-8 animate-spin text-[#2a6ecb]" />
+          <p className="text-sm font-archivo font-bold text-[#64748b]">Loading clinical article...</p>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
 
   if (!post) {
     return (
@@ -27,7 +99,7 @@ export default function BlogDetailPage() {
         <Navbar />
         <main className="flex-1 wrap max-w-[1240px] mx-auto px-4 py-20 text-center">
           <h1 className="font-archivo font-medium text-3xl tracking-[-0.04em] text-[#0a1f3c] mb-4">Article Not Found</h1>
-          <p className="text-sm text-[#64748b] mb-6">The requested clinical blog article does not exist.</p>
+          <p className="text-sm text-[#64748b] mb-6">The requested clinical blog article does not exist or has been removed.</p>
           <Link href="/blog" className="btn btn-primary">
             Back to Blog
           </Link>
@@ -93,7 +165,12 @@ export default function BlogDetailPage() {
             {post.excerpt}
           </p>
 
-          {post.content.map((paragraph, idx) => (
+          {(Array.isArray(post.content)
+            ? post.content
+            : typeof post.content === "string"
+              ? (post.content as string).split(/\n\n+/).filter(Boolean)
+              : []
+          ).map((paragraph, idx) => (
             <p key={idx} className="text-sm sm:text-base text-[#64748b] leading-relaxed">
               {paragraph}
             </p>

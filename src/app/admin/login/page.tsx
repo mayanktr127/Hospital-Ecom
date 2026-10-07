@@ -9,7 +9,7 @@ import { ShieldCheck, Lock, Mail, ArrowRight, AlertCircle } from "lucide-react";
 
 export default function AdminLoginPage() {
   const router = useRouter();
-  const { login, isAdminAuthenticated } = useAdmin();
+  const { login, isAdminAuthenticated, isAuthChecked } = useAdmin();
   const { addToast } = useToast();
 
   const [email, setEmail] = useState("");
@@ -17,10 +17,10 @@ export default function AdminLoginPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   React.useEffect(() => {
-    if (isAdminAuthenticated) {
+    if (isAuthChecked && isAdminAuthenticated) {
       router.push("/admin");
     }
-  }, [isAdminAuthenticated, router]);
+  }, [isAuthChecked, isAdminAuthenticated, router]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

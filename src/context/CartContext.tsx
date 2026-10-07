@@ -2,6 +2,13 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product, CartItem } from "@/types/product";
+import {
+  MaskOptionType,
+  getMaskAddonInfo,
+  calculateEffectiveUnitPrice,
+  getMaskProduct,
+  isMaskAddonProduct,
+} from "@/utils/maskAddon";
 
 interface CartContextType {
   cart: CartItem[];
@@ -9,9 +16,10 @@ interface CartContextType {
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
-  addToCart: (product: Product, quantity?: number) => void;
+  addToCart: (product: Product, quantity?: number, maskOption?: MaskOptionType) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
+  updateMaskOption: (productId: string, maskOption: MaskOptionType) => void;
   clearCart: () => void;
   totalItems: number;
   subtotal: number;
@@ -29,7 +37,31 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const savedCart = localStorage.getItem("medcore_cart");
       if (savedCart) {
-        setCart(JSON.parse(savedCart));
+        const parsed = JSON.parse(savedCart) as CartItem[];
+        // Sanitize: ensure eligible products use pure basePrice, not stale bundled prices
+        const sanitized = parsed.map((item) => {
+          const info = getMaskAddonInfo(item.product);
+          if (info.isEligible) {
+            return {
+              ...item,
+              product: { ...item.product, price: info.basePrice },
+              unitPrice: info.basePrice,
+              maskOption: item.maskOption || "none",
+            };
+          }
+          if (isMaskAddonProduct(item.product)) {
+            const maskProd = getMaskProduct(item.product.id === "addon-cara-full-face-mask" ? "full-face" : "nasal");
+            if (maskProd) {
+              return {
+                ...item,
+                product: maskProd,
+                unitPrice: maskProd.price,
+              };
+            }
+          }
+          return item;
+        });
+        setCart(sanitized);
       }
     } catch (e) {
       console.error("Failed to load cart", e);
@@ -47,21 +79,143 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const closeCart = () => setIsOpen(false);
   const toggleCart = () => setIsOpen((prev) => !prev);
 
-  const addToCart = (product: Product, quantity = 1) => {
+  const addToCart = (product: Product, quantity = 1, maskOption: MaskOptionType = "none") => {
+    const maskInfo = getMaskAddonInfo(product);
+
+    // Pure base price for the machine (e.g. ₹53,000 for Prisma Smart)
+    const baseDevicePrice = maskInfo.isEligible ? maskInfo.basePrice : (product.price || 0);
+    const deviceProduct: Product = maskInfo.isEligible
+      ? { ...product, price: baseDevicePrice }
+      : product;
+
+    const effectiveMaskOption: MaskOptionType = maskInfo.isEligible ? (maskOption ?? "none") : "none";
+
     setCart((prevCart) => {
-      const existingIndex = prevCart.findIndex((item) => item.product.id === product.id);
-      if (existingIndex > -1) {
-        const newCart = [...prevCart];
-        newCart[existingIndex].quantity += quantity;
-        return newCart;
+      let updatedCart = [...prevCart];
+
+      // 1. Add or update the device in the cart
+      const existingDeviceIdx = updatedCart.findIndex((item) => item.product.id === product.id);
+      if (existingDeviceIdx > -1) {
+        updatedCart[existingDeviceIdx] = {
+          ...updatedCart[existingDeviceIdx],
+          product: deviceProduct,
+          quantity: updatedCart[existingDeviceIdx].quantity + quantity,
+          maskOption: effectiveMaskOption,
+          unitPrice: baseDevicePrice,
+        };
+      } else {
+        updatedCart.push({
+          product: deviceProduct,
+          quantity,
+          maskOption: effectiveMaskOption,
+          unitPrice: baseDevicePrice,
+        });
       }
-      return [...prevCart, { product, quantity }];
+
+      // 2. Manage the Mask Product in the cart just like an actual product
+      if (maskInfo.isEligible) {
+        // Remove any existing mask add-on items first
+        updatedCart = updatedCart.filter((item) => !isMaskAddonProduct(item.product));
+
+        // If user chose a mask (Nasal or Full Face), insert it right after the device
+        if (effectiveMaskOption !== "none") {
+          const maskProduct = getMaskProduct(effectiveMaskOption);
+          if (maskProduct) {
+            const devIdx = updatedCart.findIndex((item) => item.product.id === product.id);
+            const targetQty = devIdx > -1 ? updatedCart[devIdx].quantity : quantity;
+            const maskItem: CartItem = {
+              product: maskProduct,
+              quantity: targetQty,
+              unitPrice: maskProduct.price,
+            };
+            if (devIdx > -1) {
+              updatedCart.splice(devIdx + 1, 0, maskItem);
+            } else {
+              updatedCart.push(maskItem);
+            }
+          }
+        }
+      }
+
+      return updatedCart;
     });
+
     setIsOpen(true);
   };
 
+  const updateMaskOption = (productId: string, maskOption: MaskOptionType) => {
+    setCart((prevCart) => {
+      let updatedCart = [...prevCart];
+
+      // 1. Update the machine's maskOption and get its current quantity
+      let targetQuantity = 1;
+      updatedCart = updatedCart.map((item) => {
+        if (item.product.id === productId) {
+          targetQuantity = item.quantity;
+          const maskInfo = getMaskAddonInfo(item.product);
+          const baseDevicePrice = maskInfo.isEligible ? maskInfo.basePrice : (item.product.price || 0);
+          return {
+            ...item,
+            product: { ...item.product, price: baseDevicePrice },
+            unitPrice: baseDevicePrice,
+            maskOption,
+          };
+        }
+        return item;
+      });
+
+      // 2. Remove all previous mask addon items from the cart
+      updatedCart = updatedCart.filter((item) => !isMaskAddonProduct(item.product));
+
+      // 3. If new mask option is not 'none', insert the selected mask product right after the device
+      if (maskOption !== "none") {
+        const maskProduct = getMaskProduct(maskOption);
+        if (maskProduct) {
+          const newDeviceIdx = updatedCart.findIndex((item) => item.product.id === productId);
+          const maskItem: CartItem = {
+            product: maskProduct,
+            quantity: targetQuantity,
+            unitPrice: maskProduct.price,
+          };
+          if (newDeviceIdx > -1) {
+            updatedCart.splice(newDeviceIdx + 1, 0, maskItem);
+          } else {
+            updatedCart.push(maskItem);
+          }
+        }
+      }
+
+      return updatedCart;
+    });
+  };
+
   const removeFromCart = (productId: string) => {
-    setCart((prevCart) => prevCart.filter((item) => item.product.id !== productId));
+    setCart((prevCart) => {
+      // If user removes a mask addon directly with the trash button
+      if (isMaskAddonProduct(productId)) {
+        return prevCart
+          .filter((item) => item.product.id !== productId)
+          .map((item) => {
+            if (getMaskAddonInfo(item.product).isEligible) {
+              return { ...item, maskOption: "none" };
+            }
+            return item;
+          });
+      }
+
+      // If user removes an eligible machine, also remove any mask addon items
+      const isEligibleDevice = prevCart.some(
+        (item) => item.product.id === productId && getMaskAddonInfo(item.product).isEligible
+      );
+
+      if (isEligibleDevice) {
+        return prevCart.filter(
+          (item) => item.product.id !== productId && !isMaskAddonProduct(item.product)
+        );
+      }
+
+      return prevCart.filter((item) => item.product.id !== productId);
+    });
   };
 
   const updateQuantity = (productId: string, quantity: number) => {
@@ -69,17 +223,32 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       removeFromCart(productId);
       return;
     }
-    setCart((prevCart) =>
-      prevCart.map((item) =>
-        item.product.id === productId ? { ...item, quantity } : item
-      )
-    );
+
+    setCart((prevCart) => {
+      const isEligibleDevice = prevCart.some(
+        (item) => item.product.id === productId && getMaskAddonInfo(item.product).isEligible
+      );
+
+      return prevCart.map((item) => {
+        if (item.product.id === productId) {
+          return { ...item, quantity };
+        }
+        // Sync mask addon quantity with the device quantity
+        if (isEligibleDevice && isMaskAddonProduct(item.product)) {
+          return { ...item, quantity };
+        }
+        return item;
+      });
+    });
   };
 
   const clearCart = () => setCart([]);
 
   const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
-  const subtotal = cart.reduce((acc, item) => acc + item.product.price * item.quantity, 0);
+  const subtotal = cart.reduce((acc, item) => {
+    const price = item.product.price || 0;
+    return acc + price * item.quantity;
+  }, 0);
   const freeShippingThreshold = 150.00;
 
   return (
@@ -93,6 +262,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         addToCart,
         removeFromCart,
         updateQuantity,
+        updateMaskOption,
         clearCart,
         totalItems,
         subtotal,
