@@ -8,12 +8,34 @@ try {
 
 import { dbConnect } from "@/lib/mongodb";
 import Product from "@/models/Product";
+import { serverCache } from "@/lib/cache";
 
 export async function GET() {
   try {
+    const cachedProducts = serverCache.get<any>("products_list");
+    if (cachedProducts) {
+      return NextResponse.json(
+        { success: true, products: cachedProducts, fromCache: true },
+        {
+          headers: {
+            "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+          },
+        }
+      );
+    }
+
     await dbConnect();
-    const products = await Product.find({}).sort({ createdAt: -1 });
-    return NextResponse.json({ success: true, products });
+    const products = await Product.find({}).sort({ createdAt: -1 }).lean();
+    serverCache.set("products_list", products, 180);
+
+    return NextResponse.json(
+      { success: true, products, fromCache: false },
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    );
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
@@ -24,6 +46,11 @@ export async function POST(req: Request) {
     await dbConnect();
     const body = await req.json();
     const newProduct = await Product.create(body);
+
+    // Invalidate caches
+    serverCache.del("products_list");
+    serverCache.del("storefront_data");
+
     return NextResponse.json({ success: true, product: newProduct }, { status: 201 });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -39,6 +66,11 @@ export async function PUT(req: Request) {
       body,
       { new: true, runValidators: true }
     );
+
+    // Invalidate caches
+    serverCache.del("products_list");
+    serverCache.del("storefront_data");
+
     return NextResponse.json({ success: true, product: updatedProduct });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
@@ -56,6 +88,11 @@ export async function DELETE(req: Request) {
     }
 
     await Product.findOneAndDelete({ id });
+
+    // Invalidate caches
+    serverCache.del("products_list");
+    serverCache.del("storefront_data");
+
     return NextResponse.json({ success: true, message: `Product ${id} deleted` });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });

@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { Product } from "@/types/product";
 import { getDefaultProducts } from "@/utils/defaultProducts";
+import { getDefaultCategories } from "@/utils/defaultCategories";
 
 export interface ReviewItem {
   id: string;
@@ -147,6 +148,7 @@ interface AdminContextType {
   addSleepStudyBooking: (booking: SleepStudyBookingItem) => Promise<void>;
   deleteSleepStudyBooking: (bookingId: string) => Promise<void>;
   updateSleepStudyBookingStatus: (bookingId: string, status: string) => Promise<void>;
+  refreshAdminData: () => Promise<void>;
 }
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
@@ -156,17 +158,34 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  // Products start pre-populated with default products, overwritten if API succeeds
+  // Products and categories start pre-populated with default items for 0ms initial load
   const [products, setProducts] = useState<Product[]>(getDefaultProducts());
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [categories, setCategories] = useState<CategoryItem[]>(getDefaultCategories());
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [reviews, setReviews] = useState<ReviewItem[]>([]);
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [sleepStudyBookings, setSleepStudyBookings] = useState<SleepStudyBookingItem[]>([]);
 
+  // Function to fetch administrative data (inquiries, orders, bookings)
+  const refreshAdminData = async () => {
+    try {
+      const [inqRes, ordRes, ssbRes] = await Promise.all([
+        fetch("/api/inquiries").then((r) => r.json()).catch(() => ({ success: false })),
+        fetch("/api/orders").then((r) => r.json()).catch(() => ({ success: false })),
+        fetch("/api/sleep-study-bookings").then((r) => r.json()).catch(() => ({ success: false })),
+      ]);
+
+      if (inqRes.success && inqRes.inquiries) setInquiries(inqRes.inquiries);
+      if (ordRes.success && ordRes.orders) setOrders(ordRes.orders);
+      if (ssbRes.success && ssbRes.bookings) setSleepStudyBookings(ssbRes.bookings);
+    } catch (e) {
+      console.error("Failed to load admin data", e);
+    }
+  };
+
   useEffect(() => {
-    // Restore admin session from localStorage
+    // 1. Restore admin session from localStorage
     try {
       const savedAuth = localStorage.getItem("pulmocare_admin_auth");
       if (savedAuth) {
@@ -178,9 +197,32 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       console.error("Failed to restore admin auth from localStorage", err);
     }
 
-    // Fetch all data from backend
-    const fetchAll = async () => {
-      setIsLoading(true);
+    // 2. Instant client-side hydration from localStorage cache
+    try {
+      const cachedCats = localStorage.getItem("pulmocare_cache_cats");
+      if (cachedCats) {
+        const parsed = JSON.parse(cachedCats);
+        if (Array.isArray(parsed) && parsed.length > 0) setCategories(parsed);
+      }
+      const cachedProds = localStorage.getItem("pulmocare_cache_prods");
+      if (cachedProds) {
+        const parsed = JSON.parse(cachedProds);
+        if (Array.isArray(parsed) && parsed.length > 0) setProducts(parsed);
+      }
+      const cachedBlogs = localStorage.getItem("pulmocare_cache_blogs");
+      if (cachedBlogs) {
+        const parsed = JSON.parse(cachedBlogs);
+        if (Array.isArray(parsed) && parsed.length > 0) setBlogPosts(parsed);
+      }
+      const cachedRevs = localStorage.getItem("pulmocare_cache_revs");
+      if (cachedRevs) {
+        const parsed = JSON.parse(cachedRevs);
+        if (Array.isArray(parsed) && parsed.length > 0) setReviews(parsed);
+      }
+    } catch (e) {}
+
+    // 3. Fast parallel fetch from unified storefront API
+    const fetchStorefrontData = async () => {
       try {
         const mergeWithDefaultProducts = (fetchedProds: Product[]) => {
           const defaults = getDefaultProducts();
@@ -194,25 +236,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           return Array.from(map.values());
         };
 
-        // Fetch products — if DB empty, auto-seed first
-        const prodRes = await fetch("/api/products").then((r) => r.json()).catch(() => ({ success: false }));
-        if (prodRes.success && prodRes.products && prodRes.products.length > 0) {
-          setProducts(mergeWithDefaultProducts(prodRes.products));
-        } else {
-          // Trigger seed (idempotent — only seeds empty collections)
-          await fetch("/api/seed").catch(() => {});
-          const seededProds = await fetch("/api/products").then((r) => r.json()).catch(() => ({ success: false }));
-          if (seededProds.success && seededProds.products) {
-            setProducts(mergeWithDefaultProducts(seededProds.products));
-          } else {
-            setProducts(getDefaultProducts());
-          }
-        }
-
-        // Fetch categories — if DB empty, auto-seed covered by /api/seed above
         const normalizeCategories = (cats: CategoryItem[]) =>
           cats.map((c) => {
-            if (c.slug === "sleep-apnea-therapy" || c.id === "cat-1" || c.name === "Sleep Apnea Therapy" || c.name === "Sleep Therapy") {
+            if (
+              c.slug === "sleep-apnea-therapy" ||
+              c.id === "cat-1" ||
+              c.name === "Sleep Apnea Therapy" ||
+              c.name === "Sleep Therapy"
+            ) {
               return {
                 ...c,
                 name: "CPAP Therapy",
@@ -222,54 +253,56 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             return c;
           });
 
-        const catRes = await fetch("/api/categories").then((r) => r.json()).catch(() => ({ success: false }));
-        if (catRes.success && catRes.categories && catRes.categories.length > 0) {
-          setCategories(normalizeCategories(catRes.categories));
-        } else {
-          // Re-try after seed
-          const seededCats = await fetch("/api/categories").then((r) => r.json()).catch(() => ({ success: false }));
-          if (seededCats.success && seededCats.categories) {
-            setCategories(normalizeCategories(seededCats.categories));
+        // Try unified cached storefront endpoint first (1 single roundtrip)
+        const sfRes = await fetch("/api/storefront-data").then((r) => r.json()).catch(() => null);
+
+        if (sfRes && sfRes.success) {
+          if (sfRes.products && sfRes.products.length > 0) {
+            const merged = mergeWithDefaultProducts(sfRes.products);
+            setProducts(merged);
+            try { localStorage.setItem("pulmocare_cache_prods", JSON.stringify(merged)); } catch (e) {}
           }
+          if (sfRes.categories && sfRes.categories.length > 0) {
+            const normCats = normalizeCategories(sfRes.categories);
+            setCategories(normCats);
+            try { localStorage.setItem("pulmocare_cache_cats", JSON.stringify(normCats)); } catch (e) {}
+          }
+          if (sfRes.blogs && sfRes.blogs.length > 0) {
+            setBlogPosts(sfRes.blogs);
+            try { localStorage.setItem("pulmocare_cache_blogs", JSON.stringify(sfRes.blogs)); } catch (e) {}
+          }
+          if (sfRes.reviews && sfRes.reviews.length > 0) {
+            setReviews(sfRes.reviews);
+            try { localStorage.setItem("pulmocare_cache_revs", JSON.stringify(sfRes.reviews)); } catch (e) {}
+          }
+        } else {
+          // Fallback: parallel fetch of individual endpoints
+          const [prodRes, catRes, blogRes, revRes] = await Promise.all([
+            fetch("/api/products").then((r) => r.json()).catch(() => ({ success: false })),
+            fetch("/api/categories").then((r) => r.json()).catch(() => ({ success: false })),
+            fetch("/api/blogs").then((r) => r.json()).catch(() => ({ success: false })),
+            fetch("/api/reviews").then((r) => r.json()).catch(() => ({ success: false })),
+          ]);
+
+          if (prodRes.success && prodRes.products) setProducts(mergeWithDefaultProducts(prodRes.products));
+          if (catRes.success && catRes.categories) setCategories(normalizeCategories(catRes.categories));
+          if (blogRes.success && blogRes.blogs) setBlogPosts(blogRes.blogs);
+          if (revRes.success && revRes.reviews) setReviews(revRes.reviews);
         }
 
-        // Fetch blogs
-        const blogRes = await fetch("/api/blogs").then((r) => r.json()).catch(() => ({ success: false }));
-        if (blogRes.success && blogRes.blogs && blogRes.blogs.length > 0) {
-          setBlogPosts(blogRes.blogs);
-        }
-
-        // Fetch reviews
-        const revRes = await fetch("/api/reviews").then((r) => r.json()).catch(() => ({ success: false }));
-        if (revRes.success && revRes.reviews && revRes.reviews.length > 0) {
-          setReviews(revRes.reviews);
-        }
-
-        // Fetch inquiries
-        const inqRes = await fetch("/api/inquiries").then((r) => r.json()).catch(() => ({ success: false }));
-        if (inqRes.success && inqRes.inquiries && inqRes.inquiries.length > 0) {
-          setInquiries(inqRes.inquiries);
-        }
-
-        // Fetch orders
-        const ordRes = await fetch("/api/orders").then((r) => r.json()).catch(() => ({ success: false }));
-        if (ordRes.success && ordRes.orders && ordRes.orders.length > 0) {
-          setOrders(ordRes.orders);
-        }
-
-        // Fetch sleep study bookings
-        const ssbRes = await fetch("/api/sleep-study-bookings").then((r) => r.json()).catch(() => ({ success: false }));
-        if (ssbRes.success && ssbRes.bookings && ssbRes.bookings.length > 0) {
-          setSleepStudyBookings(ssbRes.bookings);
+        // Check if on admin page, then load admin data
+        const isClient = typeof window !== "undefined";
+        if (isClient && (window.location.pathname.startsWith("/admin") || localStorage.getItem("pulmocare_admin_auth"))) {
+          await refreshAdminData();
         }
       } catch (err) {
-        console.error("Failed to load data from backend", err);
+        console.error("Failed to load storefront data", err);
       } finally {
         setIsLoading(false);
       }
     };
 
-    fetchAll();
+    fetchStorefrontData();
   }, []);
 
   const login = (email: string, pass: string): boolean => {
@@ -617,6 +650,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addSleepStudyBooking,
         deleteSleepStudyBooking,
         updateSleepStudyBookingStatus,
+        refreshAdminData,
       }}
     >
       {children}
