@@ -39,13 +39,6 @@ export default function SitemapPage() {
         { label: "Sitemap Directory", href: "/sitemap" },
       ],
     },
-    {
-      title: "System Administration",
-      icon: FileText,
-      links: [
-        { label: "Admin Portal (Products & Category Management)", href: "/admin" },
-      ],
-    },
   ];
 
   return (

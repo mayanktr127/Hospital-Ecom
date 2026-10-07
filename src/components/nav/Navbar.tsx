@@ -225,7 +225,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
       ref={navContainerRef}
       onMouseLeave={() => setActiveDropdown(null)}
     >
-      {/* Top Utility Bar: Contact & Admin Portal */}
+      {/* Top Utility Bar: Contact Information */}
       <div className="wrap max-w-[1240px] mx-auto px-4 md:px-6 py-1.5 flex items-center justify-between text-xs text-[#0a1f3c] font-inter font-medium border-b border-[#e9edf4]">
         <div className="flex items-center gap-4 text-[#64748b]">
           <span>📞 Hotline: <a href="tel:+919343444428" className="font-bold text-[#0a1f3c] hover:text-[#2a6ecb]">+91 9343444428</a></span>
@@ -233,15 +233,10 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
           <span className="hidden sm:inline">✉️ <a href="mailto:enquiry@pulmocare.in" className="font-bold text-[#0a1f3c] hover:text-[#2a6ecb]">enquiry@pulmocare.in</a></span>
         </div>
 
-        <div className="flex items-center gap-4">
-          {/* Admin Portal Link exclusively on Top Right */}
-          <Link
-            href="/admin"
-            className="flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-[#dcebfb] text-[#0a1f3c] hover:bg-[#2a6ecb] hover:text-white font-bold transition-all border border-[#2a6ecb]/20 shrink-0"
-          >
-            <ShieldCheck className="w-3.5 h-3.5 text-[#2a6ecb]" />
-            <span>Admin Portal</span>
-          </Link>
+        <div className="flex items-center gap-3 text-[#64748b]">
+          <span className="hidden sm:inline">🕒 Mon - Sat: 9:00 AM - 7:00 PM</span>
+          <span className="hidden md:inline">|</span>
+          <span className="font-semibold text-[#2a6ecb] bg-[#dcebfb] px-2.5 py-0.5 rounded-full text-[11px]">Authorized Medical Provider</span>
         </div>
       </div>
 
@@ -442,15 +437,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                   >
                     <FileText className="w-4 h-4 text-[#2a6ecb]" />
                     <span>Clinical Blog &amp; Articles</span>
-                  </Link>
-
-                  <Link
-                    href="/admin"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center gap-2 font-archivo font-bold text-sm text-[#2a6ecb] p-3 rounded-xl bg-[#2a6ecb]/10"
-                  >
-                    <ShieldCheck className="w-4 h-4 text-[#2a6ecb]" />
-                    <span>Admin Control Portal</span>
                   </Link>
                 </div>
 

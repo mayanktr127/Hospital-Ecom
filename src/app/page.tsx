@@ -113,20 +113,23 @@ export default function Home() {
 
           {/* Dynamic Category Grid Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {categories.map((cat, idx) => {
-              const matchingCount = products.filter((p) => {
+            {(categories || []).map((cat, idx) => {
+              if (!cat) return null;
+              const catName = cat.name || "Equipment";
+              const cName = catName.toLowerCase().trim();
+              const cSlug = (cat.slug || "").toLowerCase().trim();
+              const cId = (cat.id || "").toLowerCase().trim();
+
+              const matchingCount = (products || []).filter((p) => {
                 if (!p || !p.category) return false;
-                const pCat = p.category.toLowerCase().trim();
-                const cName = cat.name.toLowerCase().trim();
-                const cSlug = (cat.slug || "").toLowerCase().trim();
-                const cId = (cat.id || "").toLowerCase().trim();
+                const pCat = String(p.category).toLowerCase().trim();
                 return (
                   pCat === cName ||
                   pCat === cSlug ||
                   pCat === cId ||
                   pCat.includes(cName) ||
                   cName.includes(pCat) ||
-                  pCat.replace(/[^a-z0-9]/g, "") === cSlug.replace(/[^a-z0-9]/g, "")
+                  (Boolean(cSlug) && pCat.replace(/[^a-z0-9]/g, "") === cSlug.replace(/[^a-z0-9]/g, ""))
                 );
               }).length;
 

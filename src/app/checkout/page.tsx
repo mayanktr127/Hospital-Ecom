@@ -244,12 +244,6 @@ export default function CheckoutPage() {
 
             <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link
-                href="/admin"
-                className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#003865] hover:bg-[#002747] text-white font-archivo font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
-              >
-                <span>View Order in Admin Panel</span>
-              </Link>
-              <Link
                 href="/"
                 className="w-full sm:w-auto px-6 py-3 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2"
               >

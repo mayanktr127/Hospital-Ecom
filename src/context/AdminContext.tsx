@@ -147,6 +147,7 @@ interface AdminUser {
 
 interface AdminContextType {
   isAdminAuthenticated: boolean;
+  isAuthChecked: boolean;
   adminUser: AdminUser | null;
   login: (email: string, pass: string) => boolean;
   logout: () => void;
@@ -198,6 +199,7 @@ const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
 export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState<boolean>(false);
+  const [isAuthChecked, setIsAuthChecked] = useState<boolean>(false);
   const [adminUser, setAdminUser] = useState<AdminUser | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -214,14 +216,20 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   useEffect(() => {
     // Restore admin session from localStorage
     try {
-      const savedAuth = localStorage.getItem("pulmocare_admin_auth");
-      if (savedAuth) {
-        const parsed = JSON.parse(savedAuth);
-        setIsAdminAuthenticated(true);
-        setAdminUser(parsed);
+      if (typeof window !== "undefined") {
+        const savedAuth = localStorage.getItem("pulmocare_admin_auth");
+        if (savedAuth) {
+          const parsed = JSON.parse(savedAuth);
+          if (parsed && (parsed.email === "admin@pulmocare.in" || parsed.role)) {
+            setIsAdminAuthenticated(true);
+            setAdminUser(parsed);
+          }
+        }
       }
     } catch (err) {
       console.error("Failed to restore admin auth from localStorage", err);
+    } finally {
+      setIsAuthChecked(true);
     }
 
     // Fetch all data from backend
@@ -231,22 +239,41 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const mergeWithDefaultProducts = (fetchedProds: Product[]) => {
           const defaults = getDefaultProducts();
           const map = new Map<string, Product>();
+          const getSafeProdKey = (p: Partial<Product>) => {
+            const val = p.id || p.sku || p.name || "";
+            return String(val).toLowerCase().trim();
+          };
+
           defaults.forEach((p) => {
-            if (p && p.id) map.set(p.id.toLowerCase(), p);
+            if (p && typeof p === "object") {
+              const key = getSafeProdKey(p);
+              if (key) map.set(key, p);
+            }
           });
-          fetchedProds.forEach((p) => {
-            if (p && p.id) map.set(p.id.toLowerCase(), p);
-          });
+
+          if (Array.isArray(fetchedProds)) {
+            fetchedProds.forEach((p) => {
+              if (p && typeof p === "object") {
+                const key = getSafeProdKey(p);
+                if (key) map.set(key, p);
+              }
+            });
+          }
 
           // Also merge any local backup custom products so custom products never disappear
           if (typeof window !== "undefined") {
             try {
               const localCustom = localStorage.getItem("pulmocare_custom_products");
               if (localCustom) {
-                const parsed: Product[] = JSON.parse(localCustom);
-                parsed.forEach((p) => {
-                  if (p && p.id) map.set(p.id.toLowerCase(), p);
-                });
+                const parsed = JSON.parse(localCustom);
+                if (Array.isArray(parsed)) {
+                  parsed.forEach((p) => {
+                    if (p && typeof p === "object") {
+                      const key = getSafeProdKey(p);
+                      if (key) map.set(key, p);
+                    }
+                  });
+                }
               }
             } catch {}
           }
@@ -270,16 +297,34 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
 
         // Fetch categories — if DB empty, auto-seed covered by /api/seed above
-        const normalizeCategories = (cats: CategoryItem[]) => {
-          const mapped = cats.map((c) => {
-            if (c.slug === "sleep-apnea-therapy" || c.id === "cat-1" || c.name === "Sleep Apnea Therapy" || c.name === "Sleep Therapy") {
+        const normalizeCategories = (cats: CategoryItem[]): CategoryItem[] => {
+          if (!Array.isArray(cats)) return [];
+          const safeCats = cats.filter((c): c is CategoryItem => Boolean(c && typeof c === "object"));
+          const mapped = safeCats.map((c) => {
+            const slug = String(c.slug || "").toLowerCase();
+            const id = String(c.id || "").toLowerCase();
+            const name = String(c.name || "").toLowerCase();
+            if (slug === "sleep-apnea-therapy" || id === "cat-1" || name === "sleep apnea therapy" || name === "sleep therapy") {
               return {
                 ...c,
+                id: c.id || "cat-1",
+                slug: c.slug || "sleep-apnea-therapy",
                 name: "CPAP Therapy",
-                image: "/images/pulmocare/pulmocare_prisma-smart-plus.png",
+                image: c.image || "/images/pulmocare/pulmocare_prisma-smart-plus.png",
               };
             }
             return c;
+          });
+
+          const getSafeCatKey = (c: Partial<CategoryItem>) => {
+            const val = c.id || c.slug || c.name || "";
+            return String(val).toLowerCase().trim();
+          };
+
+          const map = new Map<string, CategoryItem>();
+          mapped.forEach((c) => {
+            const key = getSafeCatKey(c);
+            if (key) map.set(key, c);
           });
 
           // Merge with local backup categories so custom categories never disappear
@@ -287,16 +332,20 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             try {
               const localCustom = localStorage.getItem("pulmocare_custom_categories");
               if (localCustom) {
-                const parsed: CategoryItem[] = JSON.parse(localCustom);
-                const map = new Map<string, CategoryItem>();
-                mapped.forEach((c) => map.set((c.id || c.name).toLowerCase(), c));
-                parsed.forEach((c) => map.set((c.id || c.name).toLowerCase(), c));
-                return Array.from(map.values());
+                const parsed = JSON.parse(localCustom);
+                if (Array.isArray(parsed)) {
+                  parsed.forEach((c) => {
+                    if (c && typeof c === "object") {
+                      const key = getSafeCatKey(c);
+                      if (key) map.set(key, c);
+                    }
+                  });
+                }
               }
             } catch {}
           }
 
-          return mapped;
+          return Array.from(map.values());
         };
 
         const catRes = await fetch("/api/categories").then((r) => r.json()).catch(() => ({ success: false }));
@@ -455,7 +504,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       try {
         const stored = localStorage.getItem("pulmocare_custom_categories");
         const list: CategoryItem[] = stored ? JSON.parse(stored) : [];
-        const filtered = list.filter((c) => (c.id || c.name).toLowerCase() !== (newCategory.id || newCategory.name).toLowerCase());
+        const getCatKey = (item: any) => String(item?.id || item?.slug || item?.name || "").toLowerCase().trim();
+        const filtered = Array.isArray(list) ? list.filter((c) => getCatKey(c) !== getCatKey(newCategory)) : [];
         localStorage.setItem("pulmocare_custom_categories", JSON.stringify([...filtered, newCategory]));
       } catch {}
     }
@@ -468,14 +518,16 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         body: JSON.stringify(newCategory),
       });
       const data = await res.json();
+      const getCatKey = (item: any) => String(item?.id || item?.slug || item?.name || "").toLowerCase().trim();
       if (data.success && data.category) {
-        setCategories((prev) => [...prev.filter((c) => (c.id || c.name).toLowerCase() !== (data.category.id || data.category.name).toLowerCase()), data.category]);
+        setCategories((prev) => [...prev.filter((c) => getCatKey(c) !== getCatKey(data.category)), data.category]);
       } else {
-        setCategories((prev) => [...prev.filter((c) => (c.id || c.name).toLowerCase() !== (newCategory.id || newCategory.name).toLowerCase()), newCategory]);
+        setCategories((prev) => [...prev.filter((c) => getCatKey(c) !== getCatKey(newCategory)), newCategory]);
       }
     } catch (err) {
       console.error("Error adding category to MongoDB Atlas", err);
-      setCategories((prev) => [...prev.filter((c) => (c.id || c.name).toLowerCase() !== (newCategory.id || newCategory.name).toLowerCase()), newCategory]);
+      const getCatKey = (item: any) => String(item?.id || item?.slug || item?.name || "").toLowerCase().trim();
+      setCategories((prev) => [...prev.filter((c) => getCatKey(c) !== getCatKey(newCategory)), newCategory]);
     }
   };
 
@@ -792,6 +844,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     <AdminContext.Provider
       value={{
         isAdminAuthenticated,
+        isAuthChecked,
         adminUser,
         login,
         logout,

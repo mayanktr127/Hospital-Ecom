@@ -58,6 +58,7 @@ export default function AdminDashboardPage() {
   const router = useRouter();
   const {
     isAdminAuthenticated,
+    isAuthChecked,
     adminUser,
     logout,
     products,
@@ -508,12 +509,10 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    if (!isAdminAuthenticated) {
+    if (isAuthChecked && !isAdminAuthenticated) {
       router.push("/admin/login");
     }
-  }, [isAdminAuthenticated, router]);
-
-  if (!isAdminAuthenticated) return null;
+  }, [isAuthChecked, isAdminAuthenticated, router]);
 
   // Handlers for Product Form
   const handleOpenProductModal = (prod?: Product) => {
@@ -759,33 +758,33 @@ export default function AdminDashboardPage() {
     addToast("Status Updated", `Inquiry from ${name} updated to ${status}.`);
   };
 
-  const filteredProducts = products.filter(
+  const filteredProducts = (products || []).filter(
     (p) =>
-      p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-      p.category.toLowerCase().includes(productSearch.toLowerCase())
+      (p?.name || "").toLowerCase().includes(productSearch.toLowerCase()) ||
+      (p?.category || "").toLowerCase().includes(productSearch.toLowerCase())
   );
 
-  const filteredBlogs = blogPosts.filter(
+  const filteredBlogs = (blogPosts || []).filter(
     (b) =>
-      b.title.toLowerCase().includes(blogSearch.toLowerCase()) ||
-      b.category.toLowerCase().includes(blogSearch.toLowerCase())
+      (b?.title || "").toLowerCase().includes(blogSearch.toLowerCase()) ||
+      (typeof b?.category === "string" ? b.category : "").toLowerCase().includes(blogSearch.toLowerCase())
   );
 
-  const filteredReviews = reviews.filter(
+  const filteredReviews = (reviews || []).filter(
     (r) =>
-      r.productName.toLowerCase().includes(reviewSearch.toLowerCase()) ||
-      r.author.toLowerCase().includes(reviewSearch.toLowerCase()) ||
-      r.comment.toLowerCase().includes(reviewSearch.toLowerCase())
+      (r?.productName || "").toLowerCase().includes(reviewSearch.toLowerCase()) ||
+      (r?.author || "").toLowerCase().includes(reviewSearch.toLowerCase()) ||
+      (r?.comment || "").toLowerCase().includes(reviewSearch.toLowerCase())
   );
 
-  const filteredInquiries = inquiries.filter(
+  const filteredInquiries = (inquiries || []).filter(
     (inq) =>
-      inq.fullName.toLowerCase().includes(inquirySearch.toLowerCase()) ||
-      inq.phone.toLowerCase().includes(inquirySearch.toLowerCase()) ||
-      inq.email.toLowerCase().includes(inquirySearch.toLowerCase()) ||
-      inq.city.toLowerCase().includes(inquirySearch.toLowerCase()) ||
-      inq.device.toLowerCase().includes(inquirySearch.toLowerCase()) ||
-      inq.inquiryType.toLowerCase().includes(inquirySearch.toLowerCase())
+      (inq?.fullName || "").toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq?.phone || "").toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq?.email || "").toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq?.city || "").toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq?.device || "").toLowerCase().includes(inquirySearch.toLowerCase()) ||
+      (inq?.inquiryType || "").toLowerCase().includes(inquirySearch.toLowerCase())
   );
 
   // Dynamic Real Dashboard Metrics & Analytics (Live MongoDB Atlas Data)
@@ -924,6 +923,23 @@ export default function AdminDashboardPage() {
   const activeAnalyticsMonthData =
     dashboardMetrics.months[activeAnalyticsMonthIndex] ||
     dashboardMetrics.months[dashboardMetrics.months.length - 1];
+
+  // While checking auth session from localStorage/cookies, render a smooth loading spinner
+  if (!isAuthChecked) {
+    return (
+      <div className="min-h-screen bg-[#f6f4fb] flex items-center justify-center p-6 font-inter">
+        <div className="flex flex-col items-center gap-3 bg-white p-8 rounded-2xl border border-[#e9edf4] shadow-sm">
+          <div className="w-10 h-10 border-4 border-[#2a6ecb] border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-semibold text-[#182a41]">Verifying Admin Credentials...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If verified and not authenticated, return null while router.push('/admin/login') executes
+  if (!isAdminAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-[#f6f4fb] text-[#12315c] font-inter flex relative">
@@ -1921,11 +1937,14 @@ export default function AdminDashboardPage() {
               {/* Categories Grid Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 {categories.map((cat) => {
-                  const matchingProds = products.filter(
+                  const catName = cat?.name || "";
+                  const matchingProds = (products || []).filter(
                     (p) =>
-                      p.category === cat.name ||
-                      p.category.toLowerCase().includes(cat.name.toLowerCase()) ||
-                      cat.name.toLowerCase().includes(p.category.toLowerCase())
+                      p?.category &&
+                      catName &&
+                      (p.category === catName ||
+                        p.category.toLowerCase().includes(catName.toLowerCase()) ||
+                        catName.toLowerCase().includes(p.category.toLowerCase()))
                   ).length;
 
                   return (
@@ -2286,21 +2305,21 @@ export default function AdminDashboardPage() {
 
                 {/* Orders Table */}
                 {(() => {
-                  const filtered = orders.filter((o) => {
-                    const q = orderSearch.toLowerCase();
+                  const filtered = (orders || []).filter((o) => {
+                    const q = (orderSearch || "").toLowerCase();
                     const matchesSearch =
                       !q ||
-                      o.orderId.toLowerCase().includes(q) ||
-                      o.customerName.toLowerCase().includes(q) ||
-                      o.phone.toLowerCase().includes(q) ||
-                      o.email.toLowerCase().includes(q) ||
-                      o.city.toLowerCase().includes(q) ||
-                      (o.items && o.items.some((it) => it.name.toLowerCase().includes(q)));
+                      (o.orderId || "").toLowerCase().includes(q) ||
+                      (o.customerName || "").toLowerCase().includes(q) ||
+                      (o.phone || "").toLowerCase().includes(q) ||
+                      (o.email || "").toLowerCase().includes(q) ||
+                      (o.city || "").toLowerCase().includes(q) ||
+                      (o.items && o.items.some((it) => (it?.name || "").toLowerCase().includes(q)));
 
                     const matchesStatus =
                       orderStatusFilter === "all" ||
                       (orderStatusFilter === "On Progress" && (o.orderStatus === "On Progress" || o.orderStatus === "On Delivery" || o.orderStatus === "Dispatched")) ||
-                      o.orderStatus.toLowerCase() === orderStatusFilter.toLowerCase();
+                      (o.orderStatus || "").toLowerCase() === orderStatusFilter.toLowerCase();
 
                     return matchesSearch && matchesStatus;
                   });
@@ -3067,15 +3086,15 @@ export default function AdminDashboardPage() {
                           </td>
                         </tr>
                       ) : (
-                        sleepStudyBookings
+                        (sleepStudyBookings || [])
                           .filter(
                             (b) =>
-                              b.patientName.toLowerCase().includes(ssSearch.toLowerCase()) ||
-                              b.phone.toLowerCase().includes(ssSearch.toLowerCase()) ||
-                              b.email.toLowerCase().includes(ssSearch.toLowerCase()) ||
-                              b.level.toLowerCase().includes(ssSearch.toLowerCase()) ||
-                              b.city.toLowerCase().includes(ssSearch.toLowerCase()) ||
-                              b.bookingId.toLowerCase().includes(ssSearch.toLowerCase())
+                              (b.patientName || "").toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              (b.phone || "").toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              (b.email || "").toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              (b.level || "").toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              (b.city || "").toLowerCase().includes(ssSearch.toLowerCase()) ||
+                              (b.bookingId || "").toLowerCase().includes(ssSearch.toLowerCase())
                           )
                           .map((b) => (
                             <tr key={b.bookingId} className="hover:bg-[#F8FAFC] transition-colors">
@@ -3228,7 +3247,7 @@ export default function AdminDashboardPage() {
                   >
                     {categories && categories.length > 0 ? (
                       <>
-                        {pCategory && !categories.some((c) => c.name.toLowerCase() === pCategory.toLowerCase()) && (
+                        {pCategory && !categories.some((c) => (c?.name || "").toLowerCase() === pCategory.toLowerCase()) && (
                           <option value={pCategory}>{pCategory} (Custom)</option>
                         )}
                         {categories.map((c) => (
