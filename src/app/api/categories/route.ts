@@ -25,7 +25,13 @@ export async function GET() {
     }
 
     await dbConnect();
-    const categories = await Category.find({}).sort({ createdAt: 1 }).lean();
+    const categories = await Category.find({
+      name: { $nin: ["te", "test", "testess"] },
+      slug: { $nin: ["te", "test", "testess"] },
+      badge: { $ne: "TEST" },
+    })
+      .sort({ createdAt: 1 })
+      .lean();
     serverCache.set("categories_list", categories, 180);
 
     return NextResponse.json(
@@ -90,18 +96,31 @@ export async function DELETE(req: Request) {
     await dbConnect();
     const { searchParams } = new URL(req.url);
     const id = searchParams.get("id");
+    const slug = searchParams.get("slug");
 
-    if (!id) {
-      return NextResponse.json({ success: false, error: "Missing category id" }, { status: 400 });
+    const orConditions: any[] = [];
+    if (id) {
+      orConditions.push({ id });
+      orConditions.push({ slug: id });
+      orConditions.push({ name: id });
+    }
+    if (slug) {
+      orConditions.push({ slug });
+      orConditions.push({ id: slug });
+      orConditions.push({ name: slug });
     }
 
-    await Category.findOneAndDelete({ id });
+    if (orConditions.length === 0) {
+      return NextResponse.json({ success: false, error: "Missing category identifier" }, { status: 400 });
+    }
+
+    await Category.deleteMany({ $or: orConditions });
 
     // Invalidate caches
     serverCache.del("categories_list");
     serverCache.del("storefront_data");
 
-    return NextResponse.json({ success: true, message: `Category ${id} deleted` });
+    return NextResponse.json({ success: true, message: `Category deleted` });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }

@@ -106,7 +106,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
             </div>
             {isMaskEligible(product) && (
               <span className="text-[10px] text-[#2a6ecb] font-semibold">
-                Incl. Nasal Mask (+₹3k)
+                Incl. JOYCEone Nasal (+₹3k)
               </span>
             )}
           </div>

@@ -1,11 +1,18 @@
 export type ProductCategory = 
   | "All"
   | "Ventilation & Sleep"
+  | "CPAP Therapy"
+  | "Ventilation"
+  | "Humidifiers"
+  | "Masks"
+  | "Oxygen Therapy"
+  | "Sleep Diagnostics"
   | "Diagnostic"
   | "Surgical"
   | "PPE & Protection"
   | "Disinfection"
-  | "Personal Care";
+  | "Personal Care"
+  | (string & {});
 
 export interface ProductSpecification {
   key?: string;

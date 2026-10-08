@@ -98,7 +98,11 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: false, error: "Missing product ID" }, { status: 400 });
     }
 
-    await Product.findOneAndDelete({ id });
+    const orConditions: any[] = [{ id }, { sku: id }];
+    if (id.match(/^[0-9a-fA-F]{24}$/)) {
+      orConditions.push({ _id: id });
+    }
+    await Product.deleteMany({ $or: orConditions });
 
     // Invalidate caches
     serverCache.del("products_list");

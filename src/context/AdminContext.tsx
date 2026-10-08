@@ -257,14 +257,53 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // 2. Instant client-side hydration from localStorage cache
     try {
       const cachedCats = localStorage.getItem("pulmocare_cache_cats");
+      let deletedCats: string[] = [];
+      try {
+        const dStr = localStorage.getItem("pulmocare_deleted_categories");
+        if (dStr) deletedCats = JSON.parse(dStr);
+      } catch {}
+
       if (cachedCats) {
         const parsed = JSON.parse(cachedCats);
-        if (Array.isArray(parsed) && parsed.length > 0) setCategories(parsed);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const cleaned = parsed.filter((c: any) => {
+            if (!c || !c.name) return false;
+            const cName = String(c.name).toLowerCase().trim();
+            const cId = String(c.id || "").toLowerCase().trim();
+            const cSlug = String(c.slug || "").toLowerCase().trim();
+            if (deletedCats.includes(cId) || deletedCats.includes(cSlug) || deletedCats.includes(cName)) return false;
+            if (cName === "te" || cName === "test" || c.badge === "TEST" || String(c.desc || "").toLowerCase().includes("testess")) return false;
+            return true;
+          });
+          setCategories(cleaned);
+          try { localStorage.setItem("pulmocare_cache_cats", JSON.stringify(cleaned)); } catch {}
+        }
       }
+      let deletedProds: string[] = [];
+      try {
+        const dpStr = localStorage.getItem("pulmocare_deleted_products");
+        if (dpStr) deletedProds = JSON.parse(dpStr);
+      } catch {}
+
       const cachedProds = localStorage.getItem("pulmocare_cache_prods");
       if (cachedProds) {
         const parsed = JSON.parse(cachedProds);
-        if (Array.isArray(parsed) && parsed.length > 0) setProducts(parsed);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const defaults = getDefaultProducts();
+          const cleaned = parsed
+            .filter((p: any) => p && !deletedProds.includes(p.id) && !deletedProds.includes((p as any)._id) && p.id !== "prod-1785694929851" && p.name !== "wrwe" && !String(p.id).toLowerCase().includes("test"))
+            .map((p: any) => {
+              const def = defaults.find((d) => d.id === p.id);
+              if (def && p.price === 63000 && def.price === 62000) {
+                return { ...p, price: 62000 };
+              }
+              if (def && (p.price === undefined || p.price === null) && def.price) {
+                return { ...p, price: def.price, originalPrice: def.originalPrice };
+              }
+              return p;
+            });
+          setProducts(cleaned);
+        }
       }
       const cachedBlogs = localStorage.getItem("pulmocare_cache_blogs");
       if (cachedBlogs) {
@@ -298,7 +337,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
           if (Array.isArray(fetchedProds)) {
             fetchedProds.forEach((p) => {
-              if (p && typeof p === "object") {
+              if (p && typeof p === "object" && p.id !== "prod-1785694929851" && p.name !== "wrwe") {
                 const key = getSafeProdKey(p);
                 if (key) map.set(key, p);
               }
@@ -312,24 +351,63 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               if (localCustom) {
                 const parsed = JSON.parse(localCustom);
                 if (Array.isArray(parsed)) {
-                  parsed.forEach((p) => {
-                    if (p && typeof p === "object") {
-                      const key = getSafeProdKey(p);
-                      if (key) map.set(key, p);
-                    }
+                  const cleaned = parsed.filter(
+                    (p: any) =>
+                      p &&
+                      p.name &&
+                      p.name.length >= 3 &&
+                      p.name.toLowerCase() !== "wrwe" &&
+                      p.id !== "prod-1785694929851" &&
+                      !String(p.name).toLowerCase().includes("test")
+                  );
+                  if (cleaned.length !== parsed.length) {
+                    localStorage.setItem("pulmocare_custom_products", JSON.stringify(cleaned));
+                  }
+                  cleaned.forEach((p) => {
+                    const key = getSafeProdKey(p);
+                    if (key) map.set(key, p);
                   });
                 }
               }
             } catch {}
           }
 
-          return Array.from(map.values());
+          let deletedProds: string[] = [];
+          if (typeof window !== "undefined") {
+            try {
+              const dpStr = localStorage.getItem("pulmocare_deleted_products");
+              if (dpStr) deletedProds = JSON.parse(dpStr);
+            } catch {}
+          }
+
+          return Array.from(map.values()).filter(
+            (p) => !deletedProds.includes(p.id) && !deletedProds.includes((p as any)._id)
+          );
         };
 
         // Fetch categories - robust normalization + local custom-category preservation
         const normalizeCategories = (cats: CategoryItem[]): CategoryItem[] => {
           if (!Array.isArray(cats)) return [];
-          const safeCats = cats.filter((c): c is CategoryItem => Boolean(c && typeof c === "object"));
+
+          let deletedCats: string[] = [];
+          if (typeof window !== "undefined") {
+            try {
+              const dStr = localStorage.getItem("pulmocare_deleted_categories");
+              if (dStr) deletedCats = JSON.parse(dStr);
+            } catch {}
+          }
+
+          const isCatClean = (c: Partial<CategoryItem>) => {
+            if (!c || !c.name) return false;
+            const cName = String(c.name).toLowerCase().trim();
+            const cId = String(c.id || "").toLowerCase().trim();
+            const cSlug = String(c.slug || "").toLowerCase().trim();
+            if (deletedCats.includes(cId) || deletedCats.includes(cSlug) || deletedCats.includes(cName)) return false;
+            if (cName === "te" || cName === "test" || c.badge === "TEST" || String(c.desc || "").toLowerCase().includes("testess")) return false;
+            return true;
+          };
+
+          const safeCats = cats.filter((c): c is CategoryItem => Boolean(c && typeof c === "object" && isCatClean(c)));
           const mapped = safeCats.map((c) => {
             const slug = String(c.slug || "").toLowerCase();
             const id = String(c.id || "").toLowerCase();
@@ -365,7 +443,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 const parsed = JSON.parse(localCustom);
                 if (Array.isArray(parsed)) {
                   parsed.forEach((c) => {
-                    if (c && typeof c === "object") {
+                    if (c && typeof c === "object" && isCatClean(c)) {
                       const key = getSafeCatKey(c);
                       if (key) map.set(key, c);
                     }
@@ -375,7 +453,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             } catch {}
           }
 
-          return Array.from(map.values());
+          return Array.from(map.values()).filter(isCatClean);
         };
 
         // Try unified cached storefront endpoint first (1 single roundtrip)
@@ -543,13 +621,24 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const deleteProduct = async (id: string) => {
-    setProducts((prev) => prev.filter((p) => p.id !== id));
+    setProducts((prev) => prev.filter((p) => p.id !== id && (p as any)._id !== id));
     if (typeof window !== "undefined") {
       try {
+        const dStr = localStorage.getItem("pulmocare_deleted_products");
+        const dList: string[] = dStr ? JSON.parse(dStr) : [];
+        if (!dList.includes(id)) dList.push(id);
+        localStorage.setItem("pulmocare_deleted_products", JSON.stringify(dList));
+
         const stored = localStorage.getItem("pulmocare_custom_products");
         if (stored) {
           const list: Product[] = JSON.parse(stored);
-          localStorage.setItem("pulmocare_custom_products", JSON.stringify(list.filter((p) => p.id !== id)));
+          localStorage.setItem("pulmocare_custom_products", JSON.stringify(list.filter((p) => p.id !== id && (p as any)._id !== id)));
+        }
+
+        const cached = localStorage.getItem("pulmocare_cache_prods");
+        if (cached) {
+          const list: Product[] = JSON.parse(cached);
+          localStorage.setItem("pulmocare_cache_prods", JSON.stringify(list.filter((p) => p.id !== id && (p as any)._id !== id)));
         }
       } catch {}
     }
@@ -618,18 +707,61 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const deleteCategory = async (id: string) => {
-    setCategories((prev) => prev.filter((c) => c.id !== id));
+    const catToDelete = categories.find((c) => c.id === id || c.slug === id);
+    const idKey = String(id).toLowerCase().trim();
+    const slugKey = catToDelete ? String(catToDelete.slug).toLowerCase().trim() : idKey;
+    const nameKey = catToDelete ? String(catToDelete.name).toLowerCase().trim() : idKey;
+
+    setCategories((prev) =>
+      prev.filter(
+        (c) =>
+          c.id !== id &&
+          c.slug !== id &&
+          c.slug !== slugKey &&
+          String(c.name).toLowerCase().trim() !== nameKey
+      )
+    );
+
     if (typeof window !== "undefined") {
       try {
+        const dStr = localStorage.getItem("pulmocare_deleted_categories");
+        const dList: string[] = dStr ? JSON.parse(dStr) : [];
+        if (!dList.includes(idKey)) dList.push(idKey);
+        if (!dList.includes(slugKey)) dList.push(slugKey);
+        if (!dList.includes(nameKey)) dList.push(nameKey);
+        localStorage.setItem("pulmocare_deleted_categories", JSON.stringify(dList));
+
         const stored = localStorage.getItem("pulmocare_custom_categories");
         if (stored) {
           const list: CategoryItem[] = JSON.parse(stored);
-          localStorage.setItem("pulmocare_custom_categories", JSON.stringify(list.filter((c) => c.id !== id)));
+          const filtered = list.filter(
+            (c) =>
+              c.id !== id &&
+              c.slug !== id &&
+              c.slug !== slugKey &&
+              String(c.name).toLowerCase().trim() !== nameKey
+          );
+          localStorage.setItem("pulmocare_custom_categories", JSON.stringify(filtered));
+        }
+
+        const cached = localStorage.getItem("pulmocare_cache_cats");
+        if (cached) {
+          const list: CategoryItem[] = JSON.parse(cached);
+          const filtered = list.filter(
+            (c) =>
+              c.id !== id &&
+              c.slug !== id &&
+              c.slug !== slugKey &&
+              String(c.name).toLowerCase().trim() !== nameKey
+          );
+          localStorage.setItem("pulmocare_cache_cats", JSON.stringify(filtered));
         }
       } catch {}
     }
     try {
-      await fetch(`/api/categories?id=${encodeURIComponent(id)}`, { method: "DELETE" });
+      await fetch(`/api/categories?id=${encodeURIComponent(id)}&slug=${encodeURIComponent(slugKey)}`, {
+        method: "DELETE",
+      });
     } catch (err) {
       console.error("Error deleting category from MongoDB Atlas", err);
     }

@@ -18,6 +18,11 @@ import {
   getMaskAddonPrice,
   isMaskEligible,
 } from "@/utils/maskAddon";
+import {
+  isHumidifierEligible,
+  HUMIDIFIER_ADDON_PRICE,
+} from "@/utils/humidifierAddon";
+import { HumidifierOptionSelector } from "@/components/cart/HumidifierOptionSelector";
 
 interface ProductModalProps {
   product: Product | null;
@@ -26,7 +31,8 @@ interface ProductModalProps {
 
 export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) => {
   const [quantity, setQuantity] = useState(1);
-  const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("none");
+  const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("nasal");
+  const [selectedHumidifier, setSelectedHumidifier] = useState<boolean>(false);
   const { addToCart } = useCart();
   const { toggleFavorite, isFavorite } = useWishlist();
   const { addToast } = useToast();
@@ -203,6 +209,18 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                   />
                 </div>
               )}
+
+              {/* Humidifier Bundle Option for Eligible CPAP / BiLevel Products */}
+              {product.price && product.price > 0 && isHumidifierEligible(product) && (
+                <div className="pt-1">
+                  <HumidifierOptionSelector
+                    product={product}
+                    selected={selectedHumidifier}
+                    onChange={setSelectedHumidifier}
+                    variant="full"
+                  />
+                </div>
+              )}
             </div>
 
             {/* Action buttons footer */}
@@ -233,8 +251,19 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
 
                     {(() => {
                       const maskInfo = getMaskAddonInfo(product);
+                      const baseDevicePrice =
+                        typeof product.price === "number" && product.price > 0
+                          ? product.price
+                          : maskInfo.isEligible
+                          ? maskInfo.basePrice
+                          : 0;
+                      const maskPrice = maskInfo.isEligible ? getMaskAddonPrice(selectedMaskOption) : 0;
+                      const humidifierPrice =
+                        isHumidifierEligible(product) && selectedHumidifier
+                          ? HUMIDIFIER_ADDON_PRICE
+                          : 0;
                       const effectiveUnitPrice = maskInfo.isEligible
-                        ? (maskInfo.basePrice + getMaskAddonPrice(selectedMaskOption))
+                        ? baseDevicePrice + maskPrice + humidifierPrice
                         : (product.price || 0);
 
                       return (
@@ -243,18 +272,23 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                             addToCart(
                               product,
                               quantity,
-                              maskInfo.isEligible ? selectedMaskOption : "none"
+                              maskInfo.isEligible ? selectedMaskOption : "none",
+                              isHumidifierEligible(product) ? selectedHumidifier : false
                             );
                             const maskLabel = maskInfo.isEligible
                               ? selectedMaskOption === "nasal"
-                                ? " (with CARA Nasal Mask [+₹3,000])"
+                                ? " (with JOYCEone Nasal Mask [+₹3,000])"
                                 : selectedMaskOption === "full-face"
-                                ? " (with CARA Full Face Mask [+₹4,500])"
+                                ? " (with JOYCEone Full Face Mask [+₹4,500])"
                                 : ""
                               : "";
+                            const humidLabel =
+                              isHumidifierEligible(product) && selectedHumidifier
+                                ? " + Prisma AQUA Humidifier [+₹10,000]"
+                                : "";
                             addToast(
                               "Added to Cart",
-                              `${quantity}x ${product.name}${maskLabel} added to your cart.`
+                              `${quantity}x ${product.name}${maskLabel}${humidLabel} added to your cart.`
                             );
                             onClose();
                           }}

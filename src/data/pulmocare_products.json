@@ -207,7 +207,7 @@
             "url": "/downloads"
           }
         ],
-        "price": 63000,
+        "price": 62000,
         "originalPrice": 78000,
         "specifications": [
           {
@@ -671,7 +671,9 @@
           "5 adjustable heating levels with auto-shutoff safety",
           "Easy top-fill opening and dishwasher-safe tub",
           "Smart warm-up pre-heating option"
-        ]
+        ],
+        "price": 12600,
+        "originalPrice": 15500
       },
       {
         "id": "prisma-aqua-black",
@@ -713,7 +715,9 @@
           "Easy top-fill opening and dishwasher-safe tub",
           "Smart warm-up pre-heating option",
           "Special Matte Black finish edition"
-        ]
+        ],
+        "price": 12600,
+        "originalPrice": 15500
       }
     ]
   },

@@ -51,6 +51,11 @@ import {
   getMaskAddonPrice,
   isMaskEligible,
 } from "@/utils/maskAddon";
+import {
+  isHumidifierEligible,
+  HUMIDIFIER_ADDON_PRICE,
+} from "@/utils/humidifierAddon";
+import { HumidifierOptionSelector } from "@/components/cart/HumidifierOptionSelector";
 
 interface ProductDetailPageProps {
   categoryTitle: string;
@@ -73,7 +78,8 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const { openInquiryModal } = useInquiry();
 
   const [quantity, setQuantity] = useState<number>(1);
-  const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("none");
+  const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("nasal");
+  const [selectedHumidifier, setSelectedHumidifier] = useState<boolean>(false);
 
   // Dynamic Lookup Keys
   const catKey = categorySlug.replace(/-/g, "_");
@@ -299,17 +305,21 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const handleAddToCart = () => {
     const maskInfo = getMaskAddonInfo(currentProductObj);
     const effectiveOption: MaskOptionType = maskInfo.isEligible ? selectedMaskOption : "none";
-    addToCart(currentProductObj, quantity, effectiveOption);
+    const withHumidifier = isHumidifierEligible(currentProductObj) ? selectedHumidifier : false;
+    addToCart(currentProductObj, quantity, effectiveOption, withHumidifier);
 
-    const maskLabel = effectiveOption === "nasal"
-      ? " (with CARA Nasal Mask [+₹3,000])"
-      : effectiveOption === "full-face"
-      ? " (with CARA Full Face Mask [+₹4,500])"
-      : "";
+    const maskLabel =
+      effectiveOption === "nasal"
+        ? " (with JOYCEone Nasal Mask [+₹3,000])"
+        : effectiveOption === "full-face"
+        ? " (with JOYCEone Full Face Mask [+₹4,500])"
+        : "";
+
+    const humidLabel = withHumidifier ? " + Prisma AQUA Humidifier [+₹10,000]" : "";
 
     addToast(
       "Added to Cart",
-      `${quantity}x ${displayTitle}${maskLabel} added to your procurement cart.`
+      `${quantity}x ${displayTitle}${maskLabel}${humidLabel} added to your procurement cart.`
     );
   };
 
@@ -404,7 +414,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   <div className="flex items-baseline gap-3">
                     <span className="font-archivo font-bold text-3xl sm:text-4xl text-[#0a1f3c]">
                       {isMaskEligible(currentProductObj)
-                        ? `₹${(getMaskAddonInfo(currentProductObj).basePrice + getMaskAddonPrice(selectedMaskOption)).toLocaleString("en-IN")}.00`
+                        ? `₹${((typeof currentProductObj.price === "number" && currentProductObj.price > 0 ? currentProductObj.price : getMaskAddonInfo(currentProductObj).basePrice) + (isMaskEligible(currentProductObj) ? getMaskAddonPrice(selectedMaskOption) : 0) + (isHumidifierEligible(currentProductObj) && selectedHumidifier ? HUMIDIFIER_ADDON_PRICE : 0)).toLocaleString("en-IN")}.00`
                         : priceValue}
                     </span>
                     {originalPriceValue && (
@@ -414,12 +424,17 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     )}
                   </div>
                   {isMaskEligible(currentProductObj) && (
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="text-[11px] font-bold text-[#2a6ecb] bg-[#2a6ecb]/10 px-2.5 py-0.5 rounded-full inline-block">
-                        {selectedMaskOption === "nasal" && "Pre-selected: Nasal Mask (+₹3,000)"}
-                        {selectedMaskOption === "full-face" && "Configured: Full Face Mask (+₹4,500)"}
+                        {selectedMaskOption === "nasal" && "Default: JOYCEone Nasal Mask (+₹3,000)"}
+                        {selectedMaskOption === "full-face" && "Configured: JOYCEone Full Face Mask (+₹4,500)"}
                         {selectedMaskOption === "none" && "Device Only (Mask Toggled Off)"}
                       </span>
+                      {selectedHumidifier && (
+                        <span className="text-[11px] font-bold text-[#138054] bg-[#1fb37a]/15 px-2.5 py-0.5 rounded-full inline-block">
+                          + Prisma AQUA Humidifier (+₹10,000 bundle)
+                        </span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -482,6 +497,16 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   product={currentProductObj}
                   selectedOption={selectedMaskOption}
                   onChange={setSelectedMaskOption}
+                  variant="full"
+                />
+              )}
+
+              {/* Humidifier Bundle Option for Eligible CPAP / BiLevel Products */}
+              {hasPrice && isHumidifierEligible(currentProductObj) && (
+                <HumidifierOptionSelector
+                  product={currentProductObj}
+                  selected={selectedHumidifier}
+                  onChange={setSelectedHumidifier}
                   variant="full"
                 />
               )}

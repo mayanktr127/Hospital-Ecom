@@ -30,7 +30,10 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
     return null;
   }
 
-  const basePrice = maskInfo.basePrice;
+  const basePrice =
+    typeof product.price === "number" && product.price > 0
+      ? product.price
+      : maskInfo.basePrice;
   const currentMaskDetail = getMaskOptionDetails(selectedOption);
 
   if (variant === "compact") {
@@ -42,10 +45,10 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
           </span>
           <span className="text-[10px] font-semibold">
             {selectedOption === "nasal" && (
-              <span className="text-[#2a6ecb] font-bold">Nasal Mask (+₹3,000 in cart)</span>
+              <span className="text-[#2a6ecb] font-bold">JOYCEone Nasal (+₹3,000)</span>
             )}
             {selectedOption === "full-face" && (
-              <span className="text-[#2a6ecb] font-bold">Full Face Mask (+₹4,500 in cart)</span>
+              <span className="text-[#2a6ecb] font-bold">JOYCEone Full Face (+₹4,500)</span>
             )}
             {selectedOption === "none" && (
               <span className="text-[#64748b]">Device Only (No Mask)</span>
@@ -65,7 +68,7 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
             }`}
           >
             {selectedOption === "nasal" && <Check className="w-3 h-3 stroke-[2.5]" />}
-            <span>Nasal (+₹3k)</span>
+            <span>JOYCE Nasal (+₹3k)</span>
           </button>
 
           {/* Option 2: Full Face Mask */}
@@ -79,7 +82,7 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
             }`}
           >
             {selectedOption === "full-face" && <Check className="w-3 h-3 stroke-[2.5]" />}
-            <span>Full Face (+₹4.5k)</span>
+            <span>JOYCE Full Face (+₹4.5k)</span>
           </button>
 
           {/* Option 3: No Mask / Toggle Off */}
@@ -116,8 +119,8 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
               {selectedOption === "none"
                 ? "Device Only (No mask added)"
                 : selectedOption === "nasal"
-                ? "Nasal Mask selected (+₹3,000)"
-                : "Full Face Mask selected (+₹4,500)"}
+                ? "JOYCEone Nasal Mask selected (+₹3,000)"
+                : "JOYCEone Full Face Mask selected (+₹4,500)"}
             </span>
           </div>
           <h4 className="font-archivo font-bold text-base text-[#0a1f3c] mt-1">
@@ -160,8 +163,8 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
             {/* Mask Photo */}
             <div className="w-12 h-12 rounded-xl bg-white p-1 border border-[#e2e8f0] flex items-center justify-center shrink-0 shadow-2xs">
               <img
-                src="/images/site/masks_cara_csm_cara_mask_patient_interface_nasal_right_eb6a30efad.png"
-                alt="Löwenstein CARA Nasal Mask"
+                src="/images/site/masks_csm_joyceone_mask_patient_interface_nasal_right_c8ef6f8727.png"
+                alt="Löwenstein JOYCEone Nasal Mask"
                 className="w-full h-full object-contain"
               />
             </div>
@@ -169,14 +172,14 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="font-archivo font-bold text-xs sm:text-sm text-[#0a1f3c] truncate">
-                  Löwenstein CARA Nasal Mask
+                  Löwenstein JOYCEone Nasal Mask
                 </span>
                 <span className="text-[9px] font-bold bg-[#1fb37a]/15 text-[#138054] px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-                  Clinical Standard
+                  Recommended Default
                 </span>
               </div>
               <p className="text-[11px] text-[#64748b] mt-0.5 line-clamp-1 sm:line-clamp-2">
-                Standard comfortable nasal cushion. Recommended for natural nose breathers.
+                Intelligent auto-adjusting fit cushion. Effortless comfortable nocturnal fit.
               </p>
             </div>
           </div>
@@ -213,8 +216,8 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
             {/* Mask Photo */}
             <div className="w-12 h-12 rounded-xl bg-white p-1 border border-[#e2e8f0] flex items-center justify-center shrink-0 shadow-2xs">
               <img
-                src="/images/site/masks_cara_full_face_csm_cara_mask_patient_interface_fullface_right_3bfbc3e771.png"
-                alt="Löwenstein CARA Full Face Mask"
+                src="/images/site/masks_csm_joyceone_mask_patient_interface_fullface_vented_right_4560a66624.png"
+                alt="Löwenstein JOYCEone Full Face Mask"
                 className="w-full h-full object-contain"
               />
             </div>
@@ -222,14 +225,14 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-1.5">
                 <span className="font-archivo font-bold text-xs sm:text-sm text-[#0a1f3c] truncate">
-                  Löwenstein CARA Full Face Mask
+                  Löwenstein JOYCEone Full Face Mask
                 </span>
                 <span className="text-[9px] font-bold bg-[#2a6ecb]/15 text-[#2a6ecb] px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">
                   BiLevel / Mouth Breather
                 </span>
               </div>
               <p className="text-[11px] text-[#64748b] mt-0.5 line-clamp-1 sm:line-clamp-2">
-                Complete nose and mouth seal. Ideal for mouth breathing or elevated pressures.
+                Universal auto-fitting oronasal seal with forehead support for high pressures and mouth breathers.
               </p>
             </div>
           </div>

@@ -7,7 +7,8 @@ import { Footer } from "@/components/footer/Footer";
 import { useAdmin } from "@/context/AdminContext";
 import { useInquiry } from "@/context/InquiryContext";
 import { getDefaultProducts } from "@/utils/defaultProducts";
-import { isMaskEligible } from "@/utils/maskAddon";
+import { isMaskEligible, isMaskAddonProduct } from "@/utils/maskAddon";
+import { isHumidifierAddonProduct } from "@/utils/humidifierAddon";
 import {
   ShoppingCart,
   Heart,
@@ -87,9 +88,28 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
   const filterCategoryProducts = (prods: typeof sourceProducts) =>
     prods.filter((p) => {
       if (!p || !p.category) return false;
+      if (isMaskAddonProduct(p) || isHumidifierAddonProduct(p)) return false;
+
+      // Filter out test/dummy products (e.g. wrwe, test entries)
+      const pName = (p.name || "").toLowerCase().trim();
+      const pId = (p.id || "").toLowerCase().trim();
+      if (pName === "wrwe" || pName.includes("test") || pId === "wrwe" || pId.includes("test")) {
+        return false;
+      }
 
       const pCatNorm = p.category.toLowerCase().replace(/[^a-z0-9]/g, "");
       const slugNorm = categorySlug.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+      // For Ventilation category, only include genuine ventilators (Luisa, Prisma VENT)
+      if (slugNorm === "ventilation") {
+        const isOfficialVent =
+          pId.includes("luisa") ||
+          pId.includes("prisma-vent") ||
+          pName.includes("luisa") ||
+          pName.includes("prisma vent") ||
+          pName.includes("ventilator");
+        return isOfficialVent && pCatNorm.includes("ventilation");
+      }
 
       const cNameNorm = currentCategory ? currentCategory.name.toLowerCase().replace(/[^a-z0-9]/g, "") : "";
       const cSlugNorm = currentCategory ? (currentCategory.slug || "").toLowerCase().replace(/[^a-z0-9]/g, "") : "";
@@ -273,7 +293,7 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
                           </span>
                           {isMaskEligible(prod) && (
                             <span className="text-[10px] text-[#0066FF] font-semibold block">
-                              Incl. Nasal Mask (+₹3k)
+                              Incl. JOYCEone Nasal (+₹3k)
                             </span>
                           )}
                         </div>

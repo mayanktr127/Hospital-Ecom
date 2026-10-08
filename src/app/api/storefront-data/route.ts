@@ -32,7 +32,13 @@ export async function GET() {
     // Query collections in parallel with .lean() for minimal overhead
     const [products, categories, blogs, reviews] = await Promise.all([
       Product.find({}).sort({ createdAt: -1 }).lean(),
-      Category.find({}).sort({ createdAt: 1 }).lean(),
+      Category.find({
+        name: { $nin: ["te", "test", "testess"] },
+        slug: { $nin: ["te", "test", "testess"] },
+        badge: { $ne: "TEST" },
+      })
+        .sort({ createdAt: 1 })
+        .lean(),
       BlogPost.find({}).sort({ createdAt: -1 }).lean(),
       Review.find({ status: "Approved" }).sort({ createdAt: -1 }).lean(),
     ]);

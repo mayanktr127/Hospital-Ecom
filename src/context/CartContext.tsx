@@ -9,6 +9,11 @@ import {
   getMaskProduct,
   isMaskAddonProduct,
 } from "@/utils/maskAddon";
+import {
+  isHumidifierEligible,
+  isHumidifierAddonProduct,
+  PRISMA_AQUA_PRODUCT,
+} from "@/utils/humidifierAddon";
 
 interface CartContextType {
   cart: CartItem[];
@@ -16,7 +21,12 @@ interface CartContextType {
   openCart: () => void;
   closeCart: () => void;
   toggleCart: () => void;
-  addToCart: (product: Product, quantity?: number, maskOption?: MaskOptionType) => void;
+  addToCart: (
+    product: Product,
+    quantity?: number,
+    maskOption?: MaskOptionType,
+    includeHumidifier?: boolean
+  ) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   updateMaskOption: (productId: string, maskOption: MaskOptionType) => void;
@@ -42,15 +52,19 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const sanitized = parsed.map((item) => {
           const info = getMaskAddonInfo(item.product);
           if (info.isEligible) {
+            const actualBase =
+              typeof item.product.price === "number" && item.product.price > 0
+                ? item.product.price
+                : info.basePrice;
             return {
               ...item,
-              product: { ...item.product, price: info.basePrice },
-              unitPrice: info.basePrice,
-              maskOption: item.maskOption || "none",
+              product: { ...item.product, price: actualBase },
+              unitPrice: actualBase,
+              maskOption: item.maskOption || "nasal",
             };
           }
           if (isMaskAddonProduct(item.product)) {
-            const maskProd = getMaskProduct(item.product.id === "addon-cara-full-face-mask" ? "full-face" : "nasal");
+            const maskProd = getMaskProduct(item.product.id.includes("full-face") ? "full-face" : "nasal");
             if (maskProd) {
               return {
                 ...item,
@@ -79,16 +93,26 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const closeCart = () => setIsOpen(false);
   const toggleCart = () => setIsOpen((prev) => !prev);
 
-  const addToCart = (product: Product, quantity = 1, maskOption: MaskOptionType = "none") => {
+  const addToCart = (
+    product: Product,
+    quantity = 1,
+    maskOption: MaskOptionType = "nasal",
+    includeHumidifier = false
+  ) => {
     const maskInfo = getMaskAddonInfo(product);
 
-    // Pure base price for the machine (e.g. ₹53,000 for Prisma Smart)
-    const baseDevicePrice = maskInfo.isEligible ? maskInfo.basePrice : (product.price || 0);
+    // Dynamic base price for the machine (prefer current product.price if set)
+    const baseDevicePrice =
+      typeof product.price === "number" && product.price > 0
+        ? product.price
+        : maskInfo.isEligible
+        ? maskInfo.basePrice
+        : 0;
     const deviceProduct: Product = maskInfo.isEligible
       ? { ...product, price: baseDevicePrice }
       : product;
 
-    const effectiveMaskOption: MaskOptionType = maskInfo.isEligible ? (maskOption ?? "none") : "none";
+    const effectiveMaskOption: MaskOptionType = maskInfo.isEligible ? (maskOption ?? "nasal") : "none";
 
     setCart((prevCart) => {
       let updatedCart = [...prevCart];
@@ -112,7 +136,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         });
       }
 
-      // 2. Manage the Mask Product in the cart just like an actual product
+      // 2. Manage the Mask Product in the cart
       if (maskInfo.isEligible) {
         // Remove any existing mask add-on items first
         updatedCart = updatedCart.filter((item) => !isMaskAddonProduct(item.product));
@@ -133,6 +157,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             } else {
               updatedCart.push(maskItem);
             }
+          }
+        }
+      }
+
+      // 3. Manage the Humidifier Add-on in the cart
+      if (isHumidifierEligible(product)) {
+        // Remove previous humidifier bundle add-on
+        updatedCart = updatedCart.filter((item) => item.product.id !== PRISMA_AQUA_PRODUCT.id);
+
+        if (includeHumidifier) {
+          const devIdx = updatedCart.findIndex((item) => item.product.id === product.id);
+          const targetQty = devIdx > -1 ? updatedCart[devIdx].quantity : quantity;
+          const humidifierItem: CartItem = {
+            product: PRISMA_AQUA_PRODUCT,
+            quantity: targetQty,
+            unitPrice: PRISMA_AQUA_PRODUCT.price,
+          };
+          if (devIdx > -1) {
+            // Insert after mask if present, or right after device
+            const insertIdx = devIdx + (effectiveMaskOption !== "none" ? 2 : 1);
+            updatedCart.splice(Math.min(insertIdx, updatedCart.length), 0, humidifierItem);
+          } else {
+            updatedCart.push(humidifierItem);
           }
         }
       }
@@ -203,14 +250,17 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           });
       }
 
-      // If user removes an eligible machine, also remove any mask addon items
+      // If user removes an eligible machine, also remove any mask addon items and bundled humidifier
       const isEligibleDevice = prevCart.some(
         (item) => item.product.id === productId && getMaskAddonInfo(item.product).isEligible
       );
 
       if (isEligibleDevice) {
         return prevCart.filter(
-          (item) => item.product.id !== productId && !isMaskAddonProduct(item.product)
+          (item) =>
+            item.product.id !== productId &&
+            !isMaskAddonProduct(item.product) &&
+            item.product.id !== PRISMA_AQUA_PRODUCT.id
         );
       }
 
@@ -233,8 +283,11 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (item.product.id === productId) {
           return { ...item, quantity };
         }
-        // Sync mask addon quantity with the device quantity
-        if (isEligibleDevice && isMaskAddonProduct(item.product)) {
+        // Sync mask addon and bundled humidifier quantity with the device quantity
+        if (
+          isEligibleDevice &&
+          (isMaskAddonProduct(item.product) || item.product.id === PRISMA_AQUA_PRODUCT.id)
+        ) {
           return { ...item, quantity };
         }
         return item;

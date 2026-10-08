@@ -113,7 +113,16 @@ export default function Home() {
 
           {/* Dynamic Category Grid Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-            {(categories || []).map((cat, idx) => {
+            {(categories || [])
+              .filter((cat) => {
+                if (!cat || !cat.name) return false;
+                const cName = cat.name.toLowerCase().trim();
+                const cSlug = (cat.slug || "").toLowerCase().trim();
+                const cBadge = (cat.badge || "").toUpperCase().trim();
+                if (cName === "te" || cName === "test" || cName === "testess" || cSlug === "te" || cBadge === "TEST") return false;
+                return true;
+              })
+              .map((cat, idx) => {
               if (!cat) return null;
               const catName = cat.name || "Equipment";
               const cName = catName.toLowerCase().trim();
