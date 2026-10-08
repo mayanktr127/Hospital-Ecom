@@ -40,11 +40,14 @@ export const MASK_OPTIONS: MaskAddonConfig[] = [
   },
 ];
 
-export function getMaskOptionDetails(option?: MaskOptionType): MaskAddonConfig {
-  return (
-    MASK_OPTIONS.find((m) => m.id === option) ||
-    MASK_OPTIONS[0]
-  );
+export function getMaskOptionDetails(
+  option?: MaskOptionType,
+  pricingSettings?: { nasalMaskAddonPrice?: number; fullFaceMaskAddonPrice?: number }
+): MaskAddonConfig {
+  const baseConfig = MASK_OPTIONS.find((m) => m.id === option) || MASK_OPTIONS[0];
+  if (!pricingSettings) return baseConfig;
+  const dynPrice = getMaskAddonPrice(baseConfig.id, pricingSettings);
+  return { ...baseConfig, addonPrice: dynPrice };
 }
 
 export const NASAL_MASK_PRODUCT: Product = {
@@ -91,9 +94,18 @@ export const FULL_FACE_MASK_PRODUCT: Product = {
   ],
 };
 
-export function getMaskProduct(option?: MaskOptionType): Product | null {
-  if (option === "nasal") return NASAL_MASK_PRODUCT;
-  if (option === "full-face") return FULL_FACE_MASK_PRODUCT;
+export function getMaskProduct(
+  option?: MaskOptionType,
+  pricingSettings?: { nasalMaskAddonPrice?: number; fullFaceMaskAddonPrice?: number }
+): Product | null {
+  if (option === "nasal") {
+    const price = pricingSettings?.nasalMaskAddonPrice ?? NASAL_MASK_PRODUCT.price ?? 3000;
+    return { ...NASAL_MASK_PRODUCT, price };
+  }
+  if (option === "full-face") {
+    const price = pricingSettings?.fullFaceMaskAddonPrice ?? FULL_FACE_MASK_PRODUCT.price ?? 4500;
+    return { ...FULL_FACE_MASK_PRODUCT, price };
+  }
   return null;
 }
 
@@ -117,15 +129,6 @@ export interface MaskEligibleProductInfo {
   basePrice: number;
 }
 
-/**
- * Checks if a product matches any of the 6 CPAP/BiLevel devices from the pricing sheet:
- * 1. Prisma Smart (₹53,000 base)
- * 2. Prisma Smart Plus (₹62,000 base)
- * 3. Prisma 20A (₹70,000 base)
- * 4. Prisma 25S (₹70,000 base)
- * 5. Prisma 25ST (₹76,000 base)
- * 6. Prisma 30ST (₹89,250 base)
- */
 export function getMaskAddonInfo(product?: {
   id?: string;
   slug?: string;
@@ -186,15 +189,19 @@ export function isMaskEligible(product?: {
   return getMaskAddonInfo(product).isEligible;
 }
 
-export function getMaskAddonPrice(option?: MaskOptionType): number {
-  if (option === "nasal") return NASAL_MASK_ADDON;
-  if (option === "full-face") return FULL_FACE_MASK_ADDON;
+export function getMaskAddonPrice(
+  option?: MaskOptionType,
+  pricingSettings?: { nasalMaskAddonPrice?: number; fullFaceMaskAddonPrice?: number }
+): number {
+  if (option === "nasal") return pricingSettings?.nasalMaskAddonPrice ?? NASAL_MASK_ADDON;
+  if (option === "full-face") return pricingSettings?.fullFaceMaskAddonPrice ?? FULL_FACE_MASK_ADDON;
   return 0;
 }
 
 export function calculateEffectiveUnitPrice(
   product: Product,
-  maskOption: MaskOptionType = "nasal"
+  maskOption: MaskOptionType = "nasal",
+  pricingSettings?: { nasalMaskAddonPrice?: number; fullFaceMaskAddonPrice?: number }
 ): number {
   const info = getMaskAddonInfo(product);
   const base =
@@ -204,5 +211,5 @@ export function calculateEffectiveUnitPrice(
       ? info.basePrice
       : 0;
   if (!info.isEligible) return base;
-  return base + getMaskAddonPrice(maskOption);
+  return base + getMaskAddonPrice(maskOption, pricingSettings);
 }

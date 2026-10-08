@@ -13,7 +13,9 @@ import {
   isHumidifierEligible,
   isHumidifierAddonProduct,
   PRISMA_AQUA_PRODUCT,
+  getHumidifierProduct,
 } from "@/utils/humidifierAddon";
+import { useAdmin } from "./AdminContext";
 
 interface CartContextType {
   cart: CartItem[];
@@ -39,6 +41,7 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { pricingSettings } = useAdmin();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -64,7 +67,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
           }
           if (isMaskAddonProduct(item.product)) {
-            const maskProd = getMaskProduct(item.product.id.includes("full-face") ? "full-face" : "nasal");
+            const maskProd = getMaskProduct(item.product.id.includes("full-face") ? "full-face" : "nasal", pricingSettings);
             if (maskProd) {
               return {
                 ...item,
@@ -72,6 +75,14 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 unitPrice: maskProd.price,
               };
             }
+          }
+          if (isHumidifierAddonProduct(item.product)) {
+            const humProd = getHumidifierProduct(pricingSettings);
+            return {
+              ...item,
+              product: humProd,
+              unitPrice: humProd.price,
+            };
           }
           return item;
         });
@@ -143,7 +154,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         // If user chose a mask (Nasal or Full Face), insert it right after the device
         if (effectiveMaskOption !== "none") {
-          const maskProduct = getMaskProduct(effectiveMaskOption);
+          const maskProduct = getMaskProduct(effectiveMaskOption, pricingSettings);
           if (maskProduct) {
             const devIdx = updatedCart.findIndex((item) => item.product.id === product.id);
             const targetQty = devIdx > -1 ? updatedCart[devIdx].quantity : quantity;
@@ -167,12 +178,13 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updatedCart = updatedCart.filter((item) => item.product.id !== PRISMA_AQUA_PRODUCT.id);
 
         if (includeHumidifier) {
+          const humidProduct = getHumidifierProduct(pricingSettings);
           const devIdx = updatedCart.findIndex((item) => item.product.id === product.id);
           const targetQty = devIdx > -1 ? updatedCart[devIdx].quantity : quantity;
           const humidifierItem: CartItem = {
-            product: PRISMA_AQUA_PRODUCT,
+            product: humidProduct,
             quantity: targetQty,
-            unitPrice: PRISMA_AQUA_PRODUCT.price,
+            unitPrice: humidProduct.price,
           };
           if (devIdx > -1) {
             // Insert after mask if present, or right after device
@@ -216,7 +228,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       // 3. If new mask option is not 'none', insert the selected mask product right after the device
       if (maskOption !== "none") {
-        const maskProduct = getMaskProduct(maskOption);
+        const maskProduct = getMaskProduct(maskOption, pricingSettings);
         if (maskProduct) {
           const newDeviceIdx = updatedCart.findIndex((item) => item.product.id === productId);
           const maskItem: CartItem = {

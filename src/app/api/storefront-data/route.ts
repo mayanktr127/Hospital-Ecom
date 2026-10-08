@@ -11,6 +11,7 @@ import Product from "@/models/Product";
 import Category from "@/models/Category";
 import BlogPost from "@/models/BlogPost";
 import Review from "@/models/Review";
+import SiteSettings from "@/models/SiteSettings";
 import { serverCache } from "@/lib/cache";
 
 export async function GET() {
@@ -30,7 +31,7 @@ export async function GET() {
     await dbConnect();
 
     // Query collections in parallel with .lean() for minimal overhead
-    const [products, categories, blogs, reviews] = await Promise.all([
+    const [products, categories, blogs, reviews, settingsDoc] = await Promise.all([
       Product.find({}).sort({ createdAt: -1 }).lean(),
       Category.find({
         name: { $nin: ["te", "test", "testess"] },
@@ -41,9 +42,18 @@ export async function GET() {
         .lean(),
       BlogPost.find({}).sort({ createdAt: -1 }).lean(),
       Review.find({ status: "Approved" }).sort({ createdAt: -1 }).lean(),
+      SiteSettings.findOne({ key: "pricing_settings" }).lean(),
     ]);
 
-    const payload = { products, categories, blogs, reviews };
+    const settings = settingsDoc || {
+      nasalMaskAddonPrice: 3000,
+      fullFaceMaskAddonPrice: 4500,
+      humidifierBundlePrice: 10000,
+      humidifierStandalonePrice: 12600,
+      sleepStudyCharge: 5000,
+    };
+
+    const payload = { products, categories, blogs, reviews, settings };
     serverCache.set("storefront_data", payload, 180);
 
     return NextResponse.json(

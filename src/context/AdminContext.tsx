@@ -198,7 +198,26 @@ interface AdminContextType {
   updateBundle: (bundle: Partial<BundleItem>) => Promise<void>;
   deleteBundle: (bundleId: string) => Promise<void>;
   refreshBundles: () => Promise<void>;
+  // Dynamic Pricing Settings
+  pricingSettings: SitePricingSettings;
+  updatePricingSettings: (newSettings: Partial<SitePricingSettings>) => Promise<void>;
 }
+
+export interface SitePricingSettings {
+  nasalMaskAddonPrice: number;
+  fullFaceMaskAddonPrice: number;
+  humidifierBundlePrice: number;
+  humidifierStandalonePrice: number;
+  sleepStudyCharge: number;
+}
+
+export const DEFAULT_PRICING_SETTINGS: SitePricingSettings = {
+  nasalMaskAddonPrice: 3000,
+  fullFaceMaskAddonPrice: 4500,
+  humidifierBundlePrice: 10000,
+  humidifierStandalonePrice: 12600,
+  sleepStudyCharge: 5000,
+};
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);
 
@@ -217,6 +236,7 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [orders, setOrders] = useState<OrderItem[]>([]);
   const [sleepStudyBookings, setSleepStudyBookings] = useState<SleepStudyBookingItem[]>([]);
   const [bundles, setBundles] = useState<BundleItem[]>([]);
+  const [pricingSettings, setPricingSettings] = useState<SitePricingSettings>(DEFAULT_PRICING_SETTINGS);
 
   // Function to fetch administrative data (inquiries, orders, bookings)
   const refreshAdminData = async () => {
@@ -314,6 +334,13 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       if (cachedRevs) {
         const parsed = JSON.parse(cachedRevs);
         if (Array.isArray(parsed) && parsed.length > 0) setReviews(parsed);
+      }
+      const cachedSettings = localStorage.getItem("pulmocare_pricing_settings");
+      if (cachedSettings) {
+        try {
+          const parsed = JSON.parse(cachedSettings);
+          if (parsed && typeof parsed === "object") setPricingSettings((prev) => ({ ...prev, ...parsed }));
+        } catch {}
       }
     } catch (e) {}
 
@@ -483,14 +510,24 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             setReviews(sfRes.reviews);
             try { localStorage.setItem("pulmocare_cache_revs", JSON.stringify(sfRes.reviews)); } catch (e) {}
           }
+          if (sfRes.settings) {
+            setPricingSettings(sfRes.settings);
+            try { localStorage.setItem("pulmocare_pricing_settings", JSON.stringify(sfRes.settings)); } catch (e) {}
+          }
         } else {
           // Fallback: parallel fetch of individual endpoints
-          const [prodRes, catRes, blogRes, revRes] = await Promise.all([
+          const [prodRes, catRes, blogRes, revRes, setRes] = await Promise.all([
             fetch("/api/products").then((r) => r.json()).catch(() => ({ success: false })),
             fetch("/api/categories").then((r) => r.json()).catch(() => ({ success: false })),
             fetch("/api/blogs").then((r) => r.json()).catch(() => ({ success: false })),
             fetch("/api/reviews").then((r) => r.json()).catch(() => ({ success: false })),
+            fetch("/api/settings").then((r) => r.json()).catch(() => ({ success: false })),
           ]);
+
+          if (setRes && setRes.success && setRes.settings) {
+            setPricingSettings(setRes.settings);
+            try { localStorage.setItem("pulmocare_pricing_settings", JSON.stringify(setRes.settings)); } catch (e) {}
+          }
 
           if (prodRes.success && prodRes.products && prodRes.products.length > 0) {
             setProducts(mergeWithDefaultProducts(prodRes.products));
@@ -1035,6 +1072,29 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const updatePricingSettings = async (newSettings: Partial<SitePricingSettings>) => {
+    const updated: SitePricingSettings = { ...pricingSettings, ...newSettings };
+    setPricingSettings(updated);
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.setItem("pulmocare_pricing_settings", JSON.stringify(updated));
+      } catch {}
+    }
+    try {
+      const res = await fetch("/api/settings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(updated),
+      });
+      const data = await res.json();
+      if (data.success && data.settings) {
+        setPricingSettings(data.settings);
+      }
+    } catch (err) {
+      console.error("Error saving pricing settings to MongoDB Atlas", err);
+    }
+  };
+
   return (
     <AdminContext.Provider
       value={{
@@ -1078,6 +1138,8 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateBundle,
         deleteBundle,
         refreshBundles,
+        pricingSettings,
+        updatePricingSettings,
       }}
     >
       {children}

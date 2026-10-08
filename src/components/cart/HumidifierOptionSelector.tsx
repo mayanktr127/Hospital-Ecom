@@ -5,6 +5,7 @@ import Image from "next/image";
 import { Product } from "@/types/product";
 import { HUMIDIFIER_ADDON_PRICE, HUMIDIFIER_STANDALONE_PRICE } from "@/utils/humidifierAddon";
 import { Check, Sparkles, Droplets } from "lucide-react";
+import { useAdmin } from "@/context/AdminContext";
 
 interface HumidifierOptionSelectorProps {
   product: Product;
@@ -19,6 +20,11 @@ export const HumidifierOptionSelector: React.FC<HumidifierOptionSelectorProps> =
   onChange,
   variant = "full",
 }) => {
+  const { pricingSettings } = useAdmin();
+  const bundlePrice = pricingSettings?.humidifierBundlePrice ?? HUMIDIFIER_ADDON_PRICE;
+  const standalonePrice = pricingSettings?.humidifierStandalonePrice ?? HUMIDIFIER_STANDALONE_PRICE;
+  const savings = Math.max(0, standalonePrice - bundlePrice);
+
   if (variant === "compact") {
     return (
       <div className="mt-2.5 pt-2 border-t border-[#f1f5f9]">
@@ -33,11 +39,11 @@ export const HumidifierOptionSelector: React.FC<HumidifierOptionSelectorProps> =
         >
           <div className="flex items-center gap-1.5">
             <Droplets className="w-3.5 h-3.5" />
-            <span>Prisma AQUA Humidifier (+₹10k)</span>
+            <span>Prisma AQUA Humidifier (+₹{bundlePrice.toLocaleString("en-IN")})</span>
           </div>
           <div className="flex items-center gap-1">
             {selected && <Check className="w-3 h-3 stroke-[2.5]" />}
-            <span className="text-[10px] opacity-90">{selected ? "Added" : "Add (+₹10k)"}</span>
+            <span className="text-[10px] opacity-90">{selected ? "Added" : `Add (+₹${bundlePrice.toLocaleString("en-IN")})`}</span>
           </div>
         </button>
       </div>
@@ -53,7 +59,7 @@ export const HumidifierOptionSelector: React.FC<HumidifierOptionSelectorProps> =
             Humidifier Add-on
           </span>
           <span className="text-xs text-[#64748b] font-medium hidden sm:inline">
-            Bundle Offer (Save ₹2,600)
+            Bundle Offer (Save ₹{savings.toLocaleString("en-IN")})
           </span>
         </div>
         <span className="text-[10px] font-bold uppercase tracking-wider text-[#138054] bg-[#1fb37a]/15 px-2 py-0.5 rounded-full">
@@ -96,7 +102,7 @@ export const HumidifierOptionSelector: React.FC<HumidifierOptionSelectorProps> =
                 Löwenstein Prisma AQUA Humidifier
               </span>
               <span className="text-[9px] font-bold bg-[#1fb37a]/15 text-[#138054] px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">
-                Save ₹2,600
+                Save ₹{savings.toLocaleString("en-IN")}
               </span>
             </div>
             <p className="text-[11px] text-[#64748b] mt-0.5 line-clamp-1 sm:line-clamp-2">
@@ -107,20 +113,20 @@ export const HumidifierOptionSelector: React.FC<HumidifierOptionSelectorProps> =
 
         <div className="text-right shrink-0">
           <span className="font-archivo font-bold text-xs sm:text-sm text-[#2a6ecb] block whitespace-nowrap">
-            +₹{HUMIDIFIER_ADDON_PRICE.toLocaleString("en-IN")}
+            +₹{bundlePrice.toLocaleString("en-IN")}
           </span>
           <span className="text-[10px] text-[#64748b] line-through font-mono whitespace-nowrap">
-            ₹{HUMIDIFIER_STANDALONE_PRICE.toLocaleString("en-IN")}
+            ₹{standalonePrice.toLocaleString("en-IN")}
           </span>
         </div>
       </div>
 
       <div className="pt-1 flex items-center justify-between text-xs text-[#64748b]">
         <span>
-          Standalone Price: <s className="line-through">₹{HUMIDIFIER_STANDALONE_PRICE.toLocaleString("en-IN")}</s>
+          Standalone Price: <s className="line-through">₹{standalonePrice.toLocaleString("en-IN")}</s>
         </span>
         <span className="font-semibold text-[#2a6ecb]">
-          Bundle Price with Device: ₹{HUMIDIFIER_ADDON_PRICE.toLocaleString("en-IN")}
+          Bundle Price with Device: ₹{bundlePrice.toLocaleString("en-IN")}
         </span>
       </div>
     </div>

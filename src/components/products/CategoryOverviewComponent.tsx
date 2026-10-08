@@ -45,7 +45,7 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
   defaultTitle,
   defaultDesc,
 }) => {
-  const { products, categories, isLoading, addSleepStudyBooking } = useAdmin();
+  const { products, categories, isLoading, addSleepStudyBooking, pricingSettings } = useAdmin();
   const { addToCart } = useCart();
   const { addToast } = useToast();
   const { openInquiryModal } = useInquiry();
@@ -155,14 +155,15 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
         studyDate: formData.studyDate,
         address: formData.address,
         city: formData.city,
-        charges: 5000,
+        charges: pricingSettings?.sleepStudyCharge || 5000,
         notes: formData.notes,
         status: "Pending",
       });
 
+      const chargeAmt = (pricingSettings?.sleepStudyCharge || 5000).toLocaleString("en-IN");
       addToast(
         "Sleep Study Booked!",
-        `Booking Ref #${bookingId} confirmed at ₹5,000/day. Our clinical coordinator will call you shortly.`
+        `Booking Ref #${bookingId} confirmed at ₹${chargeAmt}/day. Our clinical coordinator will call you shortly.`
       );
       setBookingModalOpen(false);
       setFormData({
@@ -288,14 +289,21 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
                               ₹{prod.originalPrice.toLocaleString("en-IN")}.00
                             </span>
                           )}
-                          <span className="font-archivo font-extrabold text-lg text-[#0A192F]">
-                            ₹{(isMaskEligible(prod) ? prod.price + 3000 : prod.price).toLocaleString("en-IN")}.00
-                          </span>
-                          {isMaskEligible(prod) && (
-                            <span className="text-[10px] text-[#0066FF] font-semibold block">
-                              Incl. JOYCEone Nasal (+₹3k)
-                            </span>
-                          )}
+                          {(() => {
+                            const nasalPrice = pricingSettings?.nasalMaskAddonPrice ?? 3000;
+                            return (
+                              <>
+                                <span className="font-archivo font-extrabold text-lg text-[#0A192F]">
+                                  ₹{(isMaskEligible(prod) ? prod.price + nasalPrice : prod.price).toLocaleString("en-IN")}.00
+                                </span>
+                                {isMaskEligible(prod) && (
+                                  <span className="text-[10px] text-[#0066FF] font-semibold block">
+                                    Incl. JOYCEone Nasal (+₹{nasalPrice.toLocaleString("en-IN")})
+                                  </span>
+                                )}
+                              </>
+                            );
+                          })()}
                         </div>
                       ) : (
                         <div>

@@ -10,6 +10,7 @@ import {
 } from "@/utils/maskAddon";
 import { Product } from "@/types/product";
 import { Check, ShieldCheck, Sparkles, XCircle, SlidersHorizontal } from "lucide-react";
+import { useAdmin } from "@/context/AdminContext";
 
 interface MaskOptionSelectorProps {
   product: Product;
@@ -24,6 +25,9 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
   onChange,
   variant = "full",
 }) => {
+  const { pricingSettings } = useAdmin();
+  const nasalPrice = pricingSettings?.nasalMaskAddonPrice ?? 3000;
+  const fullFacePrice = pricingSettings?.fullFaceMaskAddonPrice ?? 4500;
   const maskInfo = getMaskAddonInfo(product);
 
   if (!maskInfo.isEligible) {
@@ -34,7 +38,7 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
     typeof product.price === "number" && product.price > 0
       ? product.price
       : maskInfo.basePrice;
-  const currentMaskDetail = getMaskOptionDetails(selectedOption);
+  const currentMaskDetail = getMaskOptionDetails(selectedOption, pricingSettings);
 
   if (variant === "compact") {
     return (
@@ -45,10 +49,10 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
           </span>
           <span className="text-[10px] font-semibold">
             {selectedOption === "nasal" && (
-              <span className="text-[#2a6ecb] font-bold">JOYCEone Nasal (+₹3,000)</span>
+              <span className="text-[#2a6ecb] font-bold">JOYCEone Nasal (+₹{nasalPrice.toLocaleString("en-IN")})</span>
             )}
             {selectedOption === "full-face" && (
-              <span className="text-[#2a6ecb] font-bold">JOYCEone Full Face (+₹4,500)</span>
+              <span className="text-[#2a6ecb] font-bold">JOYCEone Full Face (+₹{fullFacePrice.toLocaleString("en-IN")})</span>
             )}
             {selectedOption === "none" && (
               <span className="text-[#64748b]">Device Only (No Mask)</span>
@@ -68,7 +72,7 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
             }`}
           >
             {selectedOption === "nasal" && <Check className="w-3 h-3 stroke-[2.5]" />}
-            <span>JOYCE Nasal (+₹3k)</span>
+            <span>JOYCE Nasal (+₹{nasalPrice.toLocaleString("en-IN")})</span>
           </button>
 
           {/* Option 2: Full Face Mask */}
@@ -82,7 +86,7 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
             }`}
           >
             {selectedOption === "full-face" && <Check className="w-3 h-3 stroke-[2.5]" />}
-            <span>JOYCE Full Face (+₹4.5k)</span>
+            <span>JOYCE Full Face (+₹{fullFacePrice.toLocaleString("en-IN")})</span>
           </button>
 
           {/* Option 3: No Mask / Toggle Off */}
@@ -104,7 +108,7 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
   }
 
   // Full Variant for Product Detail Page & Quick View Modal
-  const addonAmount = getMaskAddonPrice(selectedOption);
+  const addonAmount = getMaskAddonPrice(selectedOption, pricingSettings);
   const totalWithMask = basePrice + addonAmount;
 
   return (
@@ -119,8 +123,8 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
               {selectedOption === "none"
                 ? "Device Only (No mask added)"
                 : selectedOption === "nasal"
-                ? "JOYCEone Nasal Mask selected (+₹3,000)"
-                : "JOYCEone Full Face Mask selected (+₹4,500)"}
+                ? `JOYCEone Nasal Mask selected (+₹${nasalPrice.toLocaleString("en-IN")})`
+                : `JOYCEone Full Face Mask selected (+₹${fullFacePrice.toLocaleString("en-IN")})`}
             </span>
           </div>
           <h4 className="font-archivo font-bold text-base text-[#0a1f3c] mt-1">
@@ -185,10 +189,10 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
           </div>
           <div className="text-right shrink-0">
             <span className="font-archivo font-bold text-xs sm:text-sm text-[#2a6ecb] block whitespace-nowrap">
-              +₹3,000
+              +₹{nasalPrice.toLocaleString("en-IN")}
             </span>
             <span className="text-[10px] text-[#64748b] font-mono whitespace-nowrap">
-              ₹{(basePrice + 3000).toLocaleString("en-IN")}
+              ₹{(basePrice + nasalPrice).toLocaleString("en-IN")}
             </span>
           </div>
         </div>
@@ -238,10 +242,10 @@ export const MaskOptionSelector: React.FC<MaskOptionSelectorProps> = ({
           </div>
           <div className="text-right shrink-0">
             <span className="font-archivo font-bold text-xs sm:text-sm text-[#2a6ecb] block whitespace-nowrap">
-              +₹4,500
+              +₹{fullFacePrice.toLocaleString("en-IN")}
             </span>
             <span className="text-[10px] text-[#64748b] font-mono whitespace-nowrap">
-              ₹{(basePrice + 4500).toLocaleString("en-IN")}
+              ₹{(basePrice + fullFacePrice).toLocaleString("en-IN")}
             </span>
           </div>
         </div>

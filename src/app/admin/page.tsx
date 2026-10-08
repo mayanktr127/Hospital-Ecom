@@ -53,6 +53,7 @@ import {
   Printer,
 } from "lucide-react";
 import { BundleMakerTab } from "@/components/admin/BundleMakerTab";
+import { PricingSettingsTab } from "@/components/admin/PricingSettingsTab";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -100,6 +101,7 @@ export default function AdminDashboardPage() {
     | "messages"
     | "sleep-studies"
     | "bundles"
+    | "pricing-settings"
   >("dashboard");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -1053,6 +1055,18 @@ export default function AdminDashboardPage() {
                     {bundles.length}
                   </span>
                 </button>
+                <button
+                  onClick={() => { setActiveTab("pricing-settings"); setMobileSidebarOpen(false); }}
+                  className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs ${activeTab === "pricing-settings" ? "bg-[#0066FF] text-white shadow-xs" : "text-[#64748B]"}`}
+                >
+                  <div className="flex items-center gap-3">
+                    <Sliders className="w-4 h-4" />
+                    <span>Pricing &amp; Add-ons</span>
+                  </div>
+                  <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${activeTab === "pricing-settings" ? "bg-white/20 text-white" : "bg-[#1fb37a]/15 text-[#138054]"}`}>
+                    Live
+                  </span>
+                </button>
               </div>
 
               <div className="space-y-1">
@@ -1236,6 +1250,25 @@ export default function AdminDashboardPage() {
                 activeTab === "bundles" ? "bg-white/20 text-white" : "bg-[#EBF5FF] text-[#0066FF]"
               }`}>
                 {bundles.length}
+              </span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("pricing-settings")}
+              className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl font-archivo font-bold text-xs transition-all cursor-pointer ${
+                activeTab === "pricing-settings"
+                  ? "bg-[#0066FF] text-white shadow-xs"
+                  : "text-[#64748B] hover:bg-[#F8FAFC] hover:text-[#0066FF]"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <Sliders className="w-4 h-4" />
+                <span>Pricing &amp; Add-ons</span>
+              </div>
+              <span className={`text-[9px] px-2 py-0.5 rounded-full font-bold uppercase ${
+                activeTab === "pricing-settings" ? "bg-white/20 text-white" : "bg-[#1fb37a]/15 text-[#138054]"
+              }`}>
+                Live
               </span>
             </button>
           </div>
@@ -3199,6 +3232,9 @@ export default function AdminDashboardPage() {
 
           {/* TAB 8: BUNDLE MAKER & QUOTATION CREATOR */}
           {activeTab === "bundles" && <BundleMakerTab />}
+
+          {/* TAB 9: DYNAMIC PRICING & ADD-ONS CONFIGURATION */}
+          {activeTab === "pricing-settings" && <PricingSettingsTab />}
         </main>
       </div>
 

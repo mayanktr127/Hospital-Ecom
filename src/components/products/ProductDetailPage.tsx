@@ -74,8 +74,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const { addToCart, toggleCart } = useCart();
   const { addToast } = useToast();
   const { toggleFavorite, isFavorite } = useWishlist();
-  const { products, reviews } = useAdmin();
+  const { products, reviews, pricingSettings } = useAdmin();
   const { openInquiryModal } = useInquiry();
+
+  const nasalPrice = pricingSettings?.nasalMaskAddonPrice ?? 3000;
+  const fullFacePrice = pricingSettings?.fullFaceMaskAddonPrice ?? 4500;
+  const humidifierPrice = pricingSettings?.humidifierBundlePrice ?? HUMIDIFIER_ADDON_PRICE;
 
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("nasal");
@@ -310,12 +314,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
     const maskLabel =
       effectiveOption === "nasal"
-        ? " (with JOYCEone Nasal Mask [+₹3,000])"
+        ? ` (with JOYCEone Nasal Mask [+₹${nasalPrice.toLocaleString("en-IN")}])`
         : effectiveOption === "full-face"
-        ? " (with JOYCEone Full Face Mask [+₹4,500])"
+        ? ` (with JOYCEone Full Face Mask [+₹${fullFacePrice.toLocaleString("en-IN")}])`
         : "";
 
-    const humidLabel = withHumidifier ? " + Prisma AQUA Humidifier [+₹10,000]" : "";
+    const humidLabel = withHumidifier ? ` + Prisma AQUA Humidifier [+₹${humidifierPrice.toLocaleString("en-IN")}]` : "";
 
     addToast(
       "Added to Cart",
@@ -414,7 +418,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   <div className="flex items-baseline gap-3">
                     <span className="font-archivo font-bold text-3xl sm:text-4xl text-[#0a1f3c]">
                       {isMaskEligible(currentProductObj)
-                        ? `₹${((typeof currentProductObj.price === "number" && currentProductObj.price > 0 ? currentProductObj.price : getMaskAddonInfo(currentProductObj).basePrice) + (isMaskEligible(currentProductObj) ? getMaskAddonPrice(selectedMaskOption) : 0) + (isHumidifierEligible(currentProductObj) && selectedHumidifier ? HUMIDIFIER_ADDON_PRICE : 0)).toLocaleString("en-IN")}.00`
+                        ? `₹${((typeof currentProductObj.price === "number" && currentProductObj.price > 0 ? currentProductObj.price : getMaskAddonInfo(currentProductObj).basePrice) + (isMaskEligible(currentProductObj) ? getMaskAddonPrice(selectedMaskOption, pricingSettings) : 0) + (isHumidifierEligible(currentProductObj) && selectedHumidifier ? humidifierPrice : 0)).toLocaleString("en-IN")}.00`
                         : priceValue}
                     </span>
                     {originalPriceValue && (
@@ -426,13 +430,13 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   {isMaskEligible(currentProductObj) && (
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-[11px] font-bold text-[#2a6ecb] bg-[#2a6ecb]/10 px-2.5 py-0.5 rounded-full inline-block">
-                        {selectedMaskOption === "nasal" && "Default: JOYCEone Nasal Mask (+₹3,000)"}
-                        {selectedMaskOption === "full-face" && "Configured: JOYCEone Full Face Mask (+₹4,500)"}
+                        {selectedMaskOption === "nasal" && `Default: JOYCEone Nasal Mask (+₹${nasalPrice.toLocaleString("en-IN")})`}
+                        {selectedMaskOption === "full-face" && `Configured: JOYCEone Full Face Mask (+₹${fullFacePrice.toLocaleString("en-IN")})`}
                         {selectedMaskOption === "none" && "Device Only (Mask Toggled Off)"}
                       </span>
                       {selectedHumidifier && (
                         <span className="text-[11px] font-bold text-[#138054] bg-[#1fb37a]/15 px-2.5 py-0.5 rounded-full inline-block">
-                          + Prisma AQUA Humidifier (+₹10,000 bundle)
+                          + Prisma AQUA Humidifier (+₹{humidifierPrice.toLocaleString("en-IN")} bundle)
                         </span>
                       )}
                     </div>

@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useToast } from "@/context/ToastContext";
 import { useAdmin } from "@/context/AdminContext";
-import { ProductCategory } from "@/types/product";
+import { ProductCategory, Product } from "@/types/product";
+import { getDefaultCategories } from "@/utils/defaultCategories";
 import {
   Search,
   ShoppingBag,
@@ -56,7 +57,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
 
   // Focus Category selection inside Products mega dropdown (Default: 1st BiLevel)
-  const [activeProductFocus, setActiveProductFocus] = useState<ProductFocusKey>("bilevel-s-st-devices");
+  const [activeProductFocus, setActiveProductFocus] = useState<string>("bilevel-s-st-devices");
   const [expandedSubGroup, setExpandedSubGroup] = useState<string | null>("BiLevel Therapy Units");
 
   // Global Website Selector Dropdown State
@@ -205,6 +206,109 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
       ],
     },
   };
+
+  // Dynamically compute mega-menu categories & products directly from MongoDB / AdminContext
+  const dynamicCategories = useMemo(() => {
+    const cats = adminCategories && adminCategories.length > 0 ? adminCategories : getDefaultCategories();
+    return cats.map((cat) => {
+      const slug = cat.slug || cat.id || cat.name.toLowerCase().replace(/[^a-z0-9]/g, "-");
+      const catSlugNorm = slug.toLowerCase().replace(/[^a-z0-9]/g, "");
+      const catNameNorm = (cat.name || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+      const matchedProds = (adminProducts || []).filter((p) => {
+        if (!p || !p.name) return false;
+        if (p.id?.includes("mask-addon") || p.id?.includes("joyceone-nasal-addon")) return false;
+        const pName = (p.name || "").toLowerCase().trim();
+        const pId = (p.id || "").toLowerCase().trim();
+        if (pName === "wrwe" || pName.includes("test") || pId === "wrwe" || pId.includes("test")) {
+          return false;
+        }
+
+        const pCatNorm = (p.category || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+        if (catSlugNorm && pCatNorm === catSlugNorm) return true;
+        if (catNameNorm && pCatNorm === catNameNorm) return true;
+        if (catSlugNorm && (pCatNorm.includes(catSlugNorm) || catSlugNorm.includes(pCatNorm))) return true;
+        if (catNameNorm && (pCatNorm.includes(catNameNorm) || catNameNorm.includes(pCatNorm))) return true;
+
+        if (
+          (catSlugNorm.includes("sleep") || catNameNorm.includes("cpap")) &&
+          (pCatNorm.includes("cpap") || pCatNorm.includes("sleep"))
+        ) {
+          return true;
+        }
+        if (
+          (catSlugNorm.includes("bilevel") || catNameNorm.includes("bilevel")) &&
+          pCatNorm.includes("bilevel")
+        ) {
+          return true;
+        }
+        if (
+          (catSlugNorm.includes("vent") || catNameNorm.includes("vent")) &&
+          pCatNorm.includes("vent")
+        ) {
+          return true;
+        }
+        if (
+          (catSlugNorm.includes("humid") || catNameNorm.includes("humid")) &&
+          pCatNorm.includes("humid")
+        ) {
+          return true;
+        }
+        if (
+          (catSlugNorm.includes("mask") || catNameNorm.includes("mask")) &&
+          pCatNorm.includes("mask")
+        ) {
+          return true;
+        }
+        if (
+          (catSlugNorm.includes("diagnost") || catNameNorm.includes("diagnost")) &&
+          pCatNorm.includes("diagnost")
+        ) {
+          return true;
+        }
+        if (
+          (catSlugNorm.includes("oxygen") || catNameNorm.includes("oxygen")) &&
+          pCatNorm.includes("oxygen")
+        ) {
+          return true;
+        }
+        return false;
+      });
+
+      const standardCats = [
+        "sleep-apnea-therapy",
+        "bilevel-s-st-devices",
+        "asv-titration-devices",
+        "humidifiers",
+        "ventilation",
+        "oxygen-therapy",
+        "sleep-diagnostics",
+        "masks",
+      ];
+
+      let productItems: { name: string; link: string }[] = [];
+
+      if (matchedProds.length > 0) {
+        productItems = matchedProds.map((p) => ({
+          name: p.name,
+          link: standardCats.includes(slug) ? `/${slug}/${p.id}` : `/product/${p.id}`,
+        }));
+      } else {
+        const staticEntry = (productSubMenuMap as any)[slug] || (productSubMenuMap as any)[cat.id];
+        if (staticEntry && staticEntry.subGroups) {
+          productItems = staticEntry.subGroups.flatMap((g: any) => g.items);
+        }
+      }
+
+      return {
+        key: slug,
+        title: cat.name,
+        overviewLink: `/${slug}`,
+        items: productItems,
+      };
+    });
+  }, [adminCategories, adminProducts]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -377,19 +481,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
 
                   {mobileProductsOpen && (
                     <div className="mt-3 space-y-2 pt-2 border-t border-[#0a1f3c]/10">
-                      {Object.entries(productSubMenuMap).map(([key, cat]) => (
-                        <div key={key} className="space-y-1">
+                      {dynamicCategories.map((cat) => (
+                        <div key={cat.key} className="space-y-1">
                           <Link
                             href={cat.overviewLink}
                             onClick={() => setMobileMenuOpen(false)}
                             className="block font-bold text-[#2a6ecb] hover:underline py-1 text-xs"
                           >
-                            {cat.title} →
+                            {cat.title} ({cat.items.length}) →
                           </Link>
                           <div className="pl-3 space-y-1 text-[#64748b]">
-                            {cat.subGroups[0]?.items.map((item) => (
+                            {cat.items.slice(0, 6).map((item) => (
                               <Link
-                                key={item.name}
+                                key={item.link + item.name}
                                 href={item.link}
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="block py-1 hover:text-[#0a1f3c]"
@@ -397,6 +501,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                                 • {item.name}
                               </Link>
                             ))}
+                            {cat.items.length > 6 && (
+                              <Link
+                                href={cat.overviewLink}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="block py-1 text-[11px] text-[#2a6ecb] font-semibold"
+                              >
+                                + {cat.items.length - 6} more models...
+                              </Link>
+                            )}
                           </div>
                         </div>
                       ))}
@@ -575,134 +688,85 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
                       Explore German engineered ventilators, CPAP devices, diagnostics, and patient interfaces.
                     </p>
                   </div>
-
-                  <div className="col-span-5 px-6 border-r border-[#e9edf4]">
+                         <div className="col-span-5 px-6 border-r border-[#e9edf4]">
                     {/* Category Sidebar List with Vertical Scroll Bar */}
                     <div className="space-y-1 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
-                      {(() => {
-                        const defaultFocusList = [
-                          { key: "bilevel-s-st-devices", label: "BiLevel" },
-                          { key: "sleep-diagnostics", label: "Diagnostic" },
-                          { key: "masks", label: "Masks" },
-                          { key: "sleep-therapy", label: "CPAP Therapy" },
-                          { key: "ventilation", label: "Ventilation" },
-                          { key: "asv-titration-devices", label: "ASV & Titration Devices" },
-                          { key: "humidifiers", label: "Humidifiers" },
-                          { key: "oxygen-therapy", label: "Oxygen Therapy" },
-                        ];
-
-                        const dynamicAdminCategories = (adminCategories || [])
-                          .filter((c: any) => !defaultFocusList.some((df) => df.label.toLowerCase() === c.name.toLowerCase() || df.key === c.slug))
-                          .map((c: any) => ({
-                            key: c.slug || c.id || c.name.toLowerCase().replace(/[^a-z0-9]/g, "-"),
-                            label: c.name,
-                          }));
-
-                        const allFocusCategories = [...defaultFocusList, ...dynamicAdminCategories];
-
-                        return allFocusCategories.map((focus) => {
-                          const isSelected = activeProductFocus === focus.key;
-                          return (
-                            <button
-                              key={focus.key}
-                              onClick={() => {
-                                setActiveProductFocus(focus.key as any);
-                                const sub = (productSubMenuMap as any)[focus.key];
-                                if (sub && sub.subGroups[0]) {
-                                  setExpandedSubGroup(sub.subGroups[0].title || null);
-                                }
-                              }}
-                              className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-left font-medium transition-all cursor-pointer ${
-                                isSelected ? "bg-[#0a1f3c] text-[#FFFFFF] font-semibold shadow-sm" : "hover:bg-[#f6f4fb] hover:text-[#2a6ecb]"
-                              }`}
-                            >
-                              <span>{focus.label}</span>
+                      {dynamicCategories.map((focus) => {
+                        const isSelected = activeProductFocus === focus.key;
+                        return (
+                          <button
+                            key={focus.key}
+                            onClick={() => setActiveProductFocus(focus.key)}
+                            className={`w-full flex items-center justify-between px-3.5 py-2 rounded-xl text-left font-medium transition-all cursor-pointer ${
+                              isSelected ? "bg-[#0a1f3c] text-[#FFFFFF] font-semibold shadow-sm" : "hover:bg-[#f6f4fb] hover:text-[#2a6ecb]"
+                            }`}
+                          >
+                            <span>{focus.title}</span>
+                            <div className="flex items-center gap-1.5">
+                              <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
+                                isSelected ? "bg-white/20 text-white" : "bg-[#f1f5f9] text-[#64748b]"
+                              }`}>
+                                {focus.items.length}
+                              </span>
                               <ChevronRight className={`w-4 h-4 ${isSelected ? "text-white" : "text-[#0a1f3c]/40"}`} />
-                            </button>
-                          );
-                        });
-                      })()}
+                            </div>
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
                   <div className="col-span-4 pl-6 space-y-4">
-                    {productSubMenuMap[activeProductFocus] ? (
-                      <>
-                        <div className="flex items-center justify-between pb-2 border-b border-[#e9edf4]">
-                          <Link
-                            href={productSubMenuMap[activeProductFocus].overviewLink}
-                            onClick={() => setActiveDropdown(null)}
-                            className="text-xs font-bold text-[#2a6ecb] hover:underline flex items-center gap-1 font-inter"
-                          >
-                            <span>Category Overview</span>
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </Link>
-                        </div>
+                    {(() => {
+                      const currentCat =
+                        dynamicCategories.find((c) => c.key === activeProductFocus) ||
+                        dynamicCategories[0];
+                      if (!currentCat) return null;
 
-                        <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1 custom-scrollbar">
-                          {productSubMenuMap[activeProductFocus].subGroups.map((subGroup) => (
-                            <div key={subGroup.title} className="border border-[#0a1f3c]/10 rounded-2xl p-3 bg-white/90">
-                              <span className="font-bold text-[#0a1f3c] block mb-2">{subGroup.title}</span>
-                              <div className="space-y-1 pl-2">
-                                {subGroup.items.map((item) => (
-                                  <Link
-                                    key={item.name}
-                                    href={item.link}
-                                    onClick={() => setActiveDropdown(null)}
-                                    className="block py-1 hover:text-[#2a6ecb] font-medium"
-                                  >
-                                    • {item.name}
-                                  </Link>
-                                ))}
+                      return (
+                        <>
+                          <div className="flex items-center justify-between pb-2 border-b border-[#e9edf4]">
+                            <Link
+                              href={currentCat.overviewLink}
+                              onClick={() => setActiveDropdown(null)}
+                              className="text-xs font-bold text-[#2a6ecb] hover:underline flex items-center gap-1 font-inter"
+                            >
+                              <span>{currentCat.title} Overview</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </Link>
+                            <span className="text-[11px] text-[#64748b] font-mono">
+                              {currentCat.items.length} {currentCat.items.length === 1 ? "Product" : "Products"}
+                            </span>
+                          </div>
+
+                          <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1 custom-scrollbar">
+                            <div className="border border-[#0a1f3c]/10 rounded-2xl p-3.5 bg-white/90">
+                              <span className="font-bold text-[#0a1f3c] block mb-2.5 text-xs">
+                                {currentCat.title} Devices &amp; Models
+                              </span>
+                              <div className="space-y-1.5 pl-1">
+                                {currentCat.items.length > 0 ? (
+                                  currentCat.items.map((item) => (
+                                    <Link
+                                      key={item.link + item.name}
+                                      href={item.link}
+                                      onClick={() => setActiveDropdown(null)}
+                                      className="block py-1 hover:text-[#2a6ecb] font-medium text-xs text-[#334155] transition-colors"
+                                    >
+                                      • {item.name}
+                                    </Link>
+                                  ))
+                                ) : (
+                                  <span className="text-xs text-[#64748b] italic">
+                                    No products added in this category yet.
+                                  </span>
+                                )}
                               </div>
                             </div>
-                          ))}
-                        </div>
-                      </>
-                    ) : (
-                      /* Fallback Submenu for Admin-Created Categories */
-                      <>
-                        <div className="flex items-center justify-between pb-2 border-b border-[#e9edf4]">
-                          <Link
-                            href={`/${activeProductFocus}`}
-                            onClick={() => setActiveDropdown(null)}
-                            className="text-xs font-bold text-[#2a6ecb] hover:underline flex items-center gap-1 font-inter"
-                          >
-                            <span>Category Overview</span>
-                            <ChevronRight className="w-3.5 h-3.5" />
-                          </Link>
-                        </div>
-
-                        <div className="space-y-2 max-h-[340px] overflow-y-auto pr-1 custom-scrollbar">
-                          <div className="border border-[#0a1f3c]/10 rounded-2xl p-3 bg-white/90">
-                            <span className="font-bold text-[#0a1f3c] block mb-2">
-                              {(adminCategories || []).find((c: any) => c.slug === activeProductFocus || c.id === activeProductFocus)?.name || "Category Products"}
-                            </span>
-                            <div className="space-y-1 pl-2">
-                              {(adminProducts || [])
-                                .filter(
-                                  (p: any) =>
-                                    p.category.toLowerCase().includes(activeProductFocus.toLowerCase()) ||
-                                    activeProductFocus.toLowerCase().includes(p.category.toLowerCase())
-                                )
-                                .map((item: any) => (
-                                  <Link
-                                    key={item.id}
-                                    href={`/product/${item.id}`}
-                                    onClick={() => setActiveDropdown(null)}
-                                    className="block py-1 hover:text-[#2a6ecb] font-medium text-xs text-[#64748b]"
-                                  >
-                                    • {item.name}
-                                  </Link>
-                                ))}
-                              {(adminProducts || []).filter((p: any) => p.category.toLowerCase().includes(activeProductFocus.toLowerCase())).length === 0 && (
-                                <span className="text-xs text-[#64748b] italic">No products added yet</span>
-                              )}
-                            </div>
                           </div>
-                        </div>
-                      </>
-                    )}
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               )}

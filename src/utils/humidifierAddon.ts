@@ -27,10 +27,20 @@ export const PRISMA_AQUA_PRODUCT: Product = {
   ],
 };
 
-/**
- * Checks if a product is eligible for the discounted ₹10,000 Humidifier add-on bundle.
- * All CPAP and BiLevel devices that accept Prisma AQUA are eligible.
- */
+export function getHumidifierProduct(pricingSettings?: {
+  humidifierBundlePrice?: number;
+  humidifierStandalonePrice?: number;
+}): Product {
+  const price = pricingSettings?.humidifierBundlePrice ?? HUMIDIFIER_ADDON_PRICE;
+  const originalPrice = pricingSettings?.humidifierStandalonePrice ?? HUMIDIFIER_STANDALONE_PRICE;
+  return {
+    ...PRISMA_AQUA_PRODUCT,
+    price,
+    originalPrice,
+    badge: `Bundle Offer (₹${price.toLocaleString("en-IN")})`,
+  };
+}
+
 export function isHumidifierEligible(product?: {
   id?: string;
   slug?: string;
