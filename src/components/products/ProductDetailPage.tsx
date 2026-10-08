@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Navbar } from "@/components/nav/Navbar";
 import { Footer } from "@/components/footer/Footer";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import { useWishlist } from "@/context/WishlistContext";
-import { useAdmin } from "@/context/AdminContext";
+import { useAdmin, ReviewItem } from "@/context/AdminContext";
 import { Product } from "@/types/product";
 import {
   ChevronDown,
@@ -74,7 +74,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   const { addToCart, toggleCart } = useCart();
   const { addToast } = useToast();
   const { toggleFavorite, isFavorite } = useWishlist();
-  const { products, reviews, pricingSettings } = useAdmin();
+  const { products, reviews, pricingSettings, addReview } = useAdmin();
   const { openInquiryModal } = useInquiry();
 
   const nasalPrice = pricingSettings?.nasalMaskAddonPrice ?? 3000;
@@ -252,7 +252,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     },
   ];
 
-  const matchedReviews = reviews.filter(
+  const matchedReviews = (reviews || []).filter(
     (r) =>
       r.productId === itemSlug ||
       r.productName.toLowerCase().includes(displayTitle.toLowerCase()) ||
@@ -260,7 +260,21 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   );
   const initialReviewsToDisplay = matchedReviews.length > 0 ? matchedReviews : defaultReviewsList;
 
-  const [reviewsListState, setReviewsListState] = useState(initialReviewsToDisplay);
+  const [reviewsListState, setReviewsListState] = useState<any[]>(initialReviewsToDisplay);
+
+  useEffect(() => {
+    const matched = (reviews || []).filter(
+      (r) =>
+        r.productId === itemSlug ||
+        r.productName.toLowerCase().includes(displayTitle.toLowerCase()) ||
+        displayTitle.toLowerCase().includes(r.productName.toLowerCase())
+    );
+    if (matched.length > 0) {
+      setReviewsListState(matched);
+    } else {
+      setReviewsListState(defaultReviewsList);
+    }
+  }, [reviews, itemSlug, displayTitle]);
   const [hasPurchased, setHasPurchased] = useState<boolean>(() => {
     if (typeof window !== "undefined") {
       try {
@@ -798,21 +812,40 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   </div>
 
                   <form
-                    onSubmit={(e) => {
+                    onSubmit={async (e) => {
                       e.preventDefault();
-                      if (!newReviewForm.author || !newReviewForm.comment) {
-                        addToast("Review Error", "Please fill in your name and review details.");
+                      if (!newReviewForm.author.trim() || !newReviewForm.comment.trim()) {
+                        addToast("Review Error", "Please fill in your name and review details.", "warning");
                         return;
                       }
-                      const submittedRev = {
-                        author: newReviewForm.author,
+
+                      const newId = `rev-${Date.now()}`;
+                      const reviewDate = new Date().toLocaleDateString("en-US", {
+                        month: "long",
+                        day: "numeric",
+                        year: "numeric",
+                      });
+
+                      const submittedRev: ReviewItem = {
+                        id: newId,
+                        productId: itemSlug,
+                        productName: displayTitle,
+                        author: newReviewForm.author.trim(),
                         rating: newReviewForm.rating,
-                        date: new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }),
-                        comment: newReviewForm.comment,
+                        date: reviewDate,
+                        comment: newReviewForm.comment.trim(),
+                        status: "Approved",
                       };
-                      setReviewsListState([submittedRev, ...reviewsListState]);
+
+                      setReviewsListState((prev) => [submittedRev, ...prev.filter((r: any) => r.id !== newId)]);
                       setNewReviewForm({ author: "", rating: 5, comment: "" });
-                      addToast("Review Published!", `Thank you ${submittedRev.author}! Your review for ${displayTitle} has been published.`);
+
+                      try {
+                        await addReview(submittedRev);
+                        addToast("Review Published!", `Thank you ${submittedRev.author}! Your review for ${displayTitle} has been saved.`);
+                      } catch (err) {
+                        console.error("Failed to save review to database", err);
+                      }
                     }}
                     className="space-y-4 font-inter"
                   >

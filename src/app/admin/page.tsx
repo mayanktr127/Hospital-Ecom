@@ -2157,12 +2157,19 @@ export default function AdminDashboardPage() {
                 <div className="bg-[#f7f6fb] rounded-2xl p-4 border border-[#e9edf4]">
                   <span className="text-[10px] font-bold text-[#64748B] uppercase block">Average Satisfaction</span>
                   <span className="font-archivo font-semibold text-2xl text-[#f2b134] flex items-center gap-1">
-                    5.0 <Star className="w-5 h-5 fill-[#f2b134] inline" />
+                    {reviews.length > 0
+                      ? (reviews.reduce((acc, r) => acc + (r.rating || 5), 0) / reviews.length).toFixed(1)
+                      : "5.0"}{" "}
+                    <Star className="w-5 h-5 fill-[#f2b134] inline" />
                   </span>
                 </div>
                 <div className="bg-[#f7f6fb] rounded-2xl p-4 border border-[#e9edf4]">
                   <span className="text-[10px] font-bold text-[#64748B] uppercase block">Status</span>
-                  <span className="font-archivo font-semibold text-2xl text-[#1fb37a]">100% Approved</span>
+                  <span className="font-archivo font-semibold text-2xl text-[#1fb37a]">
+                    {reviews.length > 0
+                      ? `${Math.round((reviews.filter((r) => (r.status || "").toLowerCase() === "approved").length / reviews.length) * 100)}% Approved`
+                      : "100% Approved"}
+                  </span>
                 </div>
               </div>
 

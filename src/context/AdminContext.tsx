@@ -330,10 +330,18 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         const parsed = JSON.parse(cachedBlogs);
         if (Array.isArray(parsed) && parsed.length > 0) setBlogPosts(parsed);
       }
+      let deletedRevs: string[] = [];
+      try {
+        const drStr = localStorage.getItem("pulmocare_deleted_reviews");
+        if (drStr) deletedRevs = JSON.parse(drStr);
+      } catch {}
+
       const cachedRevs = localStorage.getItem("pulmocare_cache_revs");
       if (cachedRevs) {
         const parsed = JSON.parse(cachedRevs);
-        if (Array.isArray(parsed) && parsed.length > 0) setReviews(parsed);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setReviews(parsed.filter((r: any) => r && !deletedRevs.includes(r.id)));
+        }
       }
       const cachedSettings = localStorage.getItem("pulmocare_pricing_settings");
       if (cachedSettings) {
@@ -844,6 +852,14 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Reviews CRUD Handlers
   const addReview = async (review: ReviewItem) => {
+    setReviews((prev) => {
+      const updated = [review, ...prev.filter((r) => r.id !== review.id)];
+      try {
+        localStorage.setItem("pulmocare_cache_revs", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
     try {
       const res = await fetch("/api/reviews", {
         method: "POST",
@@ -851,15 +867,38 @@ export const AdminProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         body: JSON.stringify(review),
       });
       const data = await res.json();
-      setReviews((prev) => [data.review || review, ...prev]);
+      if (data.review) {
+        setReviews((prev) => {
+          const updated = prev.map((r) => (r.id === review.id ? data.review : r));
+          try {
+            localStorage.setItem("pulmocare_cache_revs", JSON.stringify(updated));
+          } catch {}
+          return updated;
+        });
+      }
     } catch (err) {
       console.error("Error adding review to MongoDB Atlas", err);
-      setReviews((prev) => [review, ...prev]);
     }
   };
 
   const deleteReview = async (id: string) => {
-    setReviews((prev) => prev.filter((r) => r.id !== id));
+    setReviews((prev) => {
+      const updated = prev.filter((r) => r.id !== id);
+      try {
+        localStorage.setItem("pulmocare_cache_revs", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    if (typeof window !== "undefined") {
+      try {
+        const dStr = localStorage.getItem("pulmocare_deleted_reviews");
+        const dList: string[] = dStr ? JSON.parse(dStr) : [];
+        if (!dList.includes(id)) dList.push(id);
+        localStorage.setItem("pulmocare_deleted_reviews", JSON.stringify(dList));
+      } catch {}
+    }
+
     try {
       await fetch(`/api/reviews?id=${encodeURIComponent(id)}`, { method: "DELETE" });
     } catch (err) {
