@@ -13,11 +13,9 @@ import {
   ChevronDown,
   ChevronUp,
   ArrowRight,
-  Play,
   Download,
   Moon,
   Hand,
-  X,
   Star,
   ShieldCheck,
   Truck,
@@ -76,7 +74,6 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedMaskOption, setSelectedMaskOption] = useState<MaskOptionType>("none");
-  const [activeVideoModal, setActiveVideoModal] = useState<string | null>(null);
 
   // Dynamic Lookup Keys
   const catKey = categorySlug.replace(/-/g, "_");
@@ -650,29 +647,6 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 ))}
               </ul>
             </div>
-
-            {/* Video Banner (Matching Screenshot 3) */}
-            <div className="pt-8 border-t border-[#e9edf4]">
-              <h3 className="font-archivo font-medium text-2xl tracking-[-0.03em] text-[#0a1f3c] mb-6">
-                Why <span className="hl mint">Pulmo Care</span> – Watch this quick video!
-              </h3>
-
-              <div
-                onClick={() => setActiveVideoModal(`${displayTitle} Product Demonstration`)}
-                className="relative w-full max-w-2xl h-64 sm:h-80 bg-gradient-to-br from-[#e9e6fb] via-[#dcebfb] to-[#fbe6ee] rounded-[28px] overflow-hidden shadow-[0_16px_44px_rgba(24,42,65,0.09)] flex items-center justify-center group cursor-pointer"
-              >
-                <img
-                  src={heroCutoutImage}
-                  alt={`${displayTitle} Video Thumbnail`}
-                  className="w-full h-full object-contain p-8 mix-blend-multiply group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-full bg-[#2a6ecb] group-hover:bg-white text-white group-hover:text-[#2a6ecb] flex items-center justify-center shadow-[0_10px_24px_rgba(42,110,203,0.3)] transition-all">
-                    <Play className="w-8 h-8 fill-current ml-1" />
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </section>
 
@@ -897,35 +871,6 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
           </div>
         </section>
       </main>
-
-      {/* In-Page Video Player Modal */}
-      {activeVideoModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
-          <div className="bg-white rounded-[28px] overflow-hidden max-w-3xl w-full shadow-[0_30px_70px_rgba(24,42,65,0.14)] relative border border-[#e9edf4]">
-            <div className="flex items-center justify-between p-6 border-b border-[#e9edf4] bg-[#f6f4fb]">
-              <h3 className="font-archivo font-bold text-lg text-[#0a1f3c]">
-                {activeVideoModal}
-              </h3>
-              <button
-                onClick={() => setActiveVideoModal(null)}
-                className="p-2 rounded-full hover:bg-[#f6f4fb] text-[#0a1f3c] transition-colors cursor-pointer"
-                aria-label="Close video"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="relative w-full aspect-video bg-black flex items-center justify-center">
-              <iframe
-                className="w-full h-full"
-                src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
-                title={activeVideoModal}
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
-            </div>
-          </div>
-        </div>
-      )}
 
       <Footer />
     </div>
