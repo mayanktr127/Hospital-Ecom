@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer/Footer";
 import { useAdmin } from "@/context/AdminContext";
 import { useInquiry } from "@/context/InquiryContext";
 import { getDefaultProducts } from "@/utils/defaultProducts";
-import { isMaskEligible, isMaskAddonProduct } from "@/utils/maskAddon";
+import { isMaskEligible, isMaskAddonProduct, MaskOptionType } from "@/utils/maskAddon";
 import { isHumidifierAddonProduct } from "@/utils/humidifierAddon";
 import {
   ShoppingCart,
@@ -337,10 +337,12 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
                       {prod.price && prod.price > 0 ? (
                         <button
                           onClick={() => {
-                            addToCart(prod, 1, "none");
+                            const effectiveMask: MaskOptionType = isMaskEligible(prod) ? "nasal" : "none";
+                            addToCart(prod, 1, effectiveMask);
+                            const maskLabel = effectiveMask === "nasal" ? ` (with JOYCEone Nasal Mask)` : "";
                             addToast(
                               "Added to Cart",
-                              `${prod.name} has been added to your cart.`
+                              `${prod.name}${maskLabel} added to your procurement cart.`
                             );
                           }}
                           className="flex-1 py-2.5 rounded-full bg-[#0066FF] hover:bg-[#0052CC] text-white font-archivo font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer"

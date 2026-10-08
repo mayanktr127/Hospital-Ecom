@@ -22,6 +22,8 @@ export interface ProductSpecification {
 
 export interface Product {
   id: string;
+  _id?: string;
+  slug?: string;
   name: string;
   category: ProductCategory;
   price?: number;

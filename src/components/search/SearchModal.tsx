@@ -1,14 +1,17 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { PRODUCTS } from "@/data/products";
+import React, { useState, useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { Product } from "@/types/product";
+import { useAdmin } from "@/context/AdminContext";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/context/ToastContext";
 import { useInquiry } from "@/context/InquiryContext";
-import { motion, AnimatePresence } from "motion/react";
-import { Search, X, ShoppingBag, Phone } from "lucide-react";
+import { getDefaultProducts } from "@/utils/defaultProducts";
+import { isMaskEligible, MaskOptionType } from "@/utils/maskAddon";
 import { isRentalProduct, RENTAL_SHORT_MESSAGE } from "@/utils/rental";
+import { motion, AnimatePresence } from "motion/react";
+import { Search, X, ShoppingBag, Phone, Star } from "lucide-react";
 import Image from "next/image";
 
 interface SearchModalProps {
@@ -19,9 +22,13 @@ interface SearchModalProps {
 
 export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSelectProduct }) => {
   const [query, setQuery] = useState("");
+  const router = useRouter();
+  const { products: adminProducts, pricingSettings } = useAdmin();
   const { addToCart } = useCart();
   const { addToast } = useToast();
   const { openInquiryModal } = useInquiry();
+
+  const nasalPrice = pricingSettings?.nasalMaskAddonPrice ?? 3000;
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -38,19 +45,108 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  const filteredProducts = query.trim()
-    ? PRODUCTS.filter(
-        (p) =>
-          p.name.toLowerCase().includes(query.toLowerCase()) ||
-          p.category.toLowerCase().includes(query.toLowerCase()) ||
-          p.description.toLowerCase().includes(query.toLowerCase())
-      )
-    : PRODUCTS.slice(0, 4);
+  // Combine products with fallbacks, filtering out invalid or test products
+  const productSource = useMemo(() => {
+    const prods = adminProducts && adminProducts.length > 0 ? adminProducts : getDefaultProducts();
+    const map = new Map<string, Product>();
+    prods.forEach((p) => {
+      if (!p || !p.name) return;
+      const pName = (p.name || "").toLowerCase().trim();
+      const pId = (p.id || "").toLowerCase().trim();
+      if (pId.includes("addon") || pName === "wrwe" || pName.includes("test") || pId.includes("test")) return;
+      if (!map.has(pId)) map.set(pId, p);
+    });
+    return Array.from(map.values());
+  }, [adminProducts]);
+
+  // Comprehensive multi-keyword search
+  const filteredProducts = useMemo(() => {
+    const trimmed = query.trim().toLowerCase();
+    if (!trimmed) {
+      // Return top featured Löwenstein clinical devices by default
+      const featuredSlugs = [
+        "prisma-smart",
+        "prisma-smart-plus",
+        "prisma-25st",
+        "prisma-25s",
+        "prisma-20a",
+        "luisa-ventilator",
+        "prisma-aqua",
+      ];
+      const featured = productSource.filter((p) =>
+        featuredSlugs.some((slug) => p.id?.toLowerCase().includes(slug) || p.slug?.toLowerCase().includes(slug))
+      );
+      return featured.length >= 4 ? featured.slice(0, 6) : productSource.slice(0, 6);
+    }
+
+    const keywords = trimmed.split(/\s+/).filter(Boolean);
+
+    return productSource
+      .map((p) => {
+        const nameLower = (p.name || "").toLowerCase();
+        const catLower = (p.category || "").toLowerCase();
+        const descLower = (p.description || "").toLowerCase();
+        const brandLower = (p.brand || "").toLowerCase();
+        const skuLower = (p.sku || "").toLowerCase();
+        const featuresText = Array.isArray(p.features) ? p.features.join(" ").toLowerCase() : "";
+        const specsText = Array.isArray(p.specifications)
+          ? p.specifications.map((s: any) => `${s.label || ""} ${s.value || ""}`).join(" ").toLowerCase()
+          : "";
+
+        const allText = `${nameLower} ${catLower} ${descLower} ${brandLower} ${skuLower} ${featuresText} ${specsText}`;
+
+        // Every keyword must be matched somewhere in the product
+        const matchesAll = keywords.every((kw) => allText.includes(kw));
+        if (!matchesAll) return null;
+
+        // Calculate relevance score
+        let score = 0;
+        if (nameLower === trimmed) score += 100;
+        else if (nameLower.startsWith(trimmed)) score += 60;
+        else if (nameLower.includes(trimmed)) score += 40;
+
+        keywords.forEach((kw) => {
+          if (nameLower.includes(kw)) score += 15;
+          if (catLower.includes(kw)) score += 10;
+          if (brandLower.includes(kw)) score += 8;
+          if (skuLower.includes(kw)) score += 8;
+          if (descLower.includes(kw)) score += 3;
+        });
+
+        return { product: p, score };
+      })
+      .filter((item): item is { product: Product; score: number } => item !== null)
+      .sort((a, b) => b.score - a.score)
+      .map((item) => item.product);
+  }, [productSource, query]);
+
+  const getProductUrl = (p: Product) => {
+    const catSlug = (p.category || "").toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    const pSlug = p.slug || p.id;
+    if (catSlug.includes("sleep") || catSlug.includes("cpap")) return `/sleep-apnea-therapy/${pSlug}`;
+    if (catSlug.includes("bilevel")) return `/bilevel-s-st-devices/${pSlug}`;
+    if (catSlug.includes("asv") || catSlug.includes("titration")) return `/asv-titration-devices/${pSlug}`;
+    if (catSlug.includes("humidifier")) return `/humidifiers/${pSlug}`;
+    if (catSlug.includes("mask")) return `/masks/${pSlug}`;
+    if (catSlug.includes("vent")) return `/ventilation/${pSlug}`;
+    if (catSlug.includes("oxygen")) return `/oxygen-therapy/${pSlug}`;
+    if (catSlug.includes("diag")) return `/sleep-diagnostics/${pSlug}`;
+    return `/product/${pSlug}`;
+  };
+
+  const handleProductClick = (product: Product) => {
+    if (onSelectProduct) {
+      onSelectProduct(product);
+    } else {
+      router.push(getProductUrl(product));
+    }
+    onClose();
+  };
 
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 md:pt-24 px-4">
+        <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-16 md:pt-24 px-4">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -75,13 +171,13 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                 type="text"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search Löwenstein ventilation, diagnostics, PPE..."
+                placeholder="Search Löwenstein ventilation, diagnostics, masks, CPAP..."
                 autoFocus
-                className="w-full bg-transparent border-0 text-[#182a41] font-inter text-base placeholder-[#64748b]"
+                className="w-full bg-transparent border-0 text-[#182a41] font-inter text-base placeholder-[#64748b] focus:outline-none"
               />
               <button
                 onClick={onClose}
-                className="p-2 rounded-full hover:bg-[#f6f4fb] text-[#64748b] transition-colors"
+                className="p-2 rounded-full hover:bg-[#f6f4fb] text-[#64748b] transition-colors cursor-pointer"
                 aria-label="Close search"
               >
                 <X className="w-5 h-5" />
@@ -98,43 +194,61 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
               </div>
 
               {filteredProducts.length === 0 ? (
-                <div className="glass !py-12 text-center text-[#64748b]">
+                <div className="py-12 text-center text-[#64748b] bg-[#f8fafc] rounded-2xl border border-[#e9edf4]">
                   <p className="font-archivo font-medium text-lg tracking-[-0.03em] text-[#0a1f3c]">No devices found</p>
-                  <p className="text-sm mt-1">Try searching for &quot;microscope&quot;, &quot;oximeter&quot;, or &quot;sanitizer&quot;</p>
+                  <p className="text-sm mt-1">Try searching for &quot;Prisma SMART&quot;, &quot;BiLevel&quot;, &quot;LUISA&quot;, or &quot;Mask&quot;</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {filteredProducts.map((product) => (
                     <div
                       key={product.id}
-                      className="group flex items-center justify-between p-3 rounded-[14px] border border-[#e9edf4] hover:border-[#dcebfb] hover:shadow-[0_16px_44px_rgba(24,42,65,0.09)] transition-all bg-white"
+                      className="group flex items-center justify-between p-3.5 rounded-[16px] border border-[#e9edf4] hover:border-[#dcebfb] hover:shadow-[0_16px_44px_rgba(24,42,65,0.09)] transition-all bg-white"
                     >
                       <div
-                        onClick={() => {
-                          if (onSelectProduct) onSelectProduct(product);
-                          onClose();
-                        }}
+                        onClick={() => handleProductClick(product)}
                         className="flex items-center gap-4 cursor-pointer flex-1"
                       >
-                        <div className="w-14 h-14 rounded-[14px] bg-gradient-to-br from-[#e9e6fb] to-white flex items-center justify-center p-2 shrink-0 border border-[#e9edf4]">
+                        <div className="w-16 h-16 rounded-[14px] bg-gradient-to-br from-[#e9e6fb] to-white flex items-center justify-center p-2 shrink-0 border border-[#e9edf4]">
                           <Image
-                            src={product.image}
+                            src={product.image || "/images/pulmocare/pulmocare_prisma-smart.png"}
                             alt={product.name}
-                            width={48}
-                            height={48}
+                            width={56}
+                            height={56}
                             className="object-contain max-h-full product-drop-shadow"
                           />
                         </div>
                         <div>
-                          <span className="eyebrow text-[10px]">
-                            {product.category}
-                          </span>
-                          <h4 className="font-archivo font-semibold text-sm text-[#182a41] group-hover:text-[#0a1f3c] transition-colors leading-tight">
+                          <div className="flex items-center gap-2">
+                            <span className="eyebrow text-[10px]">
+                              {product.category}
+                            </span>
+                            <div className="flex items-center gap-0.5 text-amber-500 text-[11px] font-bold">
+                              <Star className="w-3 h-3 fill-amber-500" />
+                              <span>{product.rating || 5}.0</span>
+                            </div>
+                          </div>
+                          <h4 className="font-archivo font-semibold text-sm text-[#182a41] group-hover:text-[#2a6ecb] transition-colors leading-tight">
                             {product.name}
                           </h4>
-                          <span className="font-archivo font-bold text-sm text-[#0a1f3c] mt-0.5 block">
-                            {product.price && product.price > 0 ? `₹${product.price.toLocaleString("en-IN")}.00` : "Price on Request"}
-                          </span>
+
+                          {product.price && product.price > 0 ? (
+                            <div className="mt-0.5">
+                              <span className="font-archivo font-bold text-sm text-[#0a1f3c]">
+                                ₹{(isMaskEligible(product) ? product.price + nasalPrice : product.price).toLocaleString("en-IN")}.00
+                              </span>
+                              {isMaskEligible(product) && (
+                                <span className="text-[10px] text-[#2a6ecb] font-semibold block">
+                                  Incl. JOYCEone Nasal (+₹{nasalPrice.toLocaleString("en-IN")})
+                                </span>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-xs font-archivo font-bold text-[#2a6ecb] mt-0.5 block">
+                              Price on Request
+                            </span>
+                          )}
+
                           {isRentalProduct(product) && (
                             <span className="flex items-center gap-1 text-[10px] font-archivo font-bold text-[#2a6ecb] mt-0.5">
                               <Phone className="w-2.5 h-2.5 shrink-0" />
@@ -144,14 +258,17 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 shrink-0 ml-3">
                         {product.price && product.price > 0 ? (
                           <button
-                            onClick={() => {
-                              addToCart(product);
-                              addToast("Added to Cart", `${product.name} added to your cart.`);
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              const effectiveMask: MaskOptionType = isMaskEligible(product) ? "nasal" : "none";
+                              addToCart(product, 1, effectiveMask);
+                              const maskLabel = effectiveMask === "nasal" ? ` (with JOYCEone Nasal Mask)` : "";
+                              addToast("Added to Cart", `${product.name}${maskLabel} added to your cart.`);
                             }}
-                            className="btn btn-primary !px-4 !py-2.5 !text-[13px]"
+                            className="btn btn-primary !px-4 !py-2.5 !text-[13px] flex items-center gap-1.5 cursor-pointer shadow-sm hover:shadow"
                           >
                             <ShoppingBag className="w-3.5 h-3.5" />
                             <span>Add</span>
@@ -159,7 +276,8 @@ export const SearchModal: React.FC<SearchModalProps> = ({ isOpen, onClose, onSel
                         ) : (
                           <button
                             type="button"
-                            onClick={() => {
+                            onClick={(e) => {
+                              e.stopPropagation();
                               onClose();
                               openInquiryModal(product);
                             }}

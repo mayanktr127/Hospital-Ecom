@@ -30,6 +30,7 @@ import {
   Stethoscope,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { SearchModal } from "@/components/search/SearchModal";
 
 interface NavbarProps {
   onOpenSearch?: () => void;
@@ -52,6 +53,19 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
   const { wishlist, toggleWishlist } = useWishlist();
   const { addToast } = useToast();
   const { categories: adminCategories, products: adminProducts } = useAdmin();
+
+  const [internalSearchOpen, setInternalSearchOpen] = useState<boolean>(false);
+  const handleOpenSearch = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (onOpenSearch) {
+      onOpenSearch();
+    } else {
+      setInternalSearchOpen(true);
+    }
+  };
 
   const [activeDropdown, setActiveDropdown] = useState<DropdownKey>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
@@ -408,15 +422,28 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
 
         {/* Right Action Icons Cluster */}
         <div className="flex items-center gap-2">
-          {onOpenSearch && (
-            <button
-              onClick={onOpenSearch}
-              className="hidden sm:inline-flex items-center gap-2 h-10 px-4 rounded-full border border-[#e9edf4] bg-white text-xs text-[#64748b] hover:text-[#2a6ecb] hover:border-[#7fb0ee] shadow-[0_2px_8px_rgba(24,42,65,0.05)] transition-all cursor-pointer"
-            >
-              <Search className="w-3.5 h-3.5 text-[#0a1f3c]" />
-              <span>Search</span>
-            </button>
-          )}
+          {/* Desktop Search Button */}
+          <button
+            id="navbar-search-btn"
+            type="button"
+            onClick={handleOpenSearch}
+            className="hidden sm:inline-flex items-center gap-2 h-10 px-4 rounded-full border border-[#e9edf4] bg-white text-xs text-[#64748b] hover:text-[#2a6ecb] hover:border-[#7fb0ee] shadow-[0_2px_8px_rgba(24,42,65,0.05)] transition-all cursor-pointer"
+            aria-label="Search products"
+          >
+            <Search className="w-3.5 h-3.5 text-[#0a1f3c]" />
+            <span>Search</span>
+          </button>
+
+          {/* Mobile Search Icon Button */}
+          <button
+            id="navbar-mobile-search-btn"
+            type="button"
+            onClick={handleOpenSearch}
+            className="sm:hidden w-10 h-10 rounded-full border border-[#e9edf4] bg-white flex items-center justify-center text-[#0a1f3c] hover:bg-[#dcebfb] hover:text-[#2a6ecb] hover:border-[#7fb0ee] transition-colors relative shrink-0 cursor-pointer shadow-[0_2px_8px_rgba(24,42,65,0.05)]"
+            aria-label="Search products"
+          >
+            <Search className="w-4 h-4 text-[#0a1f3c]" />
+          </button>
 
           {/* Wishlist Button */}
           <button
@@ -774,6 +801,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSearch, onSelectCategory }
           )}
         </AnimatePresence>
       </div>
+
+      {/* Internal Search Modal fallback when no parent controller is passed */}
+      {!onOpenSearch && (
+        <SearchModal
+          isOpen={internalSearchOpen}
+          onClose={() => setInternalSearchOpen(false)}
+        />
+      )}
     </header>
   );
 };

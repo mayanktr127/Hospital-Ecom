@@ -10,7 +10,8 @@ import { useInquiry } from "@/context/InquiryContext";
 import { ShoppingBag, Heart, Eye, Star, Phone } from "lucide-react";
 import { motion } from "motion/react";
 import { isRentalProduct, RENTAL_SHORT_MESSAGE, RENTAL_PHONE } from "@/utils/rental";
-import { isMaskEligible } from "@/utils/maskAddon";
+import { isMaskEligible, MaskOptionType } from "@/utils/maskAddon";
+import { useAdmin } from "@/context/AdminContext";
 
 interface ProductCardProps {
   product: Product;
@@ -25,6 +26,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
 
   const favorite = isFavorite(product.id);
   const alsoOnRental = isRentalProduct(product);
+  const { pricingSettings } = useAdmin();
+  const nasalPrice = pricingSettings?.nasalMaskAddonPrice ?? 3000;
 
   return (
     <motion.div
@@ -93,7 +96,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
           <div className="flex flex-col">
             <div className="flex items-baseline gap-2">
               <span className="now">
-                ₹{(isMaskEligible(product) ? product.price + 3000 : product.price).toLocaleString("en-IN", {
+                ₹{(isMaskEligible(product) ? product.price + nasalPrice : product.price).toLocaleString("en-IN", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -106,7 +109,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
             </div>
             {isMaskEligible(product) && (
               <span className="text-[10px] text-[#2a6ecb] font-semibold">
-                Incl. JOYCEone Nasal (+₹3k)
+                Incl. JOYCEone Nasal (+₹{nasalPrice.toLocaleString("en-IN")})
               </span>
             )}
           </div>
@@ -146,10 +149,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }
       {product.price && product.price > 0 ? (
         <button
           onClick={() => {
-            addToCart(product, 1, "none");
+            const effectiveMask: MaskOptionType = isMaskEligible(product) ? "nasal" : "none";
+            addToCart(product, 1, effectiveMask);
+            const maskLabel = effectiveMask === "nasal" ? ` (with JOYCEone Nasal Mask)` : "";
             addToast(
               "Added to Cart",
-              `${product.name} added to your cart.`
+              `${product.name}${maskLabel} added to your cart.`
             );
           }}
           className="btn btn-primary add w-full mt-1 !py-3 !px-4 !text-[13px] active:scale-[0.98]"
