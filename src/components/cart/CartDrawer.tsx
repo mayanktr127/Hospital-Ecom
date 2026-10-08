@@ -156,7 +156,7 @@ export const CartDrawer: React.FC = () => {
                         {isEligible && (
                           <MaskOptionSelector
                             product={product}
-                            selectedOption={maskOption || "none"}
+                            selectedOption={maskOption === "full-face" ? "full-face" : "nasal"}
                             onChange={(newOpt) => updateMaskOption(product.id, newOpt)}
                             variant="compact"
                           />

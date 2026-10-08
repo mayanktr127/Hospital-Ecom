@@ -444,9 +444,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   {isMaskEligible(currentProductObj) && (
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-[11px] font-bold text-[#2a6ecb] bg-[#2a6ecb]/10 px-2.5 py-0.5 rounded-full inline-block">
-                        {selectedMaskOption === "nasal" && `Default: JOYCEone Nasal Mask (+₹${nasalPrice.toLocaleString("en-IN")})`}
-                        {selectedMaskOption === "full-face" && `Configured: JOYCEone Full Face Mask (+₹${fullFacePrice.toLocaleString("en-IN")})`}
-                        {selectedMaskOption === "none" && "Device Only (Mask Toggled Off)"}
+                        {selectedMaskOption === "full-face"
+                          ? `Configured: JOYCEone Full Face Mask (+₹${fullFacePrice.toLocaleString("en-IN")})`
+                          : `Default: JOYCEone Nasal Mask (+₹${nasalPrice.toLocaleString("en-IN")})`}
                       </span>
                       {selectedHumidifier && (
                         <span className="text-[11px] font-bold text-[#138054] bg-[#1fb37a]/15 px-2.5 py-0.5 rounded-full inline-block">

@@ -31,20 +31,14 @@ export const MASK_OPTIONS: MaskAddonConfig[] = [
     badge: "High Performance",
     image: "/images/site/masks_csm_joyceone_mask_patient_interface_fullface_vented_right_4560a66624.png",
   },
-  {
-    id: "none",
-    name: "Device Only (Without Mask)",
-    shortName: "No Mask",
-    addonPrice: 0,
-    description: "Exclude mask if you already own a compatible Löwenstein or CPAP mask",
-  },
 ];
 
 export function getMaskOptionDetails(
   option?: MaskOptionType,
   pricingSettings?: { nasalMaskAddonPrice?: number; fullFaceMaskAddonPrice?: number }
 ): MaskAddonConfig {
-  const baseConfig = MASK_OPTIONS.find((m) => m.id === option) || MASK_OPTIONS[0];
+  const safeId: MaskOptionType = option === "full-face" ? "full-face" : "nasal";
+  const baseConfig = MASK_OPTIONS.find((m) => m.id === safeId) || MASK_OPTIONS[0];
   if (!pricingSettings) return baseConfig;
   const dynPrice = getMaskAddonPrice(baseConfig.id, pricingSettings);
   return { ...baseConfig, addonPrice: dynPrice };
@@ -211,5 +205,6 @@ export function calculateEffectiveUnitPrice(
       ? info.basePrice
       : 0;
   if (!info.isEligible) return base;
-  return base + getMaskAddonPrice(maskOption, pricingSettings);
+  const safeOption: MaskOptionType = maskOption === "full-face" ? "full-face" : "nasal";
+  return base + getMaskAddonPrice(safeOption, pricingSettings);
 }
