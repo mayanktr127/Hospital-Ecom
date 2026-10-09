@@ -99,8 +99,26 @@ export async function DELETE(req: Request) {
       return NextResponse.json({ success: false, error: "Missing bundleId" }, { status: 400 });
     }
 
-    await Bundle.findOneAndDelete({ $or: [{ bundleId }, { _id: bundleId }] });
-    return NextResponse.json({ success: true, message: `Bundle ${bundleId} deleted` });
+    const cleanId = decodeURIComponent(bundleId).trim();
+    const isObjectId = /^[0-9a-fA-F]{24}$/.test(cleanId);
+
+    const conditions: any[] = [
+      { bundleId: cleanId },
+      { bundleId: cleanId.toUpperCase() },
+      { bundleId: cleanId.toLowerCase() },
+      { bundleId: { $regex: new RegExp(`^${cleanId.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, "i") } },
+    ];
+
+    if (isObjectId) {
+      conditions.push({ _id: cleanId });
+    }
+
+    const deleted = await Bundle.findOneAndDelete({ $or: conditions });
+    if (!deleted) {
+      return NextResponse.json({ success: false, message: `Bundle ${cleanId} not found` }, { status: 404 });
+    }
+
+    return NextResponse.json({ success: true, message: `Bundle ${cleanId} permanently deleted` });
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
