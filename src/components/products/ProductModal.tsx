@@ -21,6 +21,7 @@ import {
 import {
   isHumidifierEligible,
   HUMIDIFIER_ADDON_PRICE,
+  isSmartPlusDevice,
 } from "@/utils/humidifierAddon";
 import { HumidifierOptionSelector } from "@/components/cart/HumidifierOptionSelector";
 
@@ -280,9 +281,10 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                                 ? " (with JOYCEone Full Face Mask [+₹4,500])"
                                 : " (with JOYCEone Nasal Mask [+₹3,000])"
                               : "";
+                            const isWhiteHumid = isSmartPlusDevice(product);
                             const humidLabel =
                               isHumidifierEligible(product) && selectedHumidifier
-                                ? " + Prisma AQUA Humidifier [+₹10,000]"
+                                ? ` + Prisma AQUA Humidifier (${isWhiteHumid ? "White" : "Black"}) [+₹10,000]`
                                 : "";
                             addToast(
                               "Added to Cart",

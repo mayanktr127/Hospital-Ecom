@@ -54,6 +54,7 @@ import {
 import {
   isHumidifierEligible,
   HUMIDIFIER_ADDON_PRICE,
+  isSmartPlusDevice,
 } from "@/utils/humidifierAddon";
 import { HumidifierOptionSelector } from "@/components/cart/HumidifierOptionSelector";
 
@@ -333,7 +334,8 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
         ? ` (with JOYCEone Full Face Mask [+₹${fullFacePrice.toLocaleString("en-IN")}])`
         : "";
 
-    const humidLabel = withHumidifier ? ` + Prisma AQUA Humidifier [+₹${humidifierPrice.toLocaleString("en-IN")}]` : "";
+    const humidColorName = isSmartPlusDevice(currentProductObj) ? "White" : "Black";
+    const humidLabel = withHumidifier ? ` + Prisma AQUA Humidifier (${humidColorName}) [+₹${humidifierPrice.toLocaleString("en-IN")}]` : "";
 
     addToast(
       "Added to Cart",
@@ -450,7 +452,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                       </span>
                       {selectedHumidifier && (
                         <span className="text-[11px] font-bold text-[#138054] bg-[#1fb37a]/15 px-2.5 py-0.5 rounded-full inline-block">
-                          + Prisma AQUA Humidifier (+₹{humidifierPrice.toLocaleString("en-IN")} bundle)
+                          + Prisma AQUA Humidifier ({isSmartPlusDevice(currentProductObj) ? "White" : "Black"}) (+₹{humidifierPrice.toLocaleString("en-IN")} bundle)
                         </span>
                       )}
                     </div>

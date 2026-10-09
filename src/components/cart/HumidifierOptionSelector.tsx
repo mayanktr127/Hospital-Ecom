@@ -3,7 +3,12 @@
 import React from "react";
 import Image from "next/image";
 import { Product } from "@/types/product";
-import { HUMIDIFIER_ADDON_PRICE, HUMIDIFIER_STANDALONE_PRICE } from "@/utils/humidifierAddon";
+import {
+  HUMIDIFIER_ADDON_PRICE,
+  HUMIDIFIER_STANDALONE_PRICE,
+  isSmartPlusDevice,
+  getHumidifierProduct,
+} from "@/utils/humidifierAddon";
 import { Check, Sparkles, Droplets } from "lucide-react";
 import { useAdmin } from "@/context/AdminContext";
 
@@ -25,6 +30,10 @@ export const HumidifierOptionSelector: React.FC<HumidifierOptionSelectorProps> =
   const standalonePrice = pricingSettings?.humidifierStandalonePrice ?? HUMIDIFIER_STANDALONE_PRICE;
   const savings = Math.max(0, standalonePrice - bundlePrice);
 
+  const isWhite = isSmartPlusDevice(product);
+  const colorName = isWhite ? "White" : "Black";
+  const humidProduct = getHumidifierProduct(pricingSettings, product);
+
   if (variant === "compact") {
     return (
       <div className="mt-2.5 pt-2 border-t border-[#f1f5f9]">
@@ -39,7 +48,7 @@ export const HumidifierOptionSelector: React.FC<HumidifierOptionSelectorProps> =
         >
           <div className="flex items-center gap-1.5">
             <Droplets className="w-3.5 h-3.5" />
-            <span>Prisma AQUA Humidifier (+₹{bundlePrice.toLocaleString("en-IN")})</span>
+            <span>Prisma AQUA Humidifier ({colorName}) (+₹{bundlePrice.toLocaleString("en-IN")})</span>
           </div>
           <div className="flex items-center gap-1">
             {selected && <Check className="w-3 h-3 stroke-[2.5]" />}
@@ -56,7 +65,7 @@ export const HumidifierOptionSelector: React.FC<HumidifierOptionSelectorProps> =
         <div className="flex items-center gap-2">
           <span className="text-[11px] font-bold uppercase tracking-wider text-[#2a6ecb] bg-[#2a6ecb]/10 px-2 py-0.5 rounded-full flex items-center gap-1">
             <Droplets className="w-3 h-3" />
-            Humidifier Add-on
+            Humidifier Add-on ({colorName} Edition)
           </span>
           <span className="text-xs text-[#64748b] font-medium hidden sm:inline">
             Bundle Offer (Save ₹{savings.toLocaleString("en-IN")})
@@ -90,8 +99,8 @@ export const HumidifierOptionSelector: React.FC<HumidifierOptionSelectorProps> =
           {/* Product Thumbnail */}
           <div className="w-12 h-12 rounded-xl bg-white p-1 border border-[#e2e8f0] flex items-center justify-center shrink-0 shadow-2xs">
             <img
-              src="/images/pulmocare/pulmocare_prisma-aqua.png"
-              alt="Prisma AQUA Humidifier"
+              src={humidProduct.image}
+              alt={`Löwenstein Prisma AQUA Humidifier (${colorName})`}
               className="w-full h-full object-contain"
             />
           </div>
@@ -99,14 +108,21 @@ export const HumidifierOptionSelector: React.FC<HumidifierOptionSelectorProps> =
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="font-archivo font-bold text-xs sm:text-sm text-[#0a1f3c] truncate">
-                Löwenstein Prisma AQUA Humidifier
+                Löwenstein Prisma AQUA Humidifier ({colorName})
+              </span>
+              <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0 ${
+                isWhite ? "bg-slate-100 text-slate-700 border border-slate-200" : "bg-zinc-800 text-white"
+              }`}>
+                {isWhite ? "White Finish" : "Black Finish"}
               </span>
               <span className="text-[9px] font-bold bg-[#1fb37a]/15 text-[#138054] px-1.5 py-0.5 rounded-full uppercase tracking-wider shrink-0">
                 Save ₹{savings.toLocaleString("en-IN")}
               </span>
             </div>
             <p className="text-[11px] text-[#64748b] mt-0.5 line-clamp-1 sm:line-clamp-2">
-              Heated humidifier for prismaLINE CPAP &amp; BiLevel. Prevents morning dryness and nasal congestion.
+              {isWhite
+                ? "Matching White heated humidifier for Prisma Smart Plus. Prevents morning dryness and airway irritation."
+                : "Matching Black heated humidifier for prismaLINE CPAP & BiLevel devices. Prevents morning dryness and airway irritation."}
             </p>
           </div>
         </div>
@@ -126,7 +142,7 @@ export const HumidifierOptionSelector: React.FC<HumidifierOptionSelectorProps> =
           Standalone Price: <s className="line-through">₹{standalonePrice.toLocaleString("en-IN")}</s>
         </span>
         <span className="font-semibold text-[#2a6ecb]">
-          Bundle Price with Device: ₹{bundlePrice.toLocaleString("en-IN")}
+          Bundle Price with {product.name || "Device"}: ₹{bundlePrice.toLocaleString("en-IN")}
         </span>
       </div>
     </div>

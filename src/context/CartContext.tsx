@@ -77,7 +77,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
             }
           }
           if (isHumidifierAddonProduct(item.product)) {
-            const humProd = getHumidifierProduct(pricingSettings);
+            const humProd = getHumidifierProduct(pricingSettings, item.product);
             return {
               ...item,
               product: humProd,
@@ -177,10 +177,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // 3. Manage the Humidifier Add-on in the cart
       if (isHumidifierEligible(product)) {
         // Remove previous humidifier bundle add-on
-        updatedCart = updatedCart.filter((item) => item.product.id !== PRISMA_AQUA_PRODUCT.id);
+        updatedCart = updatedCart.filter((item) => !isHumidifierAddonProduct(item.product));
 
         if (includeHumidifier) {
-          const humidProduct = getHumidifierProduct(pricingSettings);
+          const humidProduct = getHumidifierProduct(pricingSettings, product);
           const devIdx = updatedCart.findIndex((item) => item.product.id === product.id);
           const targetQty = devIdx > -1 ? updatedCart[devIdx].quantity : quantity;
           const humidifierItem: CartItem = {
