@@ -205,6 +205,7 @@ export function calculateEffectiveUnitPrice(
       ? info.basePrice
       : 0;
   if (!info.isEligible) return base;
+  if (maskOption === "none") return base;
   const safeOption: MaskOptionType = maskOption === "full-face" ? "full-face" : "nasal";
   return base + getMaskAddonPrice(safeOption, pricingSettings);
 }

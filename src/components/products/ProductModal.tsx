@@ -277,7 +277,9 @@ export const ProductModal: React.FC<ProductModalProps> = ({ product, onClose }) 
                               isHumidifierEligible(product) ? selectedHumidifier : false
                             );
                             const maskLabel = maskInfo.isEligible
-                              ? selectedMaskOption === "full-face"
+                              ? selectedMaskOption === "none"
+                                ? " (Without Mask)"
+                                : selectedMaskOption === "full-face"
                                 ? " (with JOYCEone Full Face Mask [+₹4,500])"
                                 : " (with JOYCEone Nasal Mask [+₹3,000])"
                               : "";

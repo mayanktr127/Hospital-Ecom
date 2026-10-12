@@ -328,11 +328,11 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     addToCart(currentProductObj, quantity, effectiveOption, withHumidifier);
 
     const maskLabel =
-      effectiveOption === "nasal"
+      effectiveOption === "none"
+        ? " (Without Mask)"
+        : effectiveOption === "nasal"
         ? ` (with JOYCEone Nasal Mask [+₹${nasalPrice.toLocaleString("en-IN")}])`
-        : effectiveOption === "full-face"
-        ? ` (with JOYCEone Full Face Mask [+₹${fullFacePrice.toLocaleString("en-IN")}])`
-        : "";
+        : ` (with JOYCEone Full Face Mask [+₹${fullFacePrice.toLocaleString("en-IN")}])`;
 
     const humidColorName = isSmartPlusDevice(currentProductObj) ? "White" : "Black";
     const humidLabel = withHumidifier ? ` + Prisma AQUA Humidifier (${humidColorName}) [+₹${humidifierPrice.toLocaleString("en-IN")}]` : "";
@@ -446,9 +446,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   {isMaskEligible(currentProductObj) && (
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="text-[11px] font-bold text-[#2a6ecb] bg-[#2a6ecb]/10 px-2.5 py-0.5 rounded-full inline-block">
-                        {selectedMaskOption === "full-face"
-                          ? `Configured: JOYCEone Full Face Mask (+₹${fullFacePrice.toLocaleString("en-IN")})`
-                          : `Default: JOYCEone Nasal Mask (+₹${nasalPrice.toLocaleString("en-IN")})`}
+                        {selectedMaskOption === "none" && "Device Only (No Mask Added)"}
+                        {selectedMaskOption === "nasal" && `Default: JOYCEone Nasal Mask (+₹${nasalPrice.toLocaleString("en-IN")})`}
+                        {selectedMaskOption === "full-face" && `Configured: JOYCEone Full Face Mask (+₹${fullFacePrice.toLocaleString("en-IN")})`}
                       </span>
                       {selectedHumidifier && (
                         <span className="text-[11px] font-bold text-[#138054] bg-[#1fb37a]/15 px-2.5 py-0.5 rounded-full inline-block">
