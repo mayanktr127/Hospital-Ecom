@@ -274,42 +274,123 @@ export const PricingSettingsTab: React.FC = () => {
               </div>
               <div>
                 <h3 className="font-archivo font-bold text-base text-[#0a1f3c]">
-                  Clinical Sleep Study Diagnostics
+                  Clinical Sleep Study Diagnostics (Level 1, 2 &amp; 3)
                 </h3>
                 <p className="text-[11px] text-[#64748b]">
-                  Standard charge for home/clinic polysomnography booking reservations.
+                  Individual pricing tiers for home polygraphy and hospital polysomnography booking reservations.
                 </p>
               </div>
             </div>
             <span className="text-[10px] font-bold text-[#138054] bg-[#1fb37a]/15 px-2 py-0.5 rounded-full">
-              Diagnostics Booking
+              Tiered Diagnostic Booking
             </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-[#f8fafc] border border-[#e2e8f0] space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="font-archivo font-bold text-xs text-[#0a1f3c] uppercase tracking-wide">
-                Sleep Study Booking Fee
-              </label>
-              <span className="text-[10px] text-[#64748b] font-mono">Default: ₹5,000</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {/* Level 3 Pricing */}
+            <div className="p-4 rounded-2xl bg-[#f8fafc] border border-[#e2e8f0] space-y-2 hover:border-[#1fb37a]/40 transition-colors">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="inline-block px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[10px] font-bold uppercase font-archivo">
+                    Level 3 (HSAT)
+                  </span>
+                  <label className="block font-archivo font-bold text-xs text-[#0a1f3c] mt-1">
+                    Home Polygraphy
+                  </label>
+                </div>
+                <span className="text-[10px] text-[#64748b] font-mono">Default: ₹5,500</span>
+              </div>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#64748b]">
+                  ₹
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="500"
+                  required
+                  value={formData.sleepStudyLevel3Price ?? 5500}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value, 10);
+                    handleChange("sleepStudyLevel3Price", val);
+                    handleChange("sleepStudyCharge", val);
+                  }}
+                  className="w-full pl-8 pr-4 py-2.5 rounded-xl border border-[#cbd5e1] bg-white font-mono font-bold text-sm text-[#0a1f3c] focus:outline-none focus:border-[#1fb37a] focus:ring-2 focus:ring-[#1fb37a]/20"
+                />
+              </div>
+              <p className="text-[11px] text-[#64748b] leading-relaxed">
+                12 Channels sleep screening for preliminary OSA diagnosis. Most accessible home study option.
+              </p>
             </div>
-            <div className="relative max-w-sm">
-              <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#64748b]">
-                ₹
-              </span>
-              <input
-                type="number"
-                min="0"
-                step="500"
-                required
-                value={formData.sleepStudyCharge}
-                onChange={(e) => handleChange("sleepStudyCharge", parseInt(e.target.value, 10))}
-                className="w-full pl-8 pr-4 py-2.5 rounded-xl border border-[#cbd5e1] bg-white font-mono font-bold text-sm text-[#0a1f3c] focus:outline-none focus:border-[#1fb37a] focus:ring-2 focus:ring-[#1fb37a]/20"
-              />
+
+            {/* Level 2 Pricing */}
+            <div className="p-4 rounded-2xl bg-[#f8fafc] border border-[#e2e8f0] space-y-2 hover:border-[#0066FF]/40 transition-colors">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="inline-block px-2 py-0.5 rounded-md bg-blue-100 text-blue-800 text-[10px] font-bold uppercase font-archivo">
+                    Level 2 (PSG)
+                  </span>
+                  <label className="block font-archivo font-bold text-xs text-[#0a1f3c] mt-1">
+                    Home Unattended PSG
+                  </label>
+                </div>
+                <span className="text-[10px] text-[#64748b] font-mono">Default: ₹9,000</span>
+              </div>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#64748b]">
+                  ₹
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="500"
+                  required
+                  value={formData.sleepStudyLevel2Price ?? 9000}
+                  onChange={(e) => handleChange("sleepStudyLevel2Price", parseInt(e.target.value, 10))}
+                  className="w-full pl-8 pr-4 py-2.5 rounded-xl border border-[#cbd5e1] bg-white font-mono font-bold text-sm text-[#0a1f3c] focus:outline-none focus:border-[#0066FF] focus:ring-2 focus:ring-[#0066FF]/20"
+                />
+              </div>
+              <p className="text-[11px] text-[#64748b] leading-relaxed">
+                28 Channels comprehensive full diagnostic PSG setup at patient&apos;s home without attending staff.
+              </p>
             </div>
-            <p className="text-[11px] text-[#64748b] leading-relaxed">
-              Shown in the booking modal on the Sleep Diagnostics category page and recorded with patient appointments in MongoDB.
-            </p>
+
+            {/* Level 1 Pricing */}
+            <div className="p-4 rounded-2xl bg-[#f8fafc] border border-[#e2e8f0] space-y-2 hover:border-purple-300 transition-colors">
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="inline-block px-2 py-0.5 rounded-md bg-purple-100 text-purple-800 text-[10px] font-bold uppercase font-archivo">
+                    Level 1 (Attended)
+                  </span>
+                  <label className="block font-archivo font-bold text-xs text-[#0a1f3c] mt-1">
+                    Hospital Attended PSG
+                  </label>
+                </div>
+                <span className="text-[10px] text-[#64748b] font-mono">Default: ₹14,000*</span>
+              </div>
+              <div className="relative">
+                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-bold text-[#64748b]">
+                  ₹
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="500"
+                  required
+                  value={formData.sleepStudyLevel1Price ?? 14000}
+                  onChange={(e) => handleChange("sleepStudyLevel1Price", parseInt(e.target.value, 10))}
+                  className="w-full pl-8 pr-4 py-2.5 rounded-xl border border-[#cbd5e1] bg-white font-mono font-bold text-sm text-[#0a1f3c] focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-600/20"
+                />
+              </div>
+              <div className="space-y-0.5">
+                <span className="text-[10px] font-bold text-purple-700 block">
+                  *Hospital Dependent rate
+                </span>
+                <p className="text-[11px] text-[#64748b] leading-relaxed">
+                  33+ Channels + HD Video monitoring in hospital sleep lab with certified overnight technician.
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -328,7 +409,7 @@ export const PricingSettingsTab: React.FC = () => {
           </div>
 
           <p className="text-xs text-white/80 leading-relaxed">
-            Here is how a typical CPAP device (Base Price: ₹45,000) will calculate and appear to patients with your current settings:
+            Here is how device pricing and sleep study diagnostic tiers will calculate and appear to patients with your current settings:
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
@@ -364,6 +445,24 @@ export const PricingSettingsTab: React.FC = () => {
               </span>
               <span className="text-[10px] text-white/60 block">
                 Save ₹{humidifierSavings.toLocaleString("en-IN")} vs standalone
+              </span>
+            </div>
+          </div>
+
+          {/* Sleep Study Tier Preview */}
+          <div className="pt-3 border-t border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs">
+            <span className="text-[11px] font-bold uppercase tracking-wider text-slate-300">
+              Active Sleep Study Rates:
+            </span>
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="bg-emerald-500/20 text-emerald-300 px-2.5 py-1 rounded-lg border border-emerald-500/30 font-mono text-[11px]">
+                Level 3: ₹{(formData.sleepStudyLevel3Price ?? 5500).toLocaleString("en-IN")}
+              </span>
+              <span className="bg-blue-500/20 text-blue-300 px-2.5 py-1 rounded-lg border border-blue-500/30 font-mono text-[11px]">
+                Level 2: ₹{(formData.sleepStudyLevel2Price ?? 9000).toLocaleString("en-IN")}
+              </span>
+              <span className="bg-purple-500/20 text-purple-300 px-2.5 py-1 rounded-lg border border-purple-500/30 font-mono text-[11px]">
+                Level 1: ₹{(formData.sleepStudyLevel1Price ?? 14000).toLocaleString("en-IN")}* (Hospital Dependent)
               </span>
             </div>
           </div>

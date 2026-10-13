@@ -209,6 +209,9 @@ export interface SitePricingSettings {
   humidifierBundlePrice: number;
   humidifierStandalonePrice: number;
   sleepStudyCharge: number;
+  sleepStudyLevel1Price: number;
+  sleepStudyLevel2Price: number;
+  sleepStudyLevel3Price: number;
 }
 
 export const DEFAULT_PRICING_SETTINGS: SitePricingSettings = {
@@ -216,7 +219,10 @@ export const DEFAULT_PRICING_SETTINGS: SitePricingSettings = {
   fullFaceMaskAddonPrice: 4500,
   humidifierBundlePrice: 10000,
   humidifierStandalonePrice: 12600,
-  sleepStudyCharge: 5000,
+  sleepStudyCharge: 5500,
+  sleepStudyLevel1Price: 14000,
+  sleepStudyLevel2Price: 9000,
+  sleepStudyLevel3Price: 5500,
 };
 
 const AdminContext = createContext<AdminContextType | undefined>(undefined);

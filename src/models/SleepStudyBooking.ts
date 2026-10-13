@@ -13,7 +13,7 @@ export interface ISleepStudyBooking extends Document {
   studyDate: string;
   address: string;
   city: string;
-  charges: number; // 5000 INR
+  charges: number; // Tiered: Lvl 3 (5500), Lvl 2 (9000), Lvl 1 (14000)
   notes?: string;
   status: string; // Pending, Confirmed, Completed, Cancelled
   createdAt: Date;
@@ -34,7 +34,7 @@ const SleepStudyBookingSchema: Schema = new Schema(
     studyDate: { type: String, required: true },
     address: { type: String, required: true },
     city: { type: String, default: "Bangalore" },
-    charges: { type: Number, default: 5000 },
+    charges: { type: Number, default: 5500 },
     notes: { type: String, default: "" },
     status: { type: String, default: "Pending" },
   },

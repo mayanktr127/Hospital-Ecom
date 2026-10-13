@@ -45,12 +45,15 @@ export async function GET() {
       SiteSettings.findOne({ key: "pricing_settings" }).lean(),
     ]);
 
-    const settings = settingsDoc || {
-      nasalMaskAddonPrice: 3000,
-      fullFaceMaskAddonPrice: 4500,
-      humidifierBundlePrice: 10000,
-      humidifierStandalonePrice: 12600,
-      sleepStudyCharge: 5000,
+    const settings = {
+      nasalMaskAddonPrice: (settingsDoc as any)?.nasalMaskAddonPrice ?? 3000,
+      fullFaceMaskAddonPrice: (settingsDoc as any)?.fullFaceMaskAddonPrice ?? 4500,
+      humidifierBundlePrice: (settingsDoc as any)?.humidifierBundlePrice ?? 10000,
+      humidifierStandalonePrice: (settingsDoc as any)?.humidifierStandalonePrice ?? 12600,
+      sleepStudyCharge: (settingsDoc as any)?.sleepStudyCharge ?? 5500,
+      sleepStudyLevel1Price: (settingsDoc as any)?.sleepStudyLevel1Price ?? 14000,
+      sleepStudyLevel2Price: (settingsDoc as any)?.sleepStudyLevel2Price ?? 9000,
+      sleepStudyLevel3Price: (settingsDoc as any)?.sleepStudyLevel3Price ?? 5500,
     };
 
     const payload = { products, categories, blogs, reviews, settings };

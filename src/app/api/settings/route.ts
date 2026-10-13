@@ -15,7 +15,10 @@ const DEFAULT_SETTINGS = {
   fullFaceMaskAddonPrice: 4500,
   humidifierBundlePrice: 10000,
   humidifierStandalonePrice: 12600,
-  sleepStudyCharge: 5000,
+  sleepStudyCharge: 5500,
+  sleepStudyLevel1Price: 14000,
+  sleepStudyLevel2Price: 9000,
+  sleepStudyLevel3Price: 5500,
 };
 
 export async function GET() {
@@ -34,9 +37,18 @@ export async function GET() {
       });
     }
 
-    serverCache.set("site_pricing_settings", doc, 180);
+    // Ensure backwards compatibility if legacy doc exists in DB without new level prices
+    const mergedSettings = {
+      ...DEFAULT_SETTINGS,
+      ...doc,
+      sleepStudyLevel1Price: doc?.sleepStudyLevel1Price ?? DEFAULT_SETTINGS.sleepStudyLevel1Price,
+      sleepStudyLevel2Price: doc?.sleepStudyLevel2Price ?? DEFAULT_SETTINGS.sleepStudyLevel2Price,
+      sleepStudyLevel3Price: doc?.sleepStudyLevel3Price ?? DEFAULT_SETTINGS.sleepStudyLevel3Price,
+    };
 
-    return NextResponse.json({ success: true, settings: doc, fromCache: false });
+    serverCache.set("site_pricing_settings", mergedSettings, 180);
+
+    return NextResponse.json({ success: true, settings: mergedSettings, fromCache: false });
   } catch (error: any) {
     return NextResponse.json({
       success: true,
@@ -52,6 +64,10 @@ export async function POST(req: Request) {
     await dbConnect();
     const body = await req.json();
 
+    const lvl3 = Number(body.sleepStudyLevel3Price) || 5500;
+    const lvl2 = Number(body.sleepStudyLevel2Price) || 9000;
+    const lvl1 = Number(body.sleepStudyLevel1Price) || 14000;
+
     const updated = await SiteSettings.findOneAndUpdate(
       { key: "pricing_settings" },
       {
@@ -60,7 +76,10 @@ export async function POST(req: Request) {
           fullFaceMaskAddonPrice: Number(body.fullFaceMaskAddonPrice) || 4500,
           humidifierBundlePrice: Number(body.humidifierBundlePrice) || 10000,
           humidifierStandalonePrice: Number(body.humidifierStandalonePrice) || 12600,
-          sleepStudyCharge: Number(body.sleepStudyCharge) || 5000,
+          sleepStudyCharge: Number(body.sleepStudyCharge) || lvl3,
+          sleepStudyLevel1Price: lvl1,
+          sleepStudyLevel2Price: lvl2,
+          sleepStudyLevel3Price: lvl3,
         },
       },
       { upsert: true, new: true, setDefaultsOnInsert: true }

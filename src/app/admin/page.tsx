@@ -88,6 +88,7 @@ export default function AdminDashboardPage() {
     deleteSleepStudyBooking,
     updateSleepStudyBookingStatus,
     bundles,
+    pricingSettings,
   } = useAdmin();
   const { addToast } = useToast();
 
@@ -3073,7 +3074,7 @@ export default function AdminDashboardPage() {
                     Sleep Study Bookings &amp; Patient Registrations
                   </h2>
                   <p className="text-xs text-[#64748B]">
-                    Manage patient registrations for home/hospital overnight diagnostic sleep studies (Daily rate: ₹5,000 / Study).
+                    Manage patient registrations for home/hospital overnight diagnostic sleep studies (Level 3: ₹{(pricingSettings?.sleepStudyLevel3Price ?? 5500).toLocaleString("en-IN")} | Level 2: ₹{(pricingSettings?.sleepStudyLevel2Price ?? 9000).toLocaleString("en-IN")} | Level 1: ₹{(pricingSettings?.sleepStudyLevel1Price ?? 14000).toLocaleString("en-IN")}* Hospital Dependent).
                   </p>
                 </div>
                 <div className="relative w-full sm:w-64">
@@ -3184,6 +3185,9 @@ export default function AdminDashboardPage() {
                                   }`}
                                 >
                                   {b.level}
+                                </span>
+                                <span className="block font-mono text-[10px] text-[#0A192F] font-bold mt-1">
+                                  ₹{(b.charges || 5500).toLocaleString("en-IN")}{b.level.includes("1") ? "*" : ""}
                                 </span>
                               </td>
                               <td className="py-3.5 px-4 max-w-xs">

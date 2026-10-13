@@ -26,10 +26,11 @@ export async function POST(req: Request) {
 
     const bookingId = body.bookingId || `PSB-${Math.floor(1000 + Math.random() * 9000)}`;
 
+    const defaultCharge = body.level?.includes("1") ? 14000 : body.level?.includes("2") ? 9000 : 5500;
     const newBooking = await SleepStudyBooking.create({
       ...body,
       bookingId,
-      charges: body.charges || 5000,
+      charges: body.charges || defaultCharge,
       status: body.status || "Pending",
     });
 

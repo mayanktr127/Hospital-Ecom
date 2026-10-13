@@ -155,15 +155,26 @@ export const CategoryOverviewComponent: React.FC<CategoryOverviewComponentProps>
         studyDate: formData.studyDate,
         address: formData.address,
         city: formData.city,
-        charges: pricingSettings?.sleepStudyCharge || 5000,
+        charges:
+          formData.level.includes("1")
+            ? pricingSettings?.sleepStudyLevel1Price || 14000
+            : formData.level.includes("2")
+            ? pricingSettings?.sleepStudyLevel2Price || 9000
+            : pricingSettings?.sleepStudyLevel3Price || 5500,
         notes: formData.notes,
         status: "Pending",
       });
 
-      const chargeAmt = (pricingSettings?.sleepStudyCharge || 5000).toLocaleString("en-IN");
+      const chargeAmt = (
+        formData.level.includes("1")
+          ? pricingSettings?.sleepStudyLevel1Price || 14000
+          : formData.level.includes("2")
+          ? pricingSettings?.sleepStudyLevel2Price || 9000
+          : pricingSettings?.sleepStudyLevel3Price || 5500
+      ).toLocaleString("en-IN");
       addToast(
         "Sleep Study Booked!",
-        `Booking Ref #${bookingId} confirmed at ₹${chargeAmt}/day. Our clinical coordinator will call you shortly.`
+        `Booking Ref #${bookingId} (${formData.level}) confirmed at ₹${chargeAmt}. Our clinical coordinator will call you shortly.`
       );
       setBookingModalOpen(false);
       setFormData({
